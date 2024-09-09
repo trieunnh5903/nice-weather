@@ -1,31 +1,31 @@
-import { useState, useEffect } from "react";
 import { Pressable, StyleSheet } from "react-native";
-import * as Location from "expo-location";
-import axios from "axios";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import {
-  Ionicons,
-  MaterialCommunityIcons,
-  MaterialIcons,
-} from "@expo/vector-icons";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { Link } from "expo-router";
 import { observer } from "mobx-react-lite";
 import weatherStore from "@/stores/weatherStore";
 import { autorun } from "mobx";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { useEffect } from "react"; 
 
 const HomeScreen: React.FC = observer(() => {
+  const iconColor = useThemeColor({}, "icon");
   return (
-    <ThemedView enableInsets>
+    <ThemedView enableInsets style={styles.container}>
       {/* header */}
       <ThemedView style={styles.header}>
         <Link href={"/search"} asChild>
           <Pressable>
-            <MaterialIcons name="add" size={24} color="black" />
+            <MaterialIcons name="add" size={24} color={iconColor} />
           </Pressable>
         </Link>
-        <MaterialIcons name="delete-outline" size={24} color="black" />
-        <MaterialCommunityIcons name="dots-vertical" size={24} color="black" />
+        <MaterialIcons name="delete-outline" size={24} color={iconColor} />
+        <MaterialCommunityIcons
+          name="dots-vertical"
+          size={24}
+          color={iconColor}
+        />
       </ThemedView>
       <CurrentWeather />
     </ThemedView>
@@ -33,22 +33,38 @@ const HomeScreen: React.FC = observer(() => {
 });
 
 const CurrentWeather: React.FC = observer(({}) => {
-  autorun(() => {
-    console.log("weather", weatherStore.locations);
-    console.log("err", weatherStore.state);
-  });
+  const iconColor = useThemeColor({}, "icon");
+  const { locations } = weatherStore;
+  const location = locations[0];
+  const locationName = location?.name || "Van Ly";
+  const mainWeather = location?.weather[0]?.main || "Mua nho";
+  const temperature = Math.round(location?.main.temp || 25);
+  const tempMax = Math.round(location?.main.temp_max || 32);
+  const tempMin = Math.round(location?.main.temp_min || 30);
+  const tempRealFeel = Math.round(location?.main.feels_like || 35);
+  const description =
+    location?.weather[0].description || "Dang co mua rao rai rac";
+  useEffect(() => {
+    const dispose = autorun(() => {
+      console.log("weather", weatherStore.locations);
+      console.log("err", weatherStore.state);
+    });
+    return () => dispose(); // Clean up autorun when component unmounts
+  }, []);
+
   return (
     <ThemedView style={styles.current}>
       <ThemedView style={styles.locationWrapper}>
-        <MaterialIcons name="location-on" size={24} color="black" />
-        <ThemedText>{weatherStore.locations[0]?.name || "Van Ly"}</ThemedText>
+        <MaterialIcons name="location-on" size={24} color={iconColor} />
+        <ThemedText>{locationName}</ThemedText>
       </ThemedView>
-      <ThemedText style={styles.celcius}>26&#x2103;</ThemedText>
-      <ThemedText type="defaultSemiBold">Mua nho</ThemedText>
+      <ThemedText style={styles.celcius}>{temperature}&#x2103;</ThemedText>
+      <ThemedText type="defaultSemiBold">{mainWeather}</ThemedText>
       <ThemedText type="label">
-        34&#8451;/27&#8451; RealFeel 29&#8451;
+        {tempMax}&#8451;
+        {tempMin}&#8451; RealFeel {tempRealFeel}&#8451;
       </ThemedText>
-      <ThemedText type="label">Dang co mua rao rai rac</ThemedText>
+      <ThemedText type="label">{description}</ThemedText>
     </ThemedView>
   );
 });
@@ -58,9 +74,12 @@ const styles = StyleSheet.create({
   locationWrapper: { flexDirection: "row", gap: 6, marginBottom: 10 },
   container: {
     flex: 1,
-    padding: 16,
   },
-  celcius: { fontSize: 64, lineHeight: 64, fontWeight: "300" },
+  celcius: {
+    fontSize: 64,
+    fontWeight: "300",
+    fontFamily: "SpaceMono-Regular",
+  },
   header: {
     flexDirection: "row",
     justifyContent: "flex-end",

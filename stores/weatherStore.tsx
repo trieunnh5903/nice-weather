@@ -1,18 +1,18 @@
 import { LocationWeather } from "@/type";
 import axios from "axios";
-import { action, makeAutoObservable } from "mobx";
+import { makeAutoObservable } from "mobx";
 
 class WeatherStore {
   locations: LocationWeather[] = [];
   errorMsg: string | null = null;
-  state = "pending";
+  state: "idle" | "error" | "pending" = "idle";
   constructor() {
     makeAutoObservable(this);
   }
 
   weatherFetchSuccess = (weatherData: LocationWeather) => {
     this.locations.push(weatherData);
-    this.state = "done";
+    this.state = "idle";
     this.errorMsg = null;
   };
 
@@ -22,13 +22,10 @@ class WeatherStore {
   };
   async addLocation(latitude: number, longitude: number) {
     try {
-      // console.log("latitude", latitude);
-      // console.log("longitude", longitude);
       this.state = "pending";
       const response = await axios.get<LocationWeather>(
-        `${process.env.EXPO_PUBLIC_OPEN_WEATHER_URL_KEY}/weather?lat=${latitude}&lon=${longitude}&appid=${process.env.EXPO_PUBLIC_OPEN_WEATHER_API_KEY}`
+        `${process.env.EXPO_PUBLIC_OPEN_WEATHER_URL_KEY}/weather?lat=${latitude}&lon=${longitude}&appid=${process.env.EXPO_PUBLIC_OPEN_WEATHER_API_KEY}&units=metric`
       );
-      // console.log("response", response.data);
       const weatherData = response.data;
       this.weatherFetchSuccess(weatherData);
     } catch (error) {

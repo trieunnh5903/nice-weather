@@ -8,6 +8,7 @@ import { Button, Divider } from "react-native-paper";
 import * as Location from "expo-location";
 import weatherStore from "@/stores/weatherStore";
 import { Observer } from "mobx-react-lite";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 const SearchScreen = () => {
   const getCurrentPosition = async () => {
@@ -18,17 +19,18 @@ const SearchScreen = () => {
         return;
       }
       let location = await Location.getCurrentPositionAsync({});
-      weatherStore.addLocation(
+      await weatherStore.addLocation(
         location.coords.latitude,
         location.coords.longitude
       );
+
+      router.back();
     } catch (error) {
       console.log(error);
-
       ToastAndroid.show("Error", 1000);
     }
   };
-
+  const color = useThemeColor({}, "text");
   return (
     <ThemedView enableInsetsTop style={{ flex: 1 }}>
       <ThemedView
@@ -44,15 +46,13 @@ const SearchScreen = () => {
       <Observer>
         {() => (
           <Button
+            loading={weatherStore.state === "pending" ? true : false}
             mode="outlined"
             style={{
               marginTop: 12,
-              borderColor: "#e0e0e0",
               marginHorizontal: 16,
             }}
             onPress={getCurrentPosition}
-            textColor="#000"
-            rippleColor={"#e0e0e0"}
           >
             Use current location
           </Button>
@@ -67,13 +67,15 @@ export default SearchScreen;
 // Custom Search Bar Component
 const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState("");
-
+  const color = useThemeColor({}, "text");
+  const placeholderColor = useThemeColor({}, "placeholder");
   return (
     <TextInput
-      style={styles.searchInput}
+      style={[styles.searchInput, { color }]}
       placeholder="Find location"
-      cursorColor={"#000"}
+      cursorColor={color}
       value={searchQuery}
+      placeholderTextColor={placeholderColor}
       onChangeText={setSearchQuery}
     />
   );
