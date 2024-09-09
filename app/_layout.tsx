@@ -1,37 +1,40 @@
+import { PaperTheme } from "@/constants/Colors";
+import weatherStore from "@/stores/weatherStore";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import {
-  DefaultTheme,
-  MD3DarkTheme,
-  MD3LightTheme,
-  PaperProvider,
-} from "react-native-paper";
+import { PaperProvider } from "react-native-paper";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function Layout() {
+  const [appIsReady, setAppIsReady] = useState(false);
   const colorScheme = useColorScheme();
   const paperTheme =
-    colorScheme === "dark"
-      ? {
-          ...MD3DarkTheme,
-          colors: { ...MD3DarkTheme.colors, primary: "#ECEDEE" },
-        }
-      : { ...MD3LightTheme, colors: { ...MD3LightTheme.colors, primary: "#11181C"  } };
+    colorScheme === "dark" ? PaperTheme.dark : PaperTheme.light;
   const [loaded, error] = useFonts({
     "SpaceMono-Regular": require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
   useEffect(() => {
-    if (loaded || error) {
-      SplashScreen.hideAsync();
+    async function prepare() {
+      try {
+        await weatherStore.loadLocations();
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        if (loaded || error) {
+          setAppIsReady(true);
+          await SplashScreen.hideAsync();
+        }
+      }
     }
+    prepare();
   }, [error, loaded]);
 
-  if (!loaded && !error) {
+  if (!appIsReady) {
     return null;
   }
   return (

@@ -7,7 +7,7 @@ import { observer } from "mobx-react-lite";
 import weatherStore from "@/stores/weatherStore";
 import { autorun } from "mobx";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { useEffect } from "react"; 
+import { useEffect } from "react";
 
 const HomeScreen: React.FC = observer(() => {
   const iconColor = useThemeColor({}, "icon");
@@ -32,7 +32,7 @@ const HomeScreen: React.FC = observer(() => {
   );
 });
 
-const CurrentWeather: React.FC = observer(({}) => {
+const CurrentWeather: React.FC = observer(() => {
   const iconColor = useThemeColor({}, "icon");
   const { locations } = weatherStore;
   const location = locations[0];
@@ -61,7 +61,7 @@ const CurrentWeather: React.FC = observer(({}) => {
       <ThemedText style={styles.celcius}>{temperature}&#x2103;</ThemedText>
       <ThemedText type="defaultSemiBold">{mainWeather}</ThemedText>
       <ThemedText type="label">
-        {tempMax}&#8451;
+        {tempMax}&#8451;/
         {tempMin}&#8451; RealFeel {tempRealFeel}&#8451;
       </ThemedText>
       <ThemedText type="label">{description}</ThemedText>
@@ -71,7 +71,7 @@ const CurrentWeather: React.FC = observer(({}) => {
 
 const styles = StyleSheet.create({
   current: { alignItems: "center", marginTop: 20 },
-  locationWrapper: { flexDirection: "row", gap: 6, marginBottom: 10 },
+  locationWrapper: { flexDirection: "row", gap: 6 },
   container: {
     flex: 1,
   },

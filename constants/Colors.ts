@@ -3,6 +3,8 @@
  * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
  */
 
+import { MD3DarkTheme, MD3LightTheme } from "react-native-paper";
+
 const tintColorLight = "#0a7ea4";
 const tintColorDark = "#fff";
 
@@ -24,5 +26,17 @@ export const Colors = {
     tabIconDefault: "#9BA1A6",
     tabIconSelected: tintColorDark,
     placeholder: "#AAAAAA",
+  },
+};
+
+export const PaperTheme = {
+  light: {
+    ...MD3LightTheme,
+    colors: { ...MD3LightTheme.colors, primary: Colors.light.text },
+  },
+
+  dark: {
+    ...MD3DarkTheme,
+    colors: { ...MD3DarkTheme.colors, primary: Colors.dark.text },
   },
 };
