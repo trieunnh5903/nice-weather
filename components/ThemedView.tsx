@@ -9,6 +9,7 @@ export type ThemedViewProps = ViewProps & {
   enableInsets?: boolean;
   enableInsetsTop?: boolean;
   enableInsetsHorizontal?: boolean;
+  flex?: boolean;
 };
 
 export function ThemedView({
@@ -18,6 +19,7 @@ export function ThemedView({
   enableInsets,
   enableInsetsHorizontal,
   enableInsetsTop,
+  flex,
   ...otherProps
 }: ThemedViewProps) {
   const insets = useSafeAreaInsets();
@@ -30,6 +32,7 @@ export function ThemedView({
     <View
       style={[
         { backgroundColor },
+        flex && { flex: 1 },
         enableInsets && {
           paddingTop: insets.top * 1.5,
           paddingHorizontal: 16,

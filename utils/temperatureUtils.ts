@@ -1,3 +1,7 @@
-export const kelvinToCelsius = (kelvin: number) => {
-  return (kelvin - 273.15).toFixed(0);
+import Units from "@/constants/Units";
+
+const formatCelcius = (temp: number) => {
+  return Math.floor(temp) + Units.Celsius;
 };
+
+export default { formatCelcius };

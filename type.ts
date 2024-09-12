@@ -1,4 +1,10 @@
-export interface LocationWeather {
+import { MaterialIcons } from "@expo/vector-icons";
+
+export interface CurrentWeather extends Weather {
+  location: Location;
+}
+
+export interface Weather {
   coord: {
     lon: number;
     lat: number;
@@ -46,3 +52,18 @@ export interface LocationWeather {
   name: string;
   cod: number;
 }
+
+export interface Location {
+  name: string;
+  local_names: {
+    [languageCode: string]: string;
+  };
+  lat: number;
+  lon: number;
+  country: string;
+  state?: string;
+}
+
+export type MaterialIconName = React.ComponentProps<
+  typeof MaterialIcons
+>["name"];
