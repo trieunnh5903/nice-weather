@@ -32,15 +32,15 @@ const reverseGeocoding = async (lat: number, long: number) => {
   }
 };
 
-// function* fetchCurrentWeather(lat: number, lon: number) {
-//   try {
-//     const response = yield axios.get<Weather>(
-//       `/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${process.env.EXPO_PUBLIC_OPEN_WEATHER_API_KEY}&units=metric`
-//     );
-//     return response.data;
-//   } catch (error) {
-//     console.log("fetchCurrentWeather", error);
-//   }
-// }
+async function fetchCurrentWeather(lat: number, lon: number) {
+  try {
+    const response: AxiosResponse<Weather> = await axios.get(
+      `/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${process.env.EXPO_PUBLIC_OPEN_WEATHER_API_KEY}&units=metric`
+    );
+    return response.data;
+  } catch (error) {
+    console.log("fetchCurrentWeather", error);
+  }
+}
 
-export const weatherApi = { reverseGeocoding };
+export const weatherApi = { reverseGeocoding, fetchCurrentWeather };

@@ -1,4 +1,6 @@
 import {
+  ActivityIndicator,
+  Alert,
   BackHandler,
   Platform,
   Pressable,
@@ -27,7 +29,7 @@ import { weatherApi } from "@/api/weatherApi";
 
 const SearchScreen = () => {
   const [query, setQuery] = useState("");
-  const { results } = useSearchLocation(query);
+  const { results, error, isLoading } = useSearchLocation(query);
 
   const handleSearchChange = (e: string) => {
     setQuery(e);
@@ -44,17 +46,23 @@ const SearchScreen = () => {
   const iconColor = useThemeColor({}, "tint");
   return (
     <ThemedView enableInsetsTop style={styles.container}>
-      <ThemedView
-        enableInsetsHorizontal
-        style={{ flexDirection: "row", alignItems: "center", gap: 6 }}
-      >
+      <ThemedView enableInsetsHorizontal style={styles.header}>
         <Pressable onPress={onBackPress}>
           <MaterialIcons name="arrow-back" size={24} color={iconColor} />
         </Pressable>
         <SearchBar query={query} onChange={handleSearchChange} />
       </ThemedView>
       <Divider style={{ marginTop: 12 }} />
-      {!query ? <CurrentLocationButton /> : <SearchResults results={results} />}
+      {/* {!query ? <CurrentLocationButton /> : <SearchResults results={results} />} */}
+      {isLoading ? (
+        <ActivityIndicator style={styles.loading} />
+      ) : !query ? (
+        <CurrentLocationButton />
+      ) : error ? (
+        <ThemedText style={styles.error}>{error}</ThemedText>
+      ) : (
+        <SearchResults results={results} />
+      )}
     </ThemedView>
   );
 };
@@ -66,10 +74,19 @@ const CurrentLocationButton = observer(() => {
       let { status } = await ExpoLocation.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         if (Platform.OS === "android") {
-          ToastAndroid.show("Permission to access location was denied", 1000);
+          ToastAndroid.show(
+            "Permission to access location was denied. Please enable it.",
+            3000
+          );
+        } else {
+          Alert.alert(
+            "Permission Denied",
+            "Permission to access location was denied. Please enable it in the settings."
+          );
         }
         return;
       }
+
       let {
         coords: { latitude, longitude },
       } = await ExpoLocation.getCurrentPositionAsync({});
@@ -86,6 +103,10 @@ const CurrentLocationButton = observer(() => {
         router.replace("/");
       }
     } catch (error) {
+      Alert.alert(
+        "Error",
+        "Failed to retrieve your location. Please try again."
+      );
       console.log(error);
     }
   };
@@ -143,7 +164,7 @@ const SearchResults = ({ results }: { results: Location[] | undefined }) => {
         return (
           <TouchableOpacity
             onPress={() => onLocationPress(location)}
-            key={location.lat + location.lon + location.country + location.name}
+            key={`${location.lat}-${location.lon}-${location.country}-${location.name}`}
           >
             <ThemedView style={{ padding: 12 }}>
               <ThemedText>{location.name}</ThemedText>
@@ -166,6 +187,7 @@ interface SearchBarProps {
   query: string;
   onChange: (text: string) => void;
 }
+
 const SearchBar = ({ query, onChange }: SearchBarProps) => {
   const color = useThemeColor({}, "text");
   const placeholderColor = useThemeColor({}, "placeholder");
@@ -183,6 +205,9 @@ const SearchBar = ({ query, onChange }: SearchBarProps) => {
 };
 
 const styles = StyleSheet.create({
+  error: { textAlign: "center", marginTop: 20 },
+  loading: { marginTop: 20 },
+  header: { flexDirection: "row", alignItems: "center", gap: 6 },
   container: { flex: 1 },
   searchInput: {
     paddingHorizontal: 10,

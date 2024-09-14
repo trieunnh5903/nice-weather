@@ -1,4 +1,5 @@
 import { PaperTheme } from "@/constants/Colors";
+import { MobxStoreProvider } from "@/hooks/useStore";
 import weatherStore from "@/stores/weatherStore";
 import {
   DarkTheme,
@@ -29,24 +30,25 @@ export default function Layout() {
     async function prepare() {
       try {
         await weatherStore.loadCurrentWeather();
+        if (loaded) {
+          await SplashScreen.hideAsync();
+          setAppIsReady(true);
+        }
       } catch (e) {
         console.warn(e);
-      } finally {
-        if (loaded || error) {
-          setAppIsReady(true);
-          await SplashScreen.hideAsync();
-        }
       }
     }
     prepare();
   }, [error, loaded]);
 
   useEffect(() => {
-    if (appIsReady) {
-      if (weatherStore.currentWeather.length === 0) {
-        router.replace("/search"); // Điều hướng đến search nếu condition là false
+    (async function () {
+      if (appIsReady) {
+        if (weatherStore.currentWeather.length === 0) {
+          router.replace("/search");
+        }
       }
-    }
+    })();
   }, [appIsReady]);
 
   if (!appIsReady) {
@@ -54,21 +56,23 @@ export default function Layout() {
   }
   return (
     <GestureHandlerRootView>
-      <PaperProvider theme={paperTheme}>
-        <ThemeProvider
-          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-        >
-          <Stack
-            initialRouteName={
-              weatherStore.currentWeather.length > 0 ? "index" : "search"
-            }
-            screenOptions={{ headerShown: false }}
+      <MobxStoreProvider>
+        <PaperProvider theme={paperTheme}>
+          <ThemeProvider
+            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
           >
-            {/* <Stack.Screen name="index" />
+            <Stack
+              initialRouteName={
+                weatherStore.currentWeather.length > 0 ? "index" : "search"
+              }
+              screenOptions={{ headerShown: false }}
+            >
+              {/* <Stack.Screen name="index" />
             <Stack.Screen name="search" /> */}
-          </Stack>
-        </ThemeProvider>
-      </PaperProvider>
+            </Stack>
+          </ThemeProvider>
+        </PaperProvider>
+      </MobxStoreProvider>
     </GestureHandlerRootView>
   );
 }

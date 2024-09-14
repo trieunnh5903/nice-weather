@@ -1,24 +1,16 @@
-import {
-  Alert,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, Pressable, StyleSheet } from "react-native";
 import React from "react";
 import { ThemedView } from "@/components/ThemedView";
 import { Stack } from "expo-router";
 import { ThemedText } from "@/components/ThemedText";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { MaterialIconName } from "@/type";
+import { CurrentWeather, Location, MaterialIconName } from "@/type";
 import { observer, Observer } from "mobx-react-lite";
 import weatherStore from "@/stores/weatherStore";
 import locationUtils from "@/utils/locationUtils";
 import temperatureUtils from "@/utils/temperatureUtils";
-import { Menu } from "react-native-paper";
-import { FlatList } from "react-native-gesture-handler";
+import { TouchableRipple } from "react-native-paper";
 
 const AllLocation = () => {
   const iconColor = useThemeColor({}, "tint");
@@ -66,22 +58,41 @@ const AllLocation = () => {
 };
 
 const LocationList = observer(() => {
+  const rippleColor = useThemeColor({}, "tint");
+  const onLocationPress = (weather: CurrentWeather) => {
+    Alert.alert("", "Delete this location?", [
+      {
+        text: "Delete",
+        onPress(value) {
+          weatherStore.deleteCurrentWeather(weather.location);
+        },
+      },
+      { text: "Cancel" },
+    ]);
+  };
   return weatherStore.currentWeather.map((weather) => {
     const { location } = weather;
+
     return (
-      <ThemedView key={weather.id} style={styles.weather}>
-        <ThemedView>
-          <ThemedText>{locationUtils.getName(location)}</ThemedText>
-          <ThemedText type="label">
-            {locationUtils.getAddress(location)}
-          </ThemedText>
+      <TouchableRipple
+        rippleColor={rippleColor}
+        onPress={() => onLocationPress(weather)}
+        key={weather.id}
+      >
+        <ThemedView style={styles.weather}>
+          <ThemedView>
+            <ThemedText>{locationUtils.getName(location)}</ThemedText>
+            <ThemedText type="label">
+              {locationUtils.getAddress(location)}
+            </ThemedText>
+          </ThemedView>
+          <ThemedView>
+            <ThemedText>
+              {temperatureUtils.formatCelcius(weather.main.temp)}
+            </ThemedText>
+          </ThemedView>
         </ThemedView>
-        <ThemedView>
-          <ThemedText>
-            {temperatureUtils.formatCelcius(weather.main.temp)}
-          </ThemedText>
-        </ThemedView>
-      </ThemedView>
+      </TouchableRipple>
     );
   });
 });
