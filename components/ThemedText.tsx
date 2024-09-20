@@ -6,10 +6,12 @@ export type ThemedTextProps = TextProps & {
   lineHeight?: number;
   lightColor?: string;
   darkColor?: string;
+  color?: string;
   type?:
     | "default"
     | "title"
     | "defaultSemiBold"
+    | "defaultBold"
     | "subtitle"
     | "link"
     | "label";
@@ -20,10 +22,14 @@ export function ThemedText({
   lightColor,
   darkColor,
   lineHeight,
+  color,
   type = "default",
   ...rest
 }: ThemedTextProps) {
-  const color = useThemeColor({ light: lightColor, dark: darkColor }, "text");
+  const themeColor = useThemeColor(
+    { light: lightColor, dark: darkColor },
+    "text"
+  );
 
   return (
     <Text
@@ -31,10 +37,11 @@ export function ThemedText({
         type === "default" ? styles.default : undefined,
         type === "title" ? styles.title : undefined,
         type === "defaultSemiBold" ? styles.defaultSemiBold : undefined,
+        type === "defaultBold" ? styles.defaultBold : undefined,
         type === "subtitle" ? styles.subtitle : undefined,
         type === "link" ? styles.link : undefined,
         type === "label" ? styles.label : undefined,
-        { color, lineHeight },
+        { color: color || themeColor, lineHeight },
         style,
       ]}
       {...rest}
@@ -50,6 +57,11 @@ const styles = StyleSheet.create({
   defaultSemiBold: {
     fontSize: 16,
     fontWeight: "600",
+    fontFamily: "SpaceMono-Regular",
+  },
+  defaultBold: {
+    fontSize: 16,
+    fontWeight: "bold",
     fontFamily: "SpaceMono-Regular",
   },
   label: {
@@ -71,6 +83,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#0a7ea4",
     fontFamily: "SpaceMono-Regular",
-
   },
 });

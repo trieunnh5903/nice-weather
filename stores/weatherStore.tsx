@@ -20,13 +20,20 @@ class WeatherStore {
     this.selectedWeather = index;
   }
 
-  updateSelectedWeather(direction: "increase" | "decrease") {
+  async updateSelectedWeather(direction: "increase" | "decrease") {
+    
     if (direction === "increase") {
       this.setSelectedWeather(
-        Math.min(this.selectedWeather + 1, this.currentWeather.length - 1)
+        this.selectedWeather === this.currentWeather.length - 1
+          ? 0
+          : this.selectedWeather + 1
       );
-    } else if (direction === "decrease") {
-      this.setSelectedWeather(Math.max(this.selectedWeather - 1, 0));
+    } else {
+      this.setSelectedWeather(
+        this.selectedWeather === 0
+          ? this.currentWeather.length - 1
+          : this.selectedWeather - 1
+      );
     }
   }
 

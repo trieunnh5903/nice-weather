@@ -17,6 +17,7 @@ export const Colors = {
     tabIconDefault: "#687076",
     tabIconSelected: tintColorLight,
     placeholder: "#CCCCCC",
+    ripple: "rgba(255,255,255,0.26)",
   },
   dark: {
     text: "#ECEDEE",
@@ -26,6 +27,7 @@ export const Colors = {
     tabIconDefault: "#9BA1A6",
     tabIconSelected: tintColorDark,
     placeholder: "#AAAAAA",
+    ripple: "rgba(255,255,255,0.1)",
   },
 };
 

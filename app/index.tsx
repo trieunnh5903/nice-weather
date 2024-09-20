@@ -1,92 +1,164 @@
-import {
-  Dimensions,
-  Pressable,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
+import { Alert, StyleSheet, View } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
-import { Link, router, useNavigation } from "expo-router";
+import { MaterialIcons } from "@expo/vector-icons";
+import { router, useFocusEffect } from "expo-router";
 import { observer } from "mobx-react-lite";
 import weatherStore from "@/stores/weatherStore";
-import { autorun } from "mobx";
-import { useThemeColor } from "@/hooks/useThemeColor";
-import { useEffect } from "react";
-import { FlatList } from "react-native-gesture-handler";
+import {
+  Gesture,
+  GestureDetector,
+  TouchableOpacity,
+} from "react-native-gesture-handler";
 import Units from "@/constants/Units";
 import { MaterialIconName } from "@/type";
-import { Image } from "expo-image";
+import { ImageBackground } from "expo-image";
 import weatherIconMapping from "@/config/weatherIconMapping";
 import { useStores } from "@/hooks/useStore";
+import { Device } from "@/constants/Device";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { lightTextColor, useWeatherTheme } from "@/hooks/useWeatherTheme";
+import { PropsWithChildren, useEffect, useRef, useState } from "react";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  interpolateColor,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from "react-native-reanimated";
+import { setStatusBarStyle } from "expo-status-bar";
+import RippleButtonIcon from "@/components/RippleButtonIcon";
 
 const HomeScreen: React.FC = observer(() => {
-  const iconColor = useThemeColor({}, "icon");
-  const icons: MaterialIconName[] = ["menu", "add", "delete-outline"];
+  const headerIcons: MaterialIconName[] = ["menu", "add", "delete-outline"];
+  const insets = useSafeAreaInsets();
+  const { currWeatherStore } = useStores();
+  const weather =
+    currWeatherStore.currentWeather[weatherStore.selectedWeather].weather[0];
+  const weatherTheme = useWeatherTheme({
+    iconCode: weather.icon,
+    weatherCode: weather.id,
+  });
+  const prevColor = useRef(weatherTheme?.backgroundColor);
+
+  useFocusEffect(() => {
+    setStatusBarStyle(
+      weatherTheme?.textColor === lightTextColor ? "light" : "dark"
+    );
+    return () => {
+      setStatusBarStyle("auto");
+    };
+  });
+
+  useEffect(() => {
+    prevColor.current = weatherTheme?.backgroundColor;
+  }, [weatherTheme?.backgroundColor]);
+
   const onHeaderPress = (icon: string) => {
     switch (icon) {
-      case icons[0]:
+      case headerIcons[0]:
         router.navigate("/all-locations");
         break;
-      case icons[1]:
+      case headerIcons[1]:
         router.navigate("/search");
+        break;
+      case headerIcons[2]:
+        Alert.alert("", "Delete this location?", [
+          { text: "No" },
+          {
+            text: "Yes",
+            onPress: () => {
+              weatherStore.deleteCurrentWeather(
+                currWeatherStore.currentWeather[weatherStore.selectedWeather]
+                  .location
+              );
+            },
+          },
+        ]);
+        break;
       default:
         break;
     }
   };
 
-  useEffect(() => {
-    const disposer = autorun(() => {
-      console.log(
-        "currentWeather",
-        JSON.stringify(weatherStore.currentWeather)
-      );
-    });
-    return disposer();
-  }, []);
+  // useEffect(() => {
+  //   const disposer = autorun(() => {
+  //     console.log(
+  //       "currentWeather",
+  //       JSON.stringify(weatherStore.currentWeather)
+  //     );
+  //   });
+  //   return disposer();
+  // }, []);
 
   return (
-    <ThemedView enableInsets style={styles.container}>
-      {/* header */}
-      <ThemedView style={styles.header}>
-        {icons.map((icon) => {
-          return (
-            <Pressable
-              hitSlop={10}
-              onPress={() => onHeaderPress(icon)}
-              key={"header" + icon}
-            >
-              <MaterialIcons name={icon} size={24} color={iconColor} />
-            </Pressable>
-          );
-        })}
-        <MaterialCommunityIcons
-          name="dots-vertical"
-          size={24}
-          color={iconColor}
-        />
-      </ThemedView>
-      <CurrentWeather />
+    <ThemedView
+      style={{ flex: 1, backgroundColor: weatherTheme?.backgroundColor }}
+    >
+      <ImageBackground
+        transition={1000}
+        contentPosition={"bottom"}
+        style={[{ paddingTop: insets.top }, styles.weatherBg]}
+        source={weatherTheme && weatherTheme.asset.localUri}
+      >
+        <View style={styles.header}>
+          {headerIcons.map((icon) => {
+            return (
+              <RippleButtonIcon
+                onPress={() => onHeaderPress(icon)}
+                key={"header" + icon}
+              >
+                <MaterialIcons
+                  name={icon}
+                  size={26}
+                  color={weatherTheme?.textColor}
+                />
+              </RippleButtonIcon>
+            );
+          })}
+          {/* <MaterialCommunityIcons
+            name="dots-vertical"
+            size={24}
+            color={weatherTheme?.textColor}
+          /> */}
+        </View>
+
+        <CurrentWeather />
+      </ImageBackground>
     </ThemedView>
   );
 });
 
 const CurrentWeather: React.FC = observer(() => {
-  const iconColor = useThemeColor({}, "icon");
   const { currWeatherStore } = useStores();
-
   const weather = currWeatherStore.currentWeather[weatherStore.selectedWeather];
-  // console.log("currentWeather", currentWeather.length);
-  // console.log("selectedWeather", weatherStore.selectedWeather);
-
   const locationName =
-    weather?.location.local_names.vi || weather?.location.name;
+    weather?.location.local_names?.vi ||
+    weather?.location.local_names?.en ||
+    weather?.location.name;
   const mainWeather = weather?.weather[0]?.main;
   const temperature = Math.round(weather?.main.temp);
   const tempRealFeel = Math.round(weather?.main.feels_like);
   const description = weather?.weather[0].description;
   const iconCode = weather.weather[0].icon as keyof typeof weatherIconMapping;
-  const icon = `https://cdn.weatherbit.io/static/img/icons/${weatherIconMapping[iconCode]}.png`;
+  const weatherTheme = useWeatherTheme({
+    iconCode: iconCode,
+    weatherCode: weather.id,
+  });
+  const iconColor = weatherTheme?.textColor;
+  const [controlVisible, setControlVisible] = useState(true);
+  useEffect(() => {
+    if (controlVisible) {
+      const timeout = setTimeout(() => {
+        setControlVisible(false);
+      }, 4000);
+      return () => clearTimeout(timeout);
+    }
+  }, [controlVisible]);
+
   const onLeftPress = () => {
     currWeatherStore.updateSelectedWeather("decrease");
   };
@@ -94,52 +166,129 @@ const CurrentWeather: React.FC = observer(() => {
   const onRightPress = () => {
     currWeatherStore.updateSelectedWeather("increase");
   };
-  return (
-    <ThemedView style={styles.current}>
-      <ThemedView style={styles.locationWrapper}>
-        <ThemedView style={styles.navigationWrapper}>
-          <TouchableOpacity onPress={onLeftPress}>
-            <MaterialIcons name="chevron-left" size={32} color={iconColor} />
-          </TouchableOpacity>
-          <ThemedView style={styles.loationName}>
-            <MaterialIcons name="location-on" size={24} color={iconColor} />
-            <ThemedText>{locationName}</ThemedText>
-          </ThemedView>
-          <TouchableOpacity onPress={onRightPress}>
-            <MaterialIcons name="chevron-right" size={32} color={iconColor} />
-          </TouchableOpacity>
-        </ThemedView>
-        <ThemedText>{`${weatherStore.selectedWeather + 1}/${
-          currWeatherStore.currentWeather.length
-        }`}</ThemedText>
-      </ThemedView>
+  const pan = Gesture.Pan()
+    .onTouchesDown((e) => {
+      if (!controlVisible) {
+        setControlVisible(true);
+      }
+    })
+    .onEnd((e) => {
+      if (e.translationX < -50) {
+        onRightPress();
+      } else if (e.translationX > 50) {
+        onLeftPress();
+      }
+    })
+    .runOnJS(true);
 
-      <ThemedView style={styles.weatherDes}>
-        <ThemedView style={styles.imageWrapper}>
-          <Image
-            style={styles.image}
-            source={icon}
-            transition={1000}
-            contentFit="contain"
-          />
-        </ThemedView>
-        <ThemedView>
-          <ThemedText type="defaultSemiBold">{mainWeather}</ThemedText>
-          <ThemedText type="label">{description}</ThemedText>
-        </ThemedView>
-      </ThemedView>
-      <ThemedText style={styles.celcius}>
-        {temperature + Units.Celsius}
-      </ThemedText>
-      <ThemedText type="label">
-        Feels like {tempRealFeel + Units.Celsius}
-      </ThemedText>
-    </ThemedView>
+  return (
+    <GestureDetector gesture={pan}>
+      <View style={styles.current}>
+        <View style={styles.locationWrapper}>
+          {/* button group */}
+          <View style={styles.navigationWrapper}>
+            {controlVisible && (
+              <Animated.View entering={FadeIn} exiting={FadeOut}>
+                <RippleButtonIcon onPress={onLeftPress}>
+                  <MaterialIcons
+                    name="chevron-left"
+                    size={32}
+                    color={iconColor}
+                  />
+                </RippleButtonIcon>
+              </Animated.View>
+            )}
+
+            <View style={{ alignItems: "center" }}>
+              <View style={styles.loationName}>
+                <MaterialIcons name="location-on" size={24} color={iconColor} />
+                <ThemedText color={iconColor}>{locationName}</ThemedText>
+              </View>
+              <ThemedText color={iconColor}>{`${
+                weatherStore.selectedWeather + 1
+              }/${currWeatherStore.currentWeather.length}`}</ThemedText>
+            </View>
+            {controlVisible && (
+              <Animated.View entering={FadeIn} exiting={FadeOut}>
+                <RippleButtonIcon onPress={onRightPress}>
+                  <MaterialIcons
+                    name="chevron-right"
+                    size={32}
+                    color={iconColor}
+                  />
+                </RippleButtonIcon>
+              </Animated.View>
+            )}
+          </View>
+        </View>
+        <ThemedText style={styles.celcius} color={iconColor}>
+          {temperature + Units.Celsius}
+        </ThemedText>
+        <ThemedText color={iconColor} type="defaultBold">
+          {mainWeather}
+        </ThemedText>
+        <ThemedText color={iconColor} type="label">
+          Feels like {tempRealFeel + Units.Celsius}
+        </ThemedText>
+        <ThemedText color={iconColor} type="label">
+          {description}
+        </ThemedText>
+      </View>
+    </GestureDetector>
   );
 });
 
+interface AnimatedBackgroundProps extends PropsWithChildren {
+  backgroundColor?: string;
+  preColor?: string;
+}
+const AnimatedBackground = ({
+  backgroundColor,
+  preColor,
+  children,
+}: AnimatedBackgroundProps) => {
+  const sharedBackgroundColor = useSharedValue(0);
+
+  console.log("preColor", preColor);
+  console.log("backgroundColor", backgroundColor);
+  useEffect(() => {
+    console.log("useEffect");
+    sharedBackgroundColor.value = 0;
+    console.log("sharedBackgroundColor", sharedBackgroundColor.value);
+    if (preColor && backgroundColor && preColor !== backgroundColor) {
+      sharedBackgroundColor.value = withTiming(1, { duration: 5000 });
+    }
+  }, [backgroundColor, preColor, sharedBackgroundColor]);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    const interpolatedColor =
+      backgroundColor &&
+      preColor &&
+      interpolateColor(
+        sharedBackgroundColor.value,
+        [0, 1],
+        [backgroundColor, preColor]
+      );
+    return {
+      backgroundColor: interpolatedColor,
+    };
+  });
+
+  return (
+    <Animated.View style={[{ flex: 1 }, animatedStyle]}>
+      {children}
+    </Animated.View>
+  );
+};
+
 const styles = StyleSheet.create({
-  locationWrapper: { marginBottom: 24, alignItems: "center" },
+  weatherBg: {
+    paddingBottom: 18,
+  },
+  locationWrapper: {
+    marginBottom: 12,
+    alignItems: "center",
+  },
   weatherDes: {
     width: "100%",
     alignItems: "center",
@@ -157,13 +306,13 @@ const styles = StyleSheet.create({
   navigationWrapper: {
     flexDirection: "row",
     width: "100%",
-    justifyContent: "space-evenly",
+    justifyContent: "space-between",
     alignItems: "center",
   },
   current: {
     alignItems: "center",
-    marginTop: 20,
-    width: Dimensions.get("window").width - 32,
+    marginTop: 6,
+    width: Device.screenWidth,
   },
   loationName: { flexDirection: "row", gap: 6 },
   container: {
@@ -177,7 +326,9 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    gap: 24,
+    gap: 18,
+    paddingHorizontal: 12,
+    paddingTop: 12,
   },
 });
 
