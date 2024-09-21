@@ -37,7 +37,7 @@
       [
         "expo-asset",
         {
-          "assets": ["./assets/images/weather/lightning.jpg"]
+          "assets": ["./assets/images/weather/cloud.jpg"]
         }
       ]
     ],

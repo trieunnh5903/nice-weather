@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     fontFamily: "SpaceMono-Regular",
   },
   subtitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
     fontFamily: "SpaceMono-Regular",
   },

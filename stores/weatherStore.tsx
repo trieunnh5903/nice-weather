@@ -21,7 +21,6 @@ class WeatherStore {
   }
 
   async updateSelectedWeather(direction: "increase" | "decrease") {
-    
     if (direction === "increase") {
       this.setSelectedWeather(
         this.selectedWeather === this.currentWeather.length - 1
@@ -50,6 +49,29 @@ class WeatherStore {
       this.setSelectedWeather(Math.min(index, updatedCurrWeather.length - 1));
       this.saveCurrentWeather();
     }
+  }
+
+  deleteMultipleWeather(ids: number[]) {
+    const updatedCurrWeather = this.currentWeather.filter(
+      (item) => !ids.includes(item.id)
+    );
+
+    const newSelectedIndex = Math.min(
+      this.selectedWeather,
+      updatedCurrWeather.length - 1
+    );
+    console.log(newSelectedIndex);
+    console.log(updatedCurrWeather);
+
+    this.setCurrentWeather(updatedCurrWeather);
+    this.setSelectedWeather(newSelectedIndex);
+    this.saveCurrentWeather();
+  }
+
+  deleteAll() {
+    this.setCurrentWeather([]);
+    this.setSelectedWeather(0);
+    this.saveCurrentWeather();
   }
 
   addCurrentWeather = flow(function* (this: WeatherStore, location: Location) {

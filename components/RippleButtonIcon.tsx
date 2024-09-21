@@ -5,9 +5,11 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 interface RippleButtonProps extends PropsWithChildren {
   onPress?: ((event: GestureResponderEvent) => void) | null | undefined;
   disabled?: boolean;
+  rippleColor?: string;
 }
 const RippleButtonIcon = ({
   children,
+  rippleColor,
   onPress,
   disabled,
 }: RippleButtonProps) => {
@@ -22,7 +24,7 @@ const RippleButtonIcon = ({
       <Pressable
         disabled={disabled}
         android_ripple={{
-          color: color,
+          color: rippleColor || color,
         }}
         style={{ padding: 6 }}
         hitSlop={3}

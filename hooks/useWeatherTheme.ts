@@ -1,3 +1,4 @@
+import { Colors } from "@/constants/Colors";
 import { useAssets } from "expo-asset";
 
 interface WeatherTheme {

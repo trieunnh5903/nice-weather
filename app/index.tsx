@@ -12,7 +12,7 @@ import {
 } from "react-native-gesture-handler";
 import Units from "@/constants/Units";
 import { MaterialIconName } from "@/type";
-import { ImageBackground } from "expo-image";
+import { Image, ImageBackground } from "expo-image";
 import weatherIconMapping from "@/config/weatherIconMapping";
 import { useStores } from "@/hooks/useStore";
 import { Device } from "@/constants/Device";
@@ -31,6 +31,8 @@ import Animated, {
 } from "react-native-reanimated";
 import { setStatusBarStyle } from "expo-status-bar";
 import RippleButtonIcon from "@/components/RippleButtonIcon";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { Colors } from "@/constants/Colors";
 
 const HomeScreen: React.FC = observer(() => {
   const headerIcons: MaterialIconName[] = ["menu", "add", "delete-outline"];
@@ -43,7 +45,13 @@ const HomeScreen: React.FC = observer(() => {
     weatherCode: weather.id,
   });
   const prevColor = useRef(weatherTheme?.backgroundColor);
-
+  const rippleColor = useThemeColor(
+    {
+      dark: Colors.dark.ripple,
+      light: Colors.dark.ripple,
+    },
+    "ripple"
+  );
   useFocusEffect(() => {
     setStatusBarStyle(
       weatherTheme?.textColor === lightTextColor ? "light" : "dark"
@@ -110,6 +118,7 @@ const HomeScreen: React.FC = observer(() => {
               <RippleButtonIcon
                 onPress={() => onHeaderPress(icon)}
                 key={"header" + icon}
+                rippleColor={rippleColor}
               >
                 <MaterialIcons
                   name={icon}
@@ -134,6 +143,13 @@ const HomeScreen: React.FC = observer(() => {
 
 const CurrentWeather: React.FC = observer(() => {
   const { currWeatherStore } = useStores();
+  const rippleColor = useThemeColor(
+    {
+      dark: Colors.dark.ripple,
+      light: Colors.dark.ripple,
+    },
+    "ripple"
+  );
   const weather = currWeatherStore.currentWeather[weatherStore.selectedWeather];
   const locationName =
     weather?.location.local_names?.vi ||
@@ -189,7 +205,10 @@ const CurrentWeather: React.FC = observer(() => {
           <View style={styles.navigationWrapper}>
             {controlVisible && (
               <Animated.View entering={FadeIn} exiting={FadeOut}>
-                <RippleButtonIcon onPress={onLeftPress}>
+                <RippleButtonIcon
+                  rippleColor={rippleColor}
+                  onPress={onLeftPress}
+                >
                   <MaterialIcons
                     name="chevron-left"
                     size={32}
