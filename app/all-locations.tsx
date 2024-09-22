@@ -1,5 +1,11 @@
-import { Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
-import React, { useState } from "react";
+import {
+  Alert,
+  Pressable,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import React, { memo, useState } from "react";
 import { ThemedView } from "@/components/ThemedView";
 import { router, Stack } from "expo-router";
 import { ThemedText } from "@/components/ThemedText";
@@ -12,8 +18,7 @@ import temperatureUtils from "@/utils/temperatureUtils";
 import { useWeatherTheme } from "@/hooks/useWeatherTheme";
 import { ImageBackground } from "expo-image";
 import RippleButtonIcon from "@/components/RippleButtonIcon";
-import { RadioButton } from "react-native-paper";
-import Animated from "react-native-reanimated";
+import Animated, { FadeInLeft, FadeInRight } from "react-native-reanimated";
 import { useStores } from "@/hooks/useStore";
 import { FlatList } from "react-native-gesture-handler";
 import { useIsFocused } from "@react-navigation/native";
@@ -83,11 +88,27 @@ const AllLocation = () => {
     if (selectedItems.length === 0) return;
 
     if (selectedItems.length === currWeatherStore.currentWeather.length) {
-      // handleDeleteAll();
+      Alert.alert("", "Delete all this location?", [
+        { text: "Cancel" },
+        {
+          text: "OK",
+          onPress: () => {
+            handleDeleteAll();
+          },
+        },
+      ]);
     } else {
-      handleDeleteSelected();
-      setSelectedItems([]);
-      setMultipleDelete(false);
+      Alert.alert("", "Delete this location?", [
+        { text: "Cancel" },
+        {
+          text: "OK",
+          onPress: () => {
+            handleDeleteSelected();
+            setSelectedItems([]);
+            setMultipleDelete(false);
+          },
+        },
+      ]);
     }
   };
 
@@ -97,25 +118,31 @@ const AllLocation = () => {
 
   const handleDeleteAll = () => {
     currWeatherStore.deleteAll();
+    router.dismissAll();
+    router.replace("./search");
   };
 
   const CustomHeaderLeft = () => (
-    <TouchableOpacity
-      onPress={handleSelecteAll}
-      style={styles.selectedAllWrapper}
-    >
-      <RadioButton
-        value="first"
-        status={
-          selectedItems.length === currWeatherStore.currentWeather.length
-            ? "checked"
-            : "unchecked"
-        }
+    <Animated.View entering={FadeInLeft}>
+      <TouchableOpacity
         onPress={handleSelecteAll}
-        color={radioButtonColor}
-      />
-      <ThemedText type="defaultBold">Selected All</ThemedText>
-    </TouchableOpacity>
+        style={styles.selectedAllWrapper}
+      >
+        <MaterialIcons
+          name={
+            selectedItems.length === currWeatherStore.currentWeather.length
+              ? "radio-button-unchecked"
+              : "check-circle"
+          }
+          size={24}
+          color={radioButtonColor}
+        />
+
+        <ThemedText color={radioButtonColor} type="defaultBold">
+          Selected All
+        </ThemedText>
+      </TouchableOpacity>
+    </Animated.View>
   );
 
   return (
@@ -221,13 +248,14 @@ interface WeatherItemProps {
   selectedItems: number[];
   onLocationPress: (index: number, id: number) => void;
 }
-const WeatherItem = ({
+
+const WeatherItem = memo(function Component({
   item,
   index,
   multipleDelete,
   selectedItems,
   onLocationPress,
-}: WeatherItemProps) => {
+}: WeatherItemProps) {
   const theme = useWeatherTheme({
     iconCode: item.weather[0].icon,
     weatherCode: item.weather[0].id,
@@ -249,9 +277,13 @@ const WeatherItem = ({
       >
         {multipleDelete && (
           <Animated.View>
-            <RadioButton
-              value="first"
-              status={selectedItems.includes(item.id) ? "checked" : "unchecked"}
+            <MaterialIcons
+              name={
+                selectedItems.includes(item.id)
+                  ? "radio-button-unchecked"
+                  : "check-circle"
+              }
+              size={24}
               color={white}
             />
           </Animated.View>
@@ -281,12 +313,14 @@ const WeatherItem = ({
       </ImageBackground>
     </Pressable>
   );
-};
+});
+
 const styles = StyleSheet.create({
   selectedAllWrapper: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+    gap: 6,
     overflow: "visible",
   },
   footerDelete: {
@@ -312,7 +346,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 18,
-    gap: 6,
+    gap: 12,
     backgroundColor: "white",
   },
 });
