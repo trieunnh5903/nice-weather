@@ -1,11 +1,13 @@
 import {
   Alert,
   Pressable,
+  StyleProp,
   StyleSheet,
   TouchableOpacity,
   View,
+  ViewStyle,
 } from "react-native";
-import React, { memo, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { ThemedView } from "@/components/ThemedView";
 import { router, Stack } from "expo-router";
 import { ThemedText } from "@/components/ThemedText";
@@ -18,7 +20,18 @@ import temperatureUtils from "@/utils/temperatureUtils";
 import { useWeatherTheme } from "@/hooks/useWeatherTheme";
 import { ImageBackground } from "expo-image";
 import RippleButtonIcon from "@/components/RippleButtonIcon";
-import Animated, { FadeInLeft, FadeInRight } from "react-native-reanimated";
+import Animated, {
+  AnimatedStyle,
+  Easing,
+  FadeInDown,
+  FadeOutDown,
+  interpolate,
+  SharedValue,
+  useAnimatedStyle,
+  useDerivedValue,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { useStores } from "@/hooks/useStore";
 import { FlatList } from "react-native-gesture-handler";
 import { useIsFocused } from "@react-navigation/native";
@@ -29,9 +42,10 @@ const AllLocation = () => {
   const iconColor = useThemeColor({}, "tint");
   const icons: MaterialIconName[] = ["add", "delete-outline"];
   const radioButtonColor = useThemeColor({}, "tint");
-  const border = useThemeColor({}, "placeholder");
+  const border = useThemeColor({}, "ripple");
   const [multipleDelete, setMultipleDelete] = useState(false);
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
+  const progress = useSharedValue(0);
 
   const onHeaderPress = (icon: MaterialIconName) => {
     switch (icon) {
@@ -39,41 +53,37 @@ const AllLocation = () => {
         router.navigate("./search");
         break;
       case icons[1]:
-        setMultipleDelete(!multipleDelete);
+        setMultipleDelete(true);
         break;
       default:
         break;
     }
   };
 
-  const CustomHeaderRight = () => {
-    return (
-      <View style={styles.headerRight}>
-        {icons.map((icon) => {
-          return (
-            <RippleButtonIcon
-              onPress={() => onHeaderPress(icon)}
-              key={"all-location-header" + icon}
-            >
-              <MaterialIcons name={icon} size={24} color={iconColor} />
-            </RippleButtonIcon>
-          );
-        })}
-        <MaterialCommunityIcons
-          name="dots-vertical"
-          size={24}
-          color={iconColor}
-        />
-      </View>
-    );
+  const onCancelPress = () => {
+    setMultipleDelete(false);
   };
 
-  const handleSelectItem = (id: number) => {
-    if (selectedItems.includes(id)) {
-      setSelectedItems(selectedItems.filter((item) => item !== id));
+  useEffect(() => {
+    if (multipleDelete) {
+      progress.value = withTiming(1, {
+        duration: 1000,
+        easing: Easing.out(Easing.exp),
+      });
     } else {
-      setSelectedItems([...selectedItems, id]);
+      progress.value = withTiming(0, {
+        duration: 1000,
+        easing: Easing.out(Easing.exp),
+      });
     }
+  }, [multipleDelete, progress]);
+
+  const handleSelectItem = (id: number) => {
+    setSelectedItems((prevSelectedItems) =>
+      prevSelectedItems.includes(id)
+        ? prevSelectedItems.filter((item) => item !== id)
+        : [...prevSelectedItems, id]
+    );
   };
 
   const handleSelecteAll = () => {
@@ -122,89 +132,209 @@ const AllLocation = () => {
     router.replace("./search");
   };
 
-  const CustomHeaderLeft = () => (
-    <Animated.View entering={FadeInLeft}>
-      <TouchableOpacity
-        onPress={handleSelecteAll}
-        style={styles.selectedAllWrapper}
-      >
-        <MaterialIcons
-          name={
-            selectedItems.length === currWeatherStore.currentWeather.length
-              ? "radio-button-unchecked"
-              : "check-circle"
-          }
-          size={24}
-          color={radioButtonColor}
-        />
-
-        <ThemedText color={radioButtonColor} type="defaultBold">
-          Selected All
-        </ThemedText>
-      </TouchableOpacity>
-    </Animated.View>
-  );
-
   return (
     <ThemedView flex>
       <Stack.Screen
         options={{
           headerShown: true,
-          title: multipleDelete ? "" : "Location",
-
+          title: "",
           headerRight() {
-            return multipleDelete ? (
-              <ThemedText>{selectedItems.length} selected</ThemedText>
-            ) : (
-              <CustomHeaderRight />
+            return (
+              <CustomHeaderRight
+                icons={icons}
+                onHeaderPress={onHeaderPress}
+                numberOfSelected={selectedItems.length}
+                progress={progress}
+              />
             );
           },
-          headerLeft: () => {
-            return multipleDelete ? <CustomHeaderLeft /> : undefined;
+          headerBackVisible: false,
+          headerLeft: (props) => {
+            return (
+              <CustomHeaderLeft
+                progress={progress}
+                handleSelecteAll={handleSelecteAll}
+                selectedItems={selectedItems}
+                {...props}
+              />
+            );
           },
-
           headerTintColor: iconColor,
           headerShadowVisible: false,
           headerTitleAlign: "left",
         }}
       />
       <LocationList
+        progress={progress}
         multipleDelete={multipleDelete}
         selectedItems={selectedItems}
         handleSelectItem={handleSelectItem}
       />
       {multipleDelete && (
-        <ThemedView
-          style={[
-            styles.footerDelete,
-            {
-              borderTopColor: border,
-            },
-          ]}
-        >
-          <TouchableOpacity onPress={() => setMultipleDelete(false)}>
-            <ThemedText color={radioButtonColor} type="subtitle">
-              CANCEL
-            </ThemedText>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={onDeletePress}>
-            <ThemedText color={radioButtonColor} type="subtitle">
-              DELETE
-            </ThemedText>
-          </TouchableOpacity>
-        </ThemedView>
+        <Animated.View entering={FadeInDown} exiting={FadeOutDown}>
+          <ThemedView
+            style={[
+              styles.footerDelete,
+              {
+                borderTopColor: border,
+              },
+            ]}
+          >
+            <TouchableOpacity onPress={onCancelPress}>
+              <ThemedText color={radioButtonColor} type="defaultBold">
+                CANCEL
+              </ThemedText>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onDeletePress}>
+              <ThemedText color={radioButtonColor} type="defaultBold">
+                DELETE
+              </ThemedText>
+            </TouchableOpacity>
+          </ThemedView>
+        </Animated.View>
       )}
     </ThemedView>
   );
 };
 
+interface CustomHeaderRightProps {
+  icons: MaterialIconName[];
+  onHeaderPress: (icon: MaterialIconName) => void;
+  numberOfSelected: number;
+  progress: SharedValue<number>;
+}
+
+const CustomHeaderRight = memo(function CustomHeaderRight({
+  icons,
+  onHeaderPress,
+  numberOfSelected,
+  progress,
+}: CustomHeaderRightProps) {
+  const iconColor = useThemeColor({}, "tint");
+
+  const selectedAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: progress.value,
+    };
+  });
+
+  const optionAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(progress.value, [0, 0.1], [1, 0]),
+    };
+  });
+
+  const pointerEnvents = useDerivedValue(() => {
+    return progress.value === 0 ? "auto" : "none";
+  });
+  return (
+    <View style={styles.centered}>
+      <Animated.View style={selectedAnimatedStyle}>
+        <ThemedText>{numberOfSelected} selected</ThemedText>
+      </Animated.View>
+
+      <Animated.View
+        pointerEvents={pointerEnvents}
+        style={[styles.headerRight, optionAnimatedStyle]}
+      >
+        {icons.map((icon) => {
+          return (
+            <RippleButtonIcon
+              onPress={() => onHeaderPress(icon)}
+              key={"all-location-header" + icon}
+            >
+              <MaterialIcons name={icon} size={24} color={iconColor} />
+            </RippleButtonIcon>
+          );
+        })}
+        <MaterialCommunityIcons
+          name="dots-vertical"
+          size={24}
+          color={iconColor}
+        />
+      </Animated.View>
+    </View>
+  );
+});
+
+interface CustomHeaderLeftProps {
+  handleSelecteAll: () => void;
+  selectedItems: number[];
+  progress: SharedValue<number>;
+}
+const CustomHeaderLeft = memo(function CustomHeaderLeft({
+  handleSelecteAll,
+  selectedItems,
+  progress,
+}: CustomHeaderLeftProps) {
+  const radioButtonColor = useThemeColor({}, "tint");
+  const { currWeatherStore } = useStores();
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { translateX: interpolate(progress.value, [0, 1], [-200, 0]) },
+      ],
+    };
+  });
+
+  const backAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(progress.value, [0, 0.1], [1, 0]),
+    };
+  });
+
+  const onBackPress = () => {
+    if (router.canGoBack()) {
+      router.back();
+    }
+  };
+
+  return (
+    <View style={styles.rowCenter}>
+      <Animated.View style={[styles.rowCenter, backAnimatedStyle]}>
+        <RippleButtonIcon onPress={onBackPress}>
+          <MaterialIcons name="arrow-back" size={24} color={radioButtonColor} />
+        </RippleButtonIcon>
+        <ThemedText type="title">Location</ThemedText>
+      </Animated.View>
+      <Animated.View style={[{ position: "absolute" }, animatedStyle]}>
+        <TouchableOpacity
+          onPress={handleSelecteAll}
+          style={styles.selectedAllWrapper}
+        >
+          <MaterialIcons
+            name={
+              selectedItems.length === currWeatherStore.currentWeather.length
+                ? "check-circle"
+                : "radio-button-unchecked"
+            }
+            size={24}
+            color={radioButtonColor}
+          />
+
+          <ThemedText color={radioButtonColor} type="defaultBold">
+            Selected All
+          </ThemedText>
+        </TouchableOpacity>
+      </Animated.View>
+    </View>
+  );
+});
+
 interface LocationListProps {
   multipleDelete: boolean;
   selectedItems: number[];
   handleSelectItem: (id: number) => void;
+  progress: SharedValue<number>;
 }
+
 const LocationList = observer(
-  ({ multipleDelete, selectedItems, handleSelectItem }: LocationListProps) => {
+  memo(function LocationList({
+    multipleDelete,
+    selectedItems,
+    handleSelectItem,
+    progress,
+  }: LocationListProps) {
     const { currWeatherStore: weatherStore } = useStores();
     const isFocused = useIsFocused();
     console.log("LocationList");
@@ -217,6 +347,14 @@ const LocationList = observer(
       router.back();
     };
 
+    const animatedStyle = useAnimatedStyle(() => {
+      return {
+        transform: [
+          { translateX: interpolate(progress.value, [0, 1], [-42, 0]) },
+        ],
+      };
+    });
+
     return (
       isFocused && (
         <FlatList
@@ -225,10 +363,10 @@ const LocationList = observer(
           renderItem={({ item, index }) => {
             return (
               <WeatherItem
+                animatedStyle={animatedStyle}
                 onLocationPress={onLocationPress}
                 item={item}
                 index={index}
-                multipleDelete={multipleDelete}
                 selectedItems={selectedItems}
               />
             );
@@ -236,7 +374,7 @@ const LocationList = observer(
         />
       )
     );
-  }
+  })
 );
 
 export default AllLocation;
@@ -244,16 +382,16 @@ export default AllLocation;
 interface WeatherItemProps {
   item: CurrentWeather;
   index: number;
-  multipleDelete: boolean;
   selectedItems: number[];
   onLocationPress: (index: number, id: number) => void;
+  animatedStyle: StyleProp<AnimatedStyle<StyleProp<ViewStyle>>>;
 }
 
 const WeatherItem = memo(function Component({
   item,
   index,
-  multipleDelete,
   selectedItems,
+  animatedStyle,
   onLocationPress,
 }: WeatherItemProps) {
   const theme = useWeatherTheme({
@@ -275,35 +413,37 @@ const WeatherItem = memo(function Component({
         source={{ uri: theme?.asset.uri }}
         style={styles.weather}
       >
-        {multipleDelete && (
-          <Animated.View>
-            <MaterialIcons
-              name={
-                selectedItems.includes(item.id)
-                  ? "radio-button-unchecked"
-                  : "check-circle"
-              }
-              size={24}
-              color={white}
-            />
-          </Animated.View>
-        )}
+        <Animated.View
+          style={[
+            { flexDirection: "row", alignItems: "center", gap: 18 },
+            animatedStyle,
+          ]}
+        >
+          <MaterialIcons
+            name={
+              selectedItems.includes(item.id)
+                ? "check-circle"
+                : "radio-button-unchecked"
+            }
+            size={24}
+            color={white}
+          />
 
-        <View>
-          <View style={styles.nameWrapper}>
-            {index === currWeatherStore.selectedWeather && (
-              <MaterialIcons name="location-on" size={24} color={white} />
-            )}
-            <ThemedText color={white}>
-              {locationUtils.getName(item.location)}
+          <View>
+            <View style={styles.nameWrapper}>
+              {index === currWeatherStore.selectedWeather && (
+                <MaterialIcons name="location-on" size={24} color={white} />
+              )}
+              <ThemedText color={white}>
+                {locationUtils.getName(item.location)}
+              </ThemedText>
+            </View>
+
+            <ThemedText color={white} type="label">
+              {locationUtils.getAddress(item.location)}
             </ThemedText>
           </View>
-
-          <ThemedText color={white} type="label">
-            {locationUtils.getAddress(item.location)}
-          </ThemedText>
-        </View>
-
+        </Animated.View>
         <View style={{ flex: 1 }} />
         <View>
           <ThemedText color={white}>
@@ -316,12 +456,20 @@ const WeatherItem = memo(function Component({
 });
 
 const styles = StyleSheet.create({
+  rowCenter: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  centered: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
   selectedAllWrapper: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     gap: 6,
-    overflow: "visible",
   },
   footerDelete: {
     flexDirection: "row",
@@ -341,12 +489,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 12,
     alignItems: "center",
+    position: "absolute",
   },
   weather: {
     flexDirection: "row",
     alignItems: "center",
     padding: 18,
-    gap: 12,
-    backgroundColor: "white",
+    // gap: 18,
   },
 });

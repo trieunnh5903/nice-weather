@@ -8,27 +8,19 @@ import weatherStore from "@/stores/weatherStore";
 import {
   Gesture,
   GestureDetector,
-  TouchableOpacity,
+  GestureStateChangeEvent,
+  PanGestureHandlerEventPayload,
 } from "react-native-gesture-handler";
 import Units from "@/constants/Units";
 import { MaterialIconName } from "@/type";
-import { Image, ImageBackground } from "expo-image";
+import { ImageBackground } from "expo-image";
 import weatherIconMapping from "@/config/weatherIconMapping";
 import { useStores } from "@/hooks/useStore";
 import { Device } from "@/constants/Device";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { lightTextColor, useWeatherTheme } from "@/hooks/useWeatherTheme";
-import { PropsWithChildren, useEffect, useRef, useState } from "react";
-import Animated, {
-  FadeIn,
-  FadeOut,
-  interpolateColor,
-  runOnJS,
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withTiming,
-} from "react-native-reanimated";
+import { memo, useCallback, useEffect, useState } from "react";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { setStatusBarStyle } from "expo-status-bar";
 import RippleButtonIcon from "@/components/RippleButtonIcon";
 import { useThemeColor } from "@/hooks/useThemeColor";
@@ -39,19 +31,11 @@ const HomeScreen: React.FC = observer(() => {
   const insets = useSafeAreaInsets();
   const { currWeatherStore } = useStores();
   const weather =
-    currWeatherStore.currentWeather[weatherStore.selectedWeather].weather[0];
+    currWeatherStore.currentWeather[weatherStore.selectedWeather]?.weather[0];
   const weatherTheme = useWeatherTheme({
-    iconCode: weather.icon,
-    weatherCode: weather.id,
+    iconCode: weather?.icon,
+    weatherCode: weather?.id,
   });
-  const prevColor = useRef(weatherTheme?.backgroundColor);
-  const rippleColor = useThemeColor(
-    {
-      dark: Colors.dark.ripple,
-      light: Colors.dark.ripple,
-    },
-    "ripple"
-  );
   useFocusEffect(() => {
     setStatusBarStyle(
       weatherTheme?.textColor === lightTextColor ? "light" : "dark"
@@ -60,10 +44,6 @@ const HomeScreen: React.FC = observer(() => {
       setStatusBarStyle("auto");
     };
   });
-
-  useEffect(() => {
-    prevColor.current = weatherTheme?.backgroundColor;
-  }, [weatherTheme?.backgroundColor]);
 
   const onHeaderPress = (icon: string) => {
     switch (icon) {
@@ -92,16 +72,6 @@ const HomeScreen: React.FC = observer(() => {
     }
   };
 
-  // useEffect(() => {
-  //   const disposer = autorun(() => {
-  //     console.log(
-  //       "currentWeather",
-  //       JSON.stringify(weatherStore.currentWeather)
-  //     );
-  //   });
-  //   return disposer();
-  // }, []);
-
   return (
     <ThemedView
       style={{ flex: 1, backgroundColor: weatherTheme?.backgroundColor }}
@@ -112,36 +82,57 @@ const HomeScreen: React.FC = observer(() => {
         style={[{ paddingTop: insets.top }, styles.weatherBg]}
         source={weatherTheme && weatherTheme.asset.localUri}
       >
-        <View style={styles.header}>
-          {headerIcons.map((icon) => {
-            return (
-              <RippleButtonIcon
-                onPress={() => onHeaderPress(icon)}
-                key={"header" + icon}
-                rippleColor={rippleColor}
-              >
-                <MaterialIcons
-                  name={icon}
-                  size={26}
-                  color={weatherTheme?.textColor}
-                />
-              </RippleButtonIcon>
-            );
-          })}
-          {/* <MaterialCommunityIcons
-            name="dots-vertical"
-            size={24}
-            color={weatherTheme?.textColor}
-          /> */}
-        </View>
-
-        <CurrentWeather />
+        <HeaderIcons headerIcons={headerIcons} onHeaderPress={onHeaderPress} />
+        <CurrentWeatherInfo />
       </ImageBackground>
     </ThemedView>
   );
 });
 
-const CurrentWeather: React.FC = observer(() => {
+interface HeaderIconsProps {
+  onHeaderPress: (icon: string) => void;
+  headerIcons: MaterialIconName[];
+}
+const HeaderIcons = memo(function Component({
+  onHeaderPress,
+  headerIcons,
+}: HeaderIconsProps) {
+  const { currWeatherStore } = useStores();
+  const rippleColor = useThemeColor(
+    {
+      dark: Colors.dark.ripple,
+      light: Colors.dark.ripple,
+    },
+    "ripple"
+  );
+  const weather =
+    currWeatherStore.currentWeather[weatherStore.selectedWeather]?.weather[0];
+
+  const weatherTheme = useWeatherTheme({
+    iconCode: weather?.icon,
+    weatherCode: weather?.id,
+  });
+
+  return (
+    <View style={styles.header}>
+      {headerIcons.map((icon) => (
+        <RippleButtonIcon
+          onPress={() => onHeaderPress(icon)}
+          key={"header" + icon}
+          rippleColor={rippleColor}
+        >
+          <MaterialIcons
+            name={icon}
+            size={26}
+            color={weatherTheme?.textColor}
+          />
+        </RippleButtonIcon>
+      ))}
+    </View>
+  );
+});
+
+const CurrentWeatherInfo: React.FC = observer(() => {
   const { currWeatherStore } = useStores();
   const rippleColor = useThemeColor(
     {
@@ -151,15 +142,18 @@ const CurrentWeather: React.FC = observer(() => {
     "ripple"
   );
   const weather = currWeatherStore.currentWeather[weatherStore.selectedWeather];
+  if (!weather) {
+    return;
+  }
+  const weatherDetails = weather.weather?.[0] || {};
   const locationName =
-    weather?.location.local_names?.vi ||
-    weather?.location.local_names?.en ||
-    weather?.location.name;
-  const mainWeather = weather?.weather[0]?.main;
-  const temperature = Math.round(weather?.main.temp);
-  const tempRealFeel = Math.round(weather?.main.feels_like);
-  const description = weather?.weather[0].description;
-  const iconCode = weather.weather[0].icon as keyof typeof weatherIconMapping;
+    weather.location.local_names?.vi ||
+    weather.location.local_names?.en ||
+    weather.location.name;
+  const { main = "", description = "", icon = "" } = weatherDetails;
+  const temperature = Math.round(weather.main.temp);
+  const tempRealFeel = Math.round(weather.main.feels_like);
+  const iconCode = icon as keyof typeof weatherIconMapping;
   const weatherTheme = useWeatherTheme({
     iconCode: iconCode,
     weatherCode: weather.id,
@@ -175,26 +169,32 @@ const CurrentWeather: React.FC = observer(() => {
     }
   }, [controlVisible]);
 
-  const onLeftPress = () => {
+  const onLeftPress = useCallback(() => {
     currWeatherStore.updateSelectedWeather("decrease");
-  };
+  }, [currWeatherStore]);
 
-  const onRightPress = () => {
+  const onRightPress = useCallback(() => {
     currWeatherStore.updateSelectedWeather("increase");
-  };
+  }, [currWeatherStore]);
+
+  const onSwipe = useCallback(
+    (e: GestureStateChangeEvent<PanGestureHandlerEventPayload>) => {
+      if (e.translationX < -50) {
+        onRightPress();
+      } else if (e.translationX > 50) {
+        onLeftPress();
+      }
+    },
+    [onLeftPress, onRightPress]
+  );
+
   const pan = Gesture.Pan()
     .onTouchesDown((e) => {
       if (!controlVisible) {
         setControlVisible(true);
       }
     })
-    .onEnd((e) => {
-      if (e.translationX < -50) {
-        onRightPress();
-      } else if (e.translationX > 50) {
-        onLeftPress();
-      }
-    })
+    .onEnd(onSwipe)
     .runOnJS(true);
 
   return (
@@ -244,7 +244,7 @@ const CurrentWeather: React.FC = observer(() => {
           {temperature + Units.Celsius}
         </ThemedText>
         <ThemedText color={iconColor} type="defaultBold">
-          {mainWeather}
+          {main}
         </ThemedText>
         <ThemedText color={iconColor} type="label">
           Feels like {tempRealFeel + Units.Celsius}
@@ -257,49 +257,6 @@ const CurrentWeather: React.FC = observer(() => {
   );
 });
 
-interface AnimatedBackgroundProps extends PropsWithChildren {
-  backgroundColor?: string;
-  preColor?: string;
-}
-const AnimatedBackground = ({
-  backgroundColor,
-  preColor,
-  children,
-}: AnimatedBackgroundProps) => {
-  const sharedBackgroundColor = useSharedValue(0);
-
-  console.log("preColor", preColor);
-  console.log("backgroundColor", backgroundColor);
-  useEffect(() => {
-    console.log("useEffect");
-    sharedBackgroundColor.value = 0;
-    console.log("sharedBackgroundColor", sharedBackgroundColor.value);
-    if (preColor && backgroundColor && preColor !== backgroundColor) {
-      sharedBackgroundColor.value = withTiming(1, { duration: 5000 });
-    }
-  }, [backgroundColor, preColor, sharedBackgroundColor]);
-
-  const animatedStyle = useAnimatedStyle(() => {
-    const interpolatedColor =
-      backgroundColor &&
-      preColor &&
-      interpolateColor(
-        sharedBackgroundColor.value,
-        [0, 1],
-        [backgroundColor, preColor]
-      );
-    return {
-      backgroundColor: interpolatedColor,
-    };
-  });
-
-  return (
-    <Animated.View style={[{ flex: 1 }, animatedStyle]}>
-      {children}
-    </Animated.View>
-  );
-};
-
 const styles = StyleSheet.create({
   weatherBg: {
     paddingBottom: 18,
@@ -307,20 +264,6 @@ const styles = StyleSheet.create({
   locationWrapper: {
     marginBottom: 12,
     alignItems: "center",
-  },
-  weatherDes: {
-    width: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "row",
-    gap: 6,
-  },
-  imageWrapper: { justifyContent: "center", alignItems: "center" },
-  image: {
-    height: undefined,
-    width: undefined,
-    aspectRatio: 1,
-    flex: 1,
   },
   navigationWrapper: {
     flexDirection: "row",

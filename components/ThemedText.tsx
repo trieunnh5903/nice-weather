@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     fontFamily: "SpaceMono-Regular",
   },
   title: {
-    fontSize: 32,
+    fontSize: 20,
     fontWeight: "bold",
     fontFamily: "SpaceMono-Regular",
   },

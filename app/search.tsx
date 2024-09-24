@@ -53,7 +53,6 @@ const SearchScreen = () => {
         <SearchBar query={query} onChange={handleSearchChange} />
       </ThemedView>
       <Divider style={{ marginTop: 12 }} />
-      {/* {!query ? <CurrentLocationButton /> : <SearchResults results={results} />} */}
       {isLoading ? (
         <ActivityIndicator style={styles.loading} />
       ) : !query ? (
