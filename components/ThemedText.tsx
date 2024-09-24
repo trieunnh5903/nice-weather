@@ -7,11 +7,13 @@ export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
   color?: string;
+  fontSize?: number;
   type?:
     | "default"
     | "title"
     | "defaultSemiBold"
     | "defaultBold"
+    | "defaultLight"
     | "subtitle"
     | "link"
     | "label";
@@ -23,6 +25,7 @@ export function ThemedText({
   darkColor,
   lineHeight,
   color,
+  fontSize,
   type = "default",
   ...rest
 }: ThemedTextProps) {
@@ -38,10 +41,11 @@ export function ThemedText({
         type === "title" ? styles.title : undefined,
         type === "defaultSemiBold" ? styles.defaultSemiBold : undefined,
         type === "defaultBold" ? styles.defaultBold : undefined,
+        type === "defaultLight" ? styles.defaultLight : undefined,
         type === "subtitle" ? styles.subtitle : undefined,
         type === "link" ? styles.link : undefined,
         type === "label" ? styles.label : undefined,
-        { color: color || themeColor, lineHeight },
+        { color: color || themeColor, lineHeight, fontSize },
         style,
       ]}
       {...rest}
@@ -52,36 +56,40 @@ export function ThemedText({
 const styles = StyleSheet.create({
   default: {
     fontSize: 16,
-    fontFamily: "SpaceMono-Regular",
+    fontFamily: "OpenSans-Regular",
   },
   defaultSemiBold: {
     fontSize: 16,
-    fontWeight: "600",
-    fontFamily: "SpaceMono-Regular",
+    fontFamily: "OpenSans-SemiBold",
   },
   defaultBold: {
     fontSize: 16,
-    fontWeight: "bold",
-    fontFamily: "SpaceMono-Regular",
+    fontFamily: "OpenSans-Bold",
+  },
+  defaultMedium: {
+    fontSize: 16,
+    fontFamily: "OpenSans-Medium",
+  },
+  defaultLight: {
+    fontSize: 16,
+    fontFamily: "OpenSans-Light",
   },
   label: {
     fontSize: 14,
     fontWeight: "400",
-    fontFamily: "SpaceMono-Regular",
+    fontFamily: "OpenSans-Regular",
   },
   title: {
     fontSize: 20,
-    fontWeight: "bold",
-    fontFamily: "SpaceMono-Regular",
+    fontFamily: "OpenSans-Bold",
   },
   subtitle: {
     fontSize: 18,
-    fontWeight: "bold",
-    fontFamily: "SpaceMono-Regular",
+    fontFamily: "OpenSans-Bold",
   },
   link: {
     fontSize: 16,
     color: "#0a7ea4",
-    fontFamily: "SpaceMono-Regular",
+    fontFamily: "OpenSans-Regular",
   },
 });

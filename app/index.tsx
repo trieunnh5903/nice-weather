@@ -240,7 +240,7 @@ const CurrentWeatherInfo: React.FC = observer(() => {
             )}
           </View>
         </View>
-        <ThemedText style={styles.celcius} color={iconColor}>
+        <ThemedText fontSize={76} type="defaultLight" color={iconColor}>
           {temperature + Units.Celsius}
         </ThemedText>
         <ThemedText color={iconColor} type="defaultBold">
@@ -280,11 +280,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  celcius: {
-    fontSize: 64,
-    fontWeight: "300",
-    fontFamily: "SpaceMono-Regular",
-  },
+
   header: {
     flexDirection: "row",
     justifyContent: "flex-end",

@@ -329,12 +329,12 @@ interface LocationListProps {
 }
 
 const LocationList = observer(
-  memo(function LocationList({
+ ({
     multipleDelete,
     selectedItems,
     handleSelectItem,
     progress,
-  }: LocationListProps) {
+  }: LocationListProps) => {
     const { currWeatherStore: weatherStore } = useStores();
     const isFocused = useIsFocused();
     console.log("LocationList");
@@ -375,7 +375,6 @@ const LocationList = observer(
       )
     );
   })
-);
 
 export default AllLocation;
 
