@@ -69,7 +69,7 @@ export default function Layout() {
               initialRouteName={
                 weatherStore.currentWeather.length > 0 ? "index" : "search"
               }
-              screenOptions={{ headerShown: false }}
+              screenOptions={{ headerShown: false, animation: 'fade_from_bottom' }}
             >
               {/* <Stack.Screen name="index" />
             <Stack.Screen name="search" /> */}

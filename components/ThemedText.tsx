@@ -7,16 +7,16 @@ export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
   color?: string;
-  fontSize?: number;
   type?:
+    | "defaultLight"
     | "default"
-    | "title"
+    | "defaultMedium"
     | "defaultSemiBold"
     | "defaultBold"
-    | "defaultLight"
+    | "label"
     | "subtitle"
-    | "link"
-    | "label";
+    | "title"
+    | "link";
 };
 
 export function ThemedText({
@@ -25,7 +25,6 @@ export function ThemedText({
   darkColor,
   lineHeight,
   color,
-  fontSize,
   type = "default",
   ...rest
 }: ThemedTextProps) {
@@ -39,13 +38,14 @@ export function ThemedText({
       style={[
         type === "default" ? styles.default : undefined,
         type === "title" ? styles.title : undefined,
+        type === "defaultMedium" ? styles.defaultMedium : undefined,
         type === "defaultSemiBold" ? styles.defaultSemiBold : undefined,
         type === "defaultBold" ? styles.defaultBold : undefined,
         type === "defaultLight" ? styles.defaultLight : undefined,
         type === "subtitle" ? styles.subtitle : undefined,
         type === "link" ? styles.link : undefined,
         type === "label" ? styles.label : undefined,
-        { color: color || themeColor, lineHeight, fontSize },
+        { color: color || themeColor, lineHeight },
         style,
       ]}
       {...rest}
@@ -55,36 +55,35 @@ export function ThemedText({
 
 const styles = StyleSheet.create({
   default: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: "OpenSans-Regular",
   },
   defaultSemiBold: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: "OpenSans-SemiBold",
   },
   defaultBold: {
-    fontSize: 16,
     fontFamily: "OpenSans-Bold",
+    fontSize: 14,
   },
   defaultMedium: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: "OpenSans-Medium",
   },
   defaultLight: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: "OpenSans-Light",
   },
   label: {
-    fontSize: 14,
-    fontWeight: "400",
+    fontSize: 12,
     fontFamily: "OpenSans-Regular",
   },
   title: {
-    fontSize: 20,
+    fontSize: 18,
     fontFamily: "OpenSans-Bold",
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: "OpenSans-Bold",
   },
   link: {

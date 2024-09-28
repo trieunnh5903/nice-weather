@@ -1,4 +1,4 @@
-import { Alert, StyleSheet, View } from "react-native";
+import { Alert, ColorValue, StyleSheet, View } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -25,9 +25,11 @@ import { setStatusBarStyle } from "expo-status-bar";
 import RippleButtonIcon from "@/components/RippleButtonIcon";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Colors } from "@/constants/Colors";
+import * as NavigationBar from "expo-navigation-bar";
 
 const HomeScreen: React.FC = observer(() => {
   const headerIcons: MaterialIconName[] = ["menu", "add", "delete-outline"];
+  const backgroundColor = useThemeColor({}, "background");
   const insets = useSafeAreaInsets();
   const { currWeatherStore } = useStores();
   const weather =
@@ -36,12 +38,17 @@ const HomeScreen: React.FC = observer(() => {
     iconCode: weather?.icon,
     weatherCode: weather?.id,
   });
+
   useFocusEffect(() => {
     setStatusBarStyle(
       weatherTheme?.textColor === lightTextColor ? "light" : "dark"
     );
+    if (weatherTheme?.backgroundColor) {
+      NavigationBar.setBackgroundColorAsync(weatherTheme?.backgroundColor);
+    }
     return () => {
       setStatusBarStyle("auto");
+      NavigationBar.setBackgroundColorAsync(backgroundColor);
     };
   });
 
@@ -240,24 +247,29 @@ const CurrentWeatherInfo: React.FC = observer(() => {
             )}
           </View>
         </View>
-        <ThemedText fontSize={76} type="defaultLight" color={iconColor}>
+        <ThemedText
+          style={styles.celcius}
+          type="defaultLight"
+          color={iconColor}
+        >
           {temperature + Units.Celsius}
         </ThemedText>
         <ThemedText color={iconColor} type="defaultBold">
           {main}
         </ThemedText>
-        <ThemedText color={iconColor} type="label">
+        <ThemedText color={iconColor}>
           Feels like {tempRealFeel + Units.Celsius}
         </ThemedText>
-        <ThemedText color={iconColor} type="label">
-          {description}
-        </ThemedText>
+        <ThemedText color={iconColor}>{description}</ThemedText>
       </View>
     </GestureDetector>
   );
 });
 
 const styles = StyleSheet.create({
+  celcius: {
+    fontSize: 76,
+  },
   weatherBg: {
     paddingBottom: 18,
   },

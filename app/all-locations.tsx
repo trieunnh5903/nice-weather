@@ -141,6 +141,7 @@ const AllLocation = () => {
           headerRight() {
             return (
               <CustomHeaderRight
+                multipleDelete={multipleDelete}
                 icons={icons}
                 onHeaderPress={onHeaderPress}
                 numberOfSelected={selectedItems.length}
@@ -181,12 +182,12 @@ const AllLocation = () => {
             ]}
           >
             <TouchableOpacity onPress={onCancelPress}>
-              <ThemedText color={radioButtonColor} type="defaultBold">
+              <ThemedText color={radioButtonColor} style={{fontSize: 16}} type="defaultBold">
                 CANCEL
               </ThemedText>
             </TouchableOpacity>
             <TouchableOpacity onPress={onDeletePress}>
-              <ThemedText color={radioButtonColor} type="defaultBold">
+              <ThemedText color={radioButtonColor} style={{fontSize: 16}} type="defaultBold">
                 DELETE
               </ThemedText>
             </TouchableOpacity>
@@ -202,6 +203,7 @@ interface CustomHeaderRightProps {
   onHeaderPress: (icon: MaterialIconName) => void;
   numberOfSelected: number;
   progress: SharedValue<number>;
+  multipleDelete: boolean;
 }
 
 const CustomHeaderRight = memo(function CustomHeaderRight({
@@ -209,6 +211,7 @@ const CustomHeaderRight = memo(function CustomHeaderRight({
   onHeaderPress,
   numberOfSelected,
   progress,
+  multipleDelete,
 }: CustomHeaderRightProps) {
   const iconColor = useThemeColor({}, "tint");
 
@@ -224,9 +227,6 @@ const CustomHeaderRight = memo(function CustomHeaderRight({
     };
   });
 
-  const pointerEnvents = useDerivedValue(() => {
-    return progress.value === 0 ? "auto" : "none";
-  });
   return (
     <View style={styles.centered}>
       <Animated.View style={selectedAnimatedStyle}>
@@ -234,7 +234,7 @@ const CustomHeaderRight = memo(function CustomHeaderRight({
       </Animated.View>
 
       <Animated.View
-        pointerEvents={pointerEnvents}
+        pointerEvents={multipleDelete ? "none" : "auto"}
         style={[styles.headerRight, optionAnimatedStyle]}
       >
         {icons.map((icon) => {
@@ -312,7 +312,7 @@ const CustomHeaderLeft = memo(function CustomHeaderLeft({
             color={radioButtonColor}
           />
 
-          <ThemedText color={radioButtonColor} type="defaultBold">
+          <ThemedText type="defaultBold" color={radioButtonColor}>
             Selected All
           </ThemedText>
         </TouchableOpacity>
@@ -329,7 +329,7 @@ interface LocationListProps {
 }
 
 const LocationList = observer(
- ({
+  ({
     multipleDelete,
     selectedItems,
     handleSelectItem,
@@ -374,7 +374,8 @@ const LocationList = observer(
         />
       )
     );
-  })
+  }
+);
 
 export default AllLocation;
 
@@ -386,7 +387,7 @@ interface WeatherItemProps {
   animatedStyle: StyleProp<AnimatedStyle<StyleProp<ViewStyle>>>;
 }
 
-const WeatherItem = memo(function Component({
+const WeatherItem = memo(function WeatherItem({
   item,
   index,
   selectedItems,
@@ -412,12 +413,7 @@ const WeatherItem = memo(function Component({
         source={{ uri: theme?.asset.uri }}
         style={styles.weather}
       >
-        <Animated.View
-          style={[
-            { flexDirection: "row", alignItems: "center", gap: 18 },
-            animatedStyle,
-          ]}
-        >
+        <Animated.View style={[styles.rowCenter, { gap: 18 }, animatedStyle]}>
           <MaterialIcons
             name={
               selectedItems.includes(item.id)
@@ -438,14 +434,14 @@ const WeatherItem = memo(function Component({
               </ThemedText>
             </View>
 
-            <ThemedText color={white} type="label">
+            <ThemedText color={white}>
               {locationUtils.getAddress(item.location)}
             </ThemedText>
           </View>
         </Animated.View>
         <View style={{ flex: 1 }} />
         <View>
-          <ThemedText color={white}>
+          <ThemedText style={{fontSize: 18}} color={white}>
             {temperatureUtils.formatCelcius(item.main.temp)}
           </ThemedText>
         </View>
@@ -489,6 +485,7 @@ const styles = StyleSheet.create({
     gap: 12,
     alignItems: "center",
     position: "absolute",
+    right: 0,
   },
   weather: {
     flexDirection: "row",
