@@ -1,61 +1,55 @@
 import { Colors } from "@/constants/Colors";
-import { useAssets } from "expo-asset";
 
 interface WeatherTheme {
   weatherCode: number;
   iconCode: string;
 }
 
-export const lightTextColor = "#f5f5f5";
+export const lightTextColor = Colors.dark.text;
 
 export function useWeatherTheme({ iconCode, weatherCode }: WeatherTheme) {
-  const [assets] = useAssets([
-    require("../assets/images/weather/sunny.jpg"),
-    require("../assets/images/weather/night.jpg"),
-    require("../assets/images/weather/cloud.jpg"),
-    require("../assets/images/weather/thunder.jpg"),
-    require("../assets/images/weather/rain.jpg"),
-  ]);
-
-  if (!assets) return;
-
   switch (true) {
     case weatherCode < 300:
       // Thunderstorm
       return {
-        asset: assets[3],
+        asset: require("../assets/images/weather/thunder.jpg"),
         textColor: lightTextColor,
         backgroundColor: "#010812",
+        rippleColor: Colors.dark.ripple,
       };
 
     case weatherCode >= 300 && weatherCode < 550:
       // Rain
       return {
-        asset: assets[4],
+        asset: require("../assets/images/weather/rain.jpg"),
         textColor: lightTextColor,
         backgroundColor: "#030305",
+        rippleColor: Colors.dark.ripple,
       };
 
     case weatherCode === 800:
       // Clear sky
       return iconCode === "01d"
         ? {
-            asset: assets[0],
+            asset: require("../assets/images/weather/sunny.jpg"),
             textColor: lightTextColor,
             backgroundColor: "#3494d1",
+            rippleColor: Colors.dark.ripple,
           }
         : {
-            asset: assets[1],
+            asset: require("../assets/images/weather/night.jpg"),
             textColor: lightTextColor,
             backgroundColor: "#04173f",
+            rippleColor: Colors.dark.ripple,
           };
 
     case weatherCode > 800:
       // Clouds
       return {
-        asset: assets[2],
+        asset: require("../assets/images/weather/cloud.jpg"),
         textColor: lightTextColor,
         backgroundColor: "#001a2b",
+        rippleColor: Colors.dark.ripple,
       };
 
     default:

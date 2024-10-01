@@ -1,13 +1,14 @@
-import weatherStore from "@/stores/weatherStore";
+import WeatherStore from "@/stores/weatherStore";
 import { createContext, PropsWithChildren, useContext } from "react";
 
+const weatherStore = new WeatherStore();
 const MobxContext = createContext({
-  currWeatherStore: weatherStore,
+  weatherStore: weatherStore,
 });
 
 export const MobxStoreProvider = ({ children }: PropsWithChildren) => {
   return (
-    <MobxContext.Provider value={{ currWeatherStore: weatherStore }}>
+    <MobxContext.Provider value={{ weatherStore: weatherStore }}>
       {children}
     </MobxContext.Provider>
   );

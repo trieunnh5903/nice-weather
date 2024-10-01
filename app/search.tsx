@@ -17,15 +17,16 @@ import {
 } from "react-native-gesture-handler";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Button, Divider } from "react-native-paper";
-import weatherStore from "@/stores/weatherStore";
 import { observer } from "mobx-react-lite";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useSearchLocation } from "@/hooks/useSearchLocation";
 import { ThemedText } from "@/components/ThemedText";
-import { Location } from "@/type";
 import * as ExpoLocation from "expo-location";
 import { Colors } from "@/constants/Colors";
 import { weatherApi } from "@/api/weatherApi";
+import { Province } from "@/type";
+import { useStores } from "@/hooks/useStore";
+import { StatusBar } from "expo-status-bar";
 
 const SearchScreen = () => {
   const [query, setQuery] = useState("");
@@ -34,6 +35,7 @@ const SearchScreen = () => {
   const handleSearchChange = (e: string) => {
     setQuery(e);
   };
+  console.log("search");
 
   const onBackPress = () => {
     if (router.canGoBack()) {
@@ -43,9 +45,10 @@ const SearchScreen = () => {
     }
   };
 
-  const iconColor = useThemeColor({}, "tint");
+  const iconColor = useThemeColor("tint");
   return (
     <ThemedView enableInsetsTop style={styles.container}>
+      <StatusBar style="auto"/>
       <ThemedView enableInsetsHorizontal style={styles.header}>
         <Pressable onPress={onBackPress}>
           <MaterialIcons name="arrow-back" size={24} color={iconColor} />
@@ -66,10 +69,11 @@ const SearchScreen = () => {
   );
 };
 
-export default SearchScreen;
 const CurrentLocationButton = observer(() => {
+  const { weatherStore } = useStores();
   const getCurrentPosition = async () => {
     try {
+      weatherStore.setState("loading");
       let { status } = await ExpoLocation.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         if (Platform.OS === "android") {
@@ -93,7 +97,7 @@ const CurrentLocationButton = observer(() => {
       const location = await weatherApi.reverseGeocoding(latitude, longitude);
 
       if (location) {
-        await weatherStore.addCurrentWeather(location);
+        await weatherStore.addProvince({ ...location, isUserLocation: true });
       }
 
       if (router.canGoBack()) {
@@ -102,22 +106,15 @@ const CurrentLocationButton = observer(() => {
         router.replace("/");
       }
     } catch (error) {
-      Alert.alert(
-        "Error",
-        "Failed to retrieve your location. Please try again."
-      );
-      console.log(error);
+      console.log("error", error);
     }
   };
 
   return (
     <Button
-      loading={weatherStore.state === "pending" ? true : false}
+      loading={weatherStore.state === "loading" ? true : false}
       mode="outlined"
-      style={{
-        marginTop: 12,
-        marginHorizontal: 16,
-      }}
+      style={styles.currentLocation}
       onPress={getCurrentPosition}
     >
       Use current location
@@ -125,7 +122,8 @@ const CurrentLocationButton = observer(() => {
   );
 });
 
-const SearchResults = ({ results }: { results: Location[] | undefined }) => {
+const SearchResults = ({ results }: { results: Province[] | undefined }) => {
+  const { weatherStore } = useStores();
   if (!results) return;
   if (results.length === 0) {
     return (
@@ -135,8 +133,8 @@ const SearchResults = ({ results }: { results: Location[] | undefined }) => {
     );
   }
 
-  const onLocationPress = async (location: Location) => {
-    await weatherStore.addCurrentWeather(location);
+  const onProvincePress = async (province: Province) => {
+    await weatherStore.addProvince(province);
     if (router.canGoBack()) {
       router.back();
     } else {
@@ -146,27 +144,27 @@ const SearchResults = ({ results }: { results: Location[] | undefined }) => {
 
   return (
     <ScrollView>
-      {results.map((location) => {
+      {results.map((province) => {
         const subtitleParts: string[] = [];
-        if (location.local_names?.vi) {
-          subtitleParts.push(location.local_names.vi);
+        if (province.local_names?.vi) {
+          subtitleParts.push(province.local_names.vi);
         }
 
-        if (location.state) {
-          subtitleParts.push(location.state);
+        if (province.state) {
+          subtitleParts.push(province.state);
         }
 
-        subtitleParts.push(location.country);
+        subtitleParts.push(province.country);
 
         const subtitle = subtitleParts.join(", ");
 
         return (
           <TouchableOpacity
-            onPress={() => onLocationPress(location)}
-            key={`${location.lat}-${location.lon}-${location.country}-${location.name}`}
+            onPress={() => onProvincePress(province)}
+            key={`${province.lat}-${province.lon}-${province.country}-${province.name}`}
           >
             <ThemedView style={{ padding: 12 }}>
-              <ThemedText>{location.name}</ThemedText>
+              <ThemedText>{province.name}</ThemedText>
               <ThemedText
                 type="label"
                 darkColor={Colors.dark.tint}
@@ -188,8 +186,8 @@ interface SearchBarProps {
 }
 
 const SearchBar = ({ query, onChange }: SearchBarProps) => {
-  const color = useThemeColor({}, "text");
-  const placeholderColor = useThemeColor({}, "placeholder");
+  const color = useThemeColor("text");
+  const placeholderColor = useThemeColor("placeholder");
 
   return (
     <TextInput
@@ -203,7 +201,13 @@ const SearchBar = ({ query, onChange }: SearchBarProps) => {
   );
 };
 
+export default SearchScreen;
+
 const styles = StyleSheet.create({
+  currentLocation: {
+    marginTop: 12,
+    marginHorizontal: 16,
+  },
   error: { textAlign: "center", marginTop: 20 },
   loading: { marginTop: 20 },
   header: { flexDirection: "row", alignItems: "center", gap: 6 },

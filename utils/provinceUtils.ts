@@ -1,6 +1,6 @@
-import { Location } from "@/type";
+import { Province } from "@/type";
 
-const getAddress = (location: Location) => {
+const getAddress = (location: Province) => {
   const subtitleParts: string[] = [];
 
   if (location.state) {
@@ -16,7 +16,7 @@ const getAddress = (location: Location) => {
   return subtitleParts.join(", ");
 };
 
-const getName = (location: Location) => {
+const getName = (location: Province) => {
   if (location.local_names?.vi) {
     return location.local_names.vi;
   } else {
@@ -24,4 +24,8 @@ const getName = (location: Location) => {
   }
 };
 
-export default { getAddress, getName };
+const getId = (province: Province) => {
+  return `${province.lat}-${province.lon}`;
+};
+
+export default { getAddress, getName, getId };

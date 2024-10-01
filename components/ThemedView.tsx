@@ -23,10 +23,10 @@ export function ThemedView({
   ...otherProps
 }: ThemedViewProps) {
   const insets = useSafeAreaInsets();
-  const backgroundColor = useThemeColor(
-    { light: lightColor, dark: darkColor },
-    "background"
-  );
+  const backgroundColor = useThemeColor("background", {
+    light: lightColor,
+    dark: darkColor,
+  });
 
   return (
     <View

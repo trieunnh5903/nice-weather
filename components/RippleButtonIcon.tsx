@@ -13,7 +13,7 @@ const RippleButtonIcon = ({
   onPress,
   disabled,
 }: RippleButtonProps) => {
-  const color = useThemeColor({}, "ripple");
+  const color = useThemeColor("ripple");
   return (
     <View
       style={{

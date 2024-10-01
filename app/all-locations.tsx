@@ -9,13 +9,12 @@ import {
 } from "react-native";
 import React, { memo, useEffect, useState } from "react";
 import { ThemedView } from "@/components/ThemedView";
-import { router, Stack } from "expo-router";
+import { router, Stack, useNavigation } from "expo-router";
 import { ThemedText } from "@/components/ThemedText";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { CurrentWeather, MaterialIconName } from "@/type";
+import { CurrentWeather, MaterialIconName, Province } from "@/type";
 import { observer } from "mobx-react-lite";
-import locationUtils from "@/utils/locationUtils";
 import temperatureUtils from "@/utils/temperatureUtils";
 import { useWeatherTheme } from "@/hooks/useWeatherTheme";
 import { ImageBackground } from "expo-image";
@@ -28,24 +27,41 @@ import Animated, {
   interpolate,
   SharedValue,
   useAnimatedStyle,
-  useDerivedValue,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
 import { useStores } from "@/hooks/useStore";
 import { FlatList } from "react-native-gesture-handler";
-import { useIsFocused } from "@react-navigation/native";
-import { Colors } from "@/constants/Colors";
+import { CommonActions, useIsFocused } from "@react-navigation/native";
+import { StatusBar } from "expo-status-bar";
+import provinceUtils from "@/utils/provinceUtils";
+
+interface CustomHeaderRightProps {
+  icons: MaterialIconName[];
+  onHeaderPress: (icon: MaterialIconName) => void;
+  numberOfSelected: number;
+  progress: SharedValue<number>;
+  multipleDelete: boolean;
+}
+
+interface LocationListProps {
+  multipleDelete: boolean;
+  selectedItems: string[];
+  handleSelectItem: (id: string) => void;
+  progress: SharedValue<number>;
+}
 
 const AllLocation = () => {
-  const { currWeatherStore } = useStores();
-  const iconColor = useThemeColor({}, "tint");
+  console.log("AllLocation");
+  const { weatherStore } = useStores();
+  const iconColor = useThemeColor("tint");
   const icons: MaterialIconName[] = ["add", "delete-outline"];
-  const radioButtonColor = useThemeColor({}, "tint");
-  const border = useThemeColor({}, "ripple");
+  const radioButtonColor = useThemeColor("tint");
+  const border = useThemeColor("ripple");
   const [multipleDelete, setMultipleDelete] = useState(false);
-  const [selectedItems, setSelectedItems] = useState<number[]>([]);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const progress = useSharedValue(0);
+  const navigation = useNavigation();
 
   const onHeaderPress = (icon: MaterialIconName) => {
     switch (icon) {
@@ -78,7 +94,7 @@ const AllLocation = () => {
     }
   }, [multipleDelete, progress]);
 
-  const handleSelectItem = (id: number) => {
+  const handleSelectItem = (id: string) => {
     setSelectedItems((prevSelectedItems) =>
       prevSelectedItems.includes(id)
         ? prevSelectedItems.filter((item) => item !== id)
@@ -87,49 +103,51 @@ const AllLocation = () => {
   };
 
   const handleSelecteAll = () => {
-    if (selectedItems.length === currWeatherStore.currentWeather.length) {
+    if (selectedItems.length === weatherStore.allProvinceIds.length) {
       setSelectedItems([]);
     } else {
-      setSelectedItems(currWeatherStore.currentWeather.map((i) => i.id));
+      setSelectedItems(weatherStore.allProvinceIds);
     }
   };
 
   const onDeletePress = () => {
     if (selectedItems.length === 0) return;
 
-    if (selectedItems.length === currWeatherStore.currentWeather.length) {
-      Alert.alert("", "Delete all this location?", [
-        { text: "Cancel" },
-        {
-          text: "OK",
-          onPress: () => {
+    Alert.alert("", "Delete this location?", [
+      { text: "Cancel" },
+      {
+        text: "OK",
+        onPress: () => {
+          if (selectedItems.length === weatherStore.allProvinceIds.length) {
             handleDeleteAll();
-          },
-        },
-      ]);
-    } else {
-      Alert.alert("", "Delete this location?", [
-        { text: "Cancel" },
-        {
-          text: "OK",
-          onPress: () => {
+          } else {
             handleDeleteSelected();
             setSelectedItems([]);
             setMultipleDelete(false);
-          },
+          }
         },
-      ]);
-    }
+      },
+    ]);
+  };
+
+  const resetNavigation = () => {
+    navigation.dispatch(
+      CommonActions.reset({
+        routes: [{ key: "index", name: "index" }],
+      })
+    );
   };
 
   const handleDeleteSelected = () => {
-    currWeatherStore.deleteMultipleWeather(selectedItems);
+    const remains = weatherStore.deleteMany(selectedItems);
+    if (remains === 0) {
+      resetNavigation();
+    }
   };
 
   const handleDeleteAll = () => {
-    currWeatherStore.deleteAll();
-    router.dismissAll();
-    router.replace("./search");
+    weatherStore.deleteAll();
+    resetNavigation();
   };
 
   return (
@@ -171,23 +189,25 @@ const AllLocation = () => {
         selectedItems={selectedItems}
         handleSelectItem={handleSelectItem}
       />
+      <View style={{ flex: 1 }} />
       {multipleDelete && (
         <Animated.View entering={FadeInDown} exiting={FadeOutDown}>
-          <ThemedView
-            style={[
-              styles.footerDelete,
-              {
-                borderTopColor: border,
-              },
-            ]}
-          >
+          <ThemedView style={[styles.footerDelete, { borderTopColor: border }]}>
             <TouchableOpacity onPress={onCancelPress}>
-              <ThemedText color={radioButtonColor} style={{fontSize: 16}} type="defaultBold">
+              <ThemedText
+                color={radioButtonColor}
+                style={{ fontSize: 16 }}
+                type="defaultBold"
+              >
                 CANCEL
               </ThemedText>
             </TouchableOpacity>
             <TouchableOpacity onPress={onDeletePress}>
-              <ThemedText color={radioButtonColor} style={{fontSize: 16}} type="defaultBold">
+              <ThemedText
+                color={radioButtonColor}
+                style={{ fontSize: 16 }}
+                type="defaultBold"
+              >
                 DELETE
               </ThemedText>
             </TouchableOpacity>
@@ -198,14 +218,6 @@ const AllLocation = () => {
   );
 };
 
-interface CustomHeaderRightProps {
-  icons: MaterialIconName[];
-  onHeaderPress: (icon: MaterialIconName) => void;
-  numberOfSelected: number;
-  progress: SharedValue<number>;
-  multipleDelete: boolean;
-}
-
 const CustomHeaderRight = memo(function CustomHeaderRight({
   icons,
   onHeaderPress,
@@ -213,7 +225,7 @@ const CustomHeaderRight = memo(function CustomHeaderRight({
   progress,
   multipleDelete,
 }: CustomHeaderRightProps) {
-  const iconColor = useThemeColor({}, "tint");
+  const iconColor = useThemeColor("tint");
 
   const selectedAnimatedStyle = useAnimatedStyle(() => {
     return {
@@ -259,7 +271,7 @@ const CustomHeaderRight = memo(function CustomHeaderRight({
 
 interface CustomHeaderLeftProps {
   handleSelecteAll: () => void;
-  selectedItems: number[];
+  selectedItems: string[];
   progress: SharedValue<number>;
 }
 const CustomHeaderLeft = memo(function CustomHeaderLeft({
@@ -267,8 +279,8 @@ const CustomHeaderLeft = memo(function CustomHeaderLeft({
   selectedItems,
   progress,
 }: CustomHeaderLeftProps) {
-  const radioButtonColor = useThemeColor({}, "tint");
-  const { currWeatherStore } = useStores();
+  const radioButtonColor = useThemeColor("tint");
+  const { weatherStore } = useStores();
   const animatedStyle = useAnimatedStyle(() => {
     return {
       transform: [
@@ -291,6 +303,7 @@ const CustomHeaderLeft = memo(function CustomHeaderLeft({
 
   return (
     <View style={styles.rowCenter}>
+      <StatusBar style="auto" />
       <Animated.View style={[styles.rowCenter, backAnimatedStyle]}>
         <RippleButtonIcon onPress={onBackPress}>
           <MaterialIcons name="arrow-back" size={24} color={radioButtonColor} />
@@ -304,7 +317,7 @@ const CustomHeaderLeft = memo(function CustomHeaderLeft({
         >
           <MaterialIcons
             name={
-              selectedItems.length === currWeatherStore.currentWeather.length
+              selectedItems.length === weatherStore.allProvinceIds.length
                 ? "check-circle"
                 : "radio-button-unchecked"
             }
@@ -321,13 +334,6 @@ const CustomHeaderLeft = memo(function CustomHeaderLeft({
   );
 });
 
-interface LocationListProps {
-  multipleDelete: boolean;
-  selectedItems: number[];
-  handleSelectItem: (id: number) => void;
-  progress: SharedValue<number>;
-}
-
 const LocationList = observer(
   ({
     multipleDelete,
@@ -335,15 +341,14 @@ const LocationList = observer(
     handleSelectItem,
     progress,
   }: LocationListProps) => {
-    const { currWeatherStore: weatherStore } = useStores();
-    const isFocused = useIsFocused();
+    const { weatherStore } = useStores();
     console.log("LocationList");
-    const onLocationPress = (index: number, id: number) => {
+    const onLocationPress = (index: number, id: string) => {
       if (multipleDelete) {
         handleSelectItem(id);
         return;
       }
-      weatherStore.setSelectedWeather(index);
+      weatherStore.setSelectedIndex(index);
       router.back();
     };
 
@@ -356,93 +361,92 @@ const LocationList = observer(
     });
 
     return (
-      isFocused && (
-        <FlatList
-          data={weatherStore.currentWeather}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item, index }) => {
-            return (
-              <WeatherItem
-                animatedStyle={animatedStyle}
-                onLocationPress={onLocationPress}
-                item={item}
-                index={index}
-                selectedItems={selectedItems}
-              />
-            );
-          }}
-        />
-      )
+      <FlatList
+        data={weatherStore.allProvinces}
+        keyExtractor={(item) => item.currentWeather.id.toString()}
+        renderItem={({ item, index }) => {
+          return (
+            <WeatherItem
+              animatedStyle={animatedStyle}
+              onLocationPress={onLocationPress}
+              item={item}
+              index={index}
+              selectedItems={selectedItems}
+            />
+          );
+        }}
+      />
     );
   }
 );
 
 export default AllLocation;
 
+interface WeatherAndProvince {
+  province: Province;
+  currentWeather: CurrentWeather;
+}
 interface WeatherItemProps {
-  item: CurrentWeather;
+  item: WeatherAndProvince;
   index: number;
-  selectedItems: number[];
-  onLocationPress: (index: number, id: number) => void;
+  selectedItems: string[];
+  onLocationPress: (index: number, id: string) => void;
   animatedStyle: StyleProp<AnimatedStyle<StyleProp<ViewStyle>>>;
 }
 
 const WeatherItem = memo(function WeatherItem({
-  item,
+  item: { currentWeather, province },
   index,
   selectedItems,
   animatedStyle,
   onLocationPress,
 }: WeatherItemProps) {
   const theme = useWeatherTheme({
-    iconCode: item.weather[0].icon,
-    weatherCode: item.weather[0].id,
+    iconCode: currentWeather.weather[0].icon,
+    weatherCode: currentWeather.weather[0].id,
   });
-  const rippleColor = useThemeColor({}, "ripple");
-  const white = Colors.dark.text;
-  const { currWeatherStore } = useStores();
+  const textColor = theme?.textColor;
+  const itemId = provinceUtils.getId(province);
+
   return (
     <Pressable
-      onPress={() => onLocationPress(index, item.id)}
+      onPress={() => onLocationPress(index, itemId)}
       android_ripple={{
-        color: rippleColor,
+        color: theme?.rippleColor,
         foreground: true,
       }}
     >
-      <ImageBackground
-        source={{ uri: theme?.asset.uri }}
-        style={styles.weather}
-      >
+      <ImageBackground source={theme?.asset} style={styles.weather}>
         <Animated.View style={[styles.rowCenter, { gap: 18 }, animatedStyle]}>
           <MaterialIcons
             name={
-              selectedItems.includes(item.id)
+              selectedItems.includes(itemId)
                 ? "check-circle"
                 : "radio-button-unchecked"
             }
             size={24}
-            color={white}
+            color={textColor}
           />
 
           <View>
             <View style={styles.nameWrapper}>
-              {index === currWeatherStore.selectedWeather && (
-                <MaterialIcons name="location-on" size={24} color={white} />
+              {province.isUserLocation && (
+                <MaterialIcons name="location-on" size={24} color={textColor} />
               )}
-              <ThemedText color={white}>
-                {locationUtils.getName(item.location)}
+              <ThemedText color={textColor}>
+                {provinceUtils.getName(province)}
               </ThemedText>
             </View>
 
-            <ThemedText color={white}>
-              {locationUtils.getAddress(item.location)}
+            <ThemedText color={textColor}>
+              {provinceUtils.getAddress(province)}
             </ThemedText>
           </View>
         </Animated.View>
         <View style={{ flex: 1 }} />
         <View>
-          <ThemedText style={{fontSize: 18}} color={white}>
-            {temperatureUtils.formatCelcius(item.main.temp)}
+          <ThemedText style={{ fontSize: 18 }} color={textColor}>
+            {temperatureUtils.formatCelcius(currentWeather.main.temp)}
           </ThemedText>
         </View>
       </ImageBackground>
@@ -469,8 +473,8 @@ const styles = StyleSheet.create({
   footerDelete: {
     flexDirection: "row",
     gap: 36,
-    position: "absolute",
-    bottom: 0,
+    // position: "absolute",
+    // bottom: 0,
     justifyContent: "flex-end",
     width: "100%",
     borderTopWidth: 1,
@@ -491,6 +495,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 18,
-    // gap: 18,
+    // backgroundColor: 'red'
   },
 });

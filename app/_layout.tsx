@@ -1,6 +1,5 @@
 import { PaperTheme } from "@/constants/Colors";
-import { MobxStoreProvider } from "@/hooks/useStore";
-import weatherStore from "@/stores/weatherStore";
+import { MobxStoreProvider, useStores } from "@/hooks/useStore";
 import {
   DarkTheme,
   DefaultTheme,
@@ -8,21 +7,29 @@ import {
 } from "@react-navigation/native";
 import axios from "axios";
 import { useFonts } from "expo-font";
-import { router, SplashScreen, Stack } from "expo-router";
-import { useEffect, useState } from "react";
+import {
+  router,
+  Slot,
+  SplashScreen,
+  Stack,
+  useNavigationContainerRef,
+} from "expo-router";
+import { useEffect } from "react";
 import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PaperProvider } from "react-native-paper";
+import { enableFreeze } from "react-native-screens";
 
 SplashScreen.preventAutoHideAsync();
 axios.defaults.baseURL = process.env.EXPO_PUBLIC_OPEN_WEATHER_URL_KEY;
-
+enableFreeze(true);
 export default function Layout() {
-  const [appIsReady, setAppIsReady] = useState(false);
+  const ref = useNavigationContainerRef();
+  const { weatherStore } = useStores();
   const colorScheme = useColorScheme();
   const paperTheme =
     colorScheme === "dark" ? PaperTheme.dark : PaperTheme.light;
-  const [loaded, error] = useFonts({
+  const [loaded] = useFonts({
     "OpenSans-Regular": require("../assets/fonts/OpenSans-Regular.ttf"),
     "OpenSans-Medium": require("../assets/fonts/OpenSans-Medium.ttf"),
     "OpenSans-SemiBold": require("../assets/fonts/OpenSans-SemiBold.ttf"),
@@ -33,31 +40,23 @@ export default function Layout() {
   useEffect(() => {
     async function prepare() {
       try {
-        await weatherStore.loadCurrentWeather();
-        if (loaded) {
+        await weatherStore.load();
+        if (weatherStore.loaded && loaded) {
           await SplashScreen.hideAsync();
-          setAppIsReady(true);
         }
       } catch (e) {
         console.warn(e);
       }
     }
     prepare();
-  }, [error, loaded]);
+  }, [loaded, ref, weatherStore, weatherStore.loaded]);
 
-  useEffect(() => {
-    (async function () {
-      if (appIsReady) {
-        if (weatherStore.currentWeather.length === 0) {
-          router.replace("/search");
-        }
-      }
-    })();
-  }, [appIsReady]);
-
-  if (!appIsReady) {
+  if (!loaded || !weatherStore.loaded) {
+    console.log("loaded", loaded);
+    console.log("weatherStore.loaded", weatherStore.loaded);
     return null;
   }
+
   return (
     <GestureHandlerRootView>
       <MobxStoreProvider>
@@ -66,14 +65,11 @@ export default function Layout() {
             value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
           >
             <Stack
-              initialRouteName={
-                weatherStore.currentWeather.length > 0 ? "index" : "search"
-              }
-              screenOptions={{ headerShown: false, animation: 'fade_from_bottom' }}
-            >
-              {/* <Stack.Screen name="index" />
-            <Stack.Screen name="search" /> */}
-            </Stack>
+              screenOptions={{
+                headerShown: false,
+                animation: "fade_from_bottom",
+              }}
+            ></Stack>
           </ThemeProvider>
         </PaperProvider>
       </MobxStoreProvider>
