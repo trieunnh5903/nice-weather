@@ -7,6 +7,8 @@ export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
   color?: string;
+  uppercase?: boolean;
+  fontSize?: number | undefined;
   type?:
     | "defaultLight"
     | "default"
@@ -24,7 +26,9 @@ export function ThemedText({
   lightColor,
   darkColor,
   lineHeight,
+  fontSize,
   color,
+  uppercase,
   type = "default",
   ...rest
 }: ThemedTextProps) {
@@ -45,7 +49,8 @@ export function ThemedText({
         type === "subtitle" ? styles.subtitle : undefined,
         type === "link" ? styles.link : undefined,
         type === "label" ? styles.label : undefined,
-        { color: color || themeColor, lineHeight },
+        uppercase && { textTransform: "uppercase" },
+        { color: color || themeColor, lineHeight, fontSize },
         style,
       ]}
       {...rest}

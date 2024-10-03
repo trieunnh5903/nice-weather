@@ -394,7 +394,7 @@ interface WeatherItemProps {
   animatedStyle: StyleProp<AnimatedStyle<StyleProp<ViewStyle>>>;
 }
 
-const WeatherItem = memo(function WeatherItem({
+const WeatherItem = function WeatherItem({
   item: { currentWeather, province },
   index,
   selectedItems,
@@ -452,7 +452,7 @@ const WeatherItem = memo(function WeatherItem({
       </ImageBackground>
     </Pressable>
   );
-});
+};
 
 const styles = StyleSheet.create({
   rowCenter: {
@@ -473,8 +473,6 @@ const styles = StyleSheet.create({
   footerDelete: {
     flexDirection: "row",
     gap: 36,
-    // position: "absolute",
-    // bottom: 0,
     justifyContent: "flex-end",
     width: "100%",
     borderTopWidth: 1,

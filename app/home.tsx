@@ -13,7 +13,6 @@ import {
 import Units from "@/constants/Units";
 import { ImageBackground } from "expo-image";
 import { useStores } from "@/hooks/useStore";
-import { Device } from "@/constants/Device";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { lightTextColor, useWeatherTheme } from "@/hooks/useWeatherTheme";
 import { memo, useCallback, useEffect, useLayoutEffect, useState } from "react";
@@ -24,7 +23,13 @@ import { Colors } from "@/constants/Colors";
 import * as NavigationBar from "expo-navigation-bar";
 import { MaterialIconName } from "@/type";
 import { StatusBar } from "expo-status-bar";
-import { CommonActions } from "@react-navigation/native";
+import { CommonActions, useTheme } from "@react-navigation/native";
+import { Path, Svg, Text } from "react-native-svg";
+import { Size } from "@/constants/Size";
+interface HeaderIconsProps {
+  onHeaderPress: (icon: string) => void;
+  headerIcons: MaterialIconName[];
+}
 
 const HomeScreen: React.FC = observer(() => {
   console.log("home");
@@ -32,27 +37,35 @@ const HomeScreen: React.FC = observer(() => {
   const insets = useSafeAreaInsets();
   const { weatherStore } = useStores();
   const weather = weatherStore.selectedCurrentWeather.weather[0];
-  const [navigationBarColor, setNavigationBarColor] = useState<ColorValue>();
+  const [navigationBarColor, setNavigationBarColor] =
+    useState<ColorValue>("#f2f2f2");
   const weatherTheme = useWeatherTheme({
     iconCode: weather.icon,
     weatherCode: weather.id,
   });
 
-  // useEffect(() => {
-  //   const getNavigationBarColor = async () => {
-  //     const color = await NavigationBar.getBackgroundColorAsync();
-  //     setNavigationBarColor(color);
-  //   };
-  //   if (weatherTheme) {
-  //     getNavigationBarColor();
-  //     NavigationBar.setBackgroundColorAsync(weatherTheme.backgroundColor);
-  //   }
-  //   return () => {
-  //     if (navigationBarColor) {
-  //       NavigationBar.setBackgroundColorAsync(navigationBarColor);
-  //     }
-  //   };
-  // }, [navigationBarColor, weatherTheme]);
+
+  useEffect(() => {
+    const fetchDefaultColor = async () => {
+      const currentColor = await NavigationBar.getBackgroundColorAsync();
+      console.log("currentColor", currentColor);
+      setNavigationBarColor(currentColor);
+    };
+    fetchDefaultColor();
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (weatherTheme) {
+        NavigationBar.setBackgroundColorAsync(weatherTheme.backgroundColor);
+      }
+
+      return () => {
+        NavigationBar.setBackgroundColorAsync(navigationBarColor);
+      };
+    }, [navigationBarColor, weatherTheme])
+  );
+
   const navigation = useNavigation();
   const onHeaderPress = (icon: string) => {
     switch (icon) {
@@ -110,15 +123,136 @@ const HomeScreen: React.FC = observer(() => {
           />
           <CurrentWeatherInfo />
         </ImageBackground>
+        <View style={{ padding: 12 }}>
+          <ThemedText uppercase type="subtitle" color={weatherTheme.textColor}>
+            Life
+          </ThemedText>
+          <View>
+            <View
+              style={{
+                flexDirection: "row",
+              }}
+            >
+              <View
+                style={[
+                  styles.box,
+                  styles.centered,
+                  { borderColor: weatherTheme.textColor },
+                ]}
+              >
+                <ThemedText fontSize={16} color={weatherTheme.textColor}>
+                  Độ ẩm
+                </ThemedText>
+                <ThemedText color={weatherTheme.textColor}>54%</ThemedText>
+              </View>
+              <View
+                style={[
+                  styles.centered,
+                  styles.box,
+                  styles.boxRight,
+                  { borderColor: weatherTheme.textColor },
+                ]}
+              >
+                <ThemedText fontSize={16} color={weatherTheme.textColor}>
+                  Độ ẩm
+                </ThemedText>
+                <ThemedText color={weatherTheme.textColor}>54%</ThemedText>
+              </View>
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+              }}
+            >
+              <View
+                style={[
+                  styles.centered,
+                  styles.box,
+                  styles.boxBottom,
+                  { borderColor: weatherTheme.textColor },
+                ]}
+              >
+                <ThemedText fontSize={16} color={weatherTheme.textColor}>
+                  Độ ẩm
+                </ThemedText>
+                <ThemedText color={weatherTheme.textColor}>54%</ThemedText>
+              </View>
+              <View
+                style={[
+                  styles.centered,
+                  styles.box,
+                  styles.boxRight,
+                  styles.boxBottom,
+                  { borderColor: weatherTheme.textColor },
+                ]}
+              >
+                <ThemedText fontSize={16} color={weatherTheme.textColor}>
+                  Độ ẩm
+                </ThemedText>
+                <ThemedText color={weatherTheme.textColor}>54%</ThemedText>
+              </View>
+            </View>
+          </View>
+
+          <View style={{ flexDirection: "row" }}>
+            <HalfCircle />
+            <View style={{ flex: 1, backgroundColor: "green" }}></View>
+          </View>
+        </View>
       </ThemedView>
     </>
   );
 });
 
-interface HeaderIconsProps {
-  onHeaderPress: (icon: string) => void;
-  headerIcons: MaterialIconName[];
-}
+const HalfCircle = () => {
+  const svgSize = (Size.screenWidth - 12 * 2) / 2;
+  const radius = svgSize / 4;
+  const centerY = svgSize / 2;
+  const startX = centerY - radius;
+  const endX = centerY + radius;
+  const circleColor = useThemeColor("placeholder");
+  const p = radius * Math.PI;
+
+  return (
+    <View>
+      <Svg height={svgSize} width={svgSize}>
+        <Path
+          d={`M ${startX} ${centerY} A ${radius} ${radius} 0 0 1 ${endX} ${centerY}`}
+          fill="transparent"
+          stroke={circleColor}
+          strokeWidth="4"
+        />
+        <Path
+          d={`M ${startX} ${centerY} A ${radius} ${radius} 0 0 1 ${endX} ${centerY}`}
+          fill="transparent"
+          stroke={"yellow"}
+          strokeWidth="4"
+          strokeDasharray={p}
+          strokeDashoffset={p * 0.5}
+        />
+
+        <Text
+          x={startX - 20}
+          y={centerY + 20}
+          fontSize="14"
+          fill={Colors.dark.text}
+        >
+          5:37 AM
+        </Text>
+
+        <Text
+          x={endX - 20}
+          y={centerY + 20}
+          fontSize="14"
+          fill={Colors.dark.text}
+        >
+          5:37 PM
+        </Text>
+      </Svg>
+    </View>
+  );
+};
+
 const HeaderIcons = memo(function Component({
   onHeaderPress,
   headerIcons,
@@ -273,6 +407,25 @@ const CurrentWeatherInfo: React.FC = observer(() => {
 });
 
 const styles = StyleSheet.create({
+  box: {
+    flex: 1,
+    borderTopWidth: 0.5,
+
+    padding: 18,
+  },
+
+  centered: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  boxRight: {
+    borderLeftWidth: 0.5,
+  },
+
+  boxBottom: {
+    borderBottomWidth: 0.5,
+  },
   celcius: {
     fontSize: 76,
   },
@@ -293,9 +446,9 @@ const styles = StyleSheet.create({
   current: {
     alignItems: "center",
     marginTop: 6,
-    width: Device.screenWidth,
+    width: Size.screenWidth,
   },
-  loationName: { flexDirection: "row", gap: 6, alignItems:'center' },
+  loationName: { flexDirection: "row", gap: 6, alignItems: "center" },
   container: {
     flex: 1,
   },

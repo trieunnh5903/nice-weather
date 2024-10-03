@@ -7,13 +7,7 @@ import {
 } from "@react-navigation/native";
 import axios from "axios";
 import { useFonts } from "expo-font";
-import {
-  router,
-  Slot,
-  SplashScreen,
-  Stack,
-  useNavigationContainerRef,
-} from "expo-router";
+import { SplashScreen, Stack, useNavigationContainerRef } from "expo-router";
 import { useEffect } from "react";
 import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -21,7 +15,13 @@ import { PaperProvider } from "react-native-paper";
 import { enableFreeze } from "react-native-screens";
 
 SplashScreen.preventAutoHideAsync();
-axios.defaults.baseURL = process.env.EXPO_PUBLIC_OPEN_WEATHER_URL_KEY;
+if (!process.env.EXPO_PUBLIC_OPEN_WEATHER_URL_KEY) {
+  console.error(
+    "Missing environment variable: EXPO_PUBLIC_OPEN_WEATHER_URL_KEY"
+  );
+} else {
+  axios.defaults.baseURL = process.env.EXPO_PUBLIC_OPEN_WEATHER_URL_KEY;
+}
 enableFreeze(true);
 export default function Layout() {
   const ref = useNavigationContainerRef();
@@ -40,8 +40,7 @@ export default function Layout() {
   useEffect(() => {
     async function prepare() {
       try {
-        await weatherStore.load();
-        if (weatherStore.loaded && loaded) {
+        if (loaded && weatherStore.isHydrated) {
           await SplashScreen.hideAsync();
         }
       } catch (e) {
@@ -49,16 +48,16 @@ export default function Layout() {
       }
     }
     prepare();
-  }, [loaded, ref, weatherStore, weatherStore.loaded]);
+  }, [loaded, ref, weatherStore]);
 
-  if (!loaded || !weatherStore.loaded) {
+  if (!loaded) {
     console.log("loaded", loaded);
-    console.log("weatherStore.loaded", weatherStore.loaded);
+    console.log("weatherStore.isHydrated", weatherStore.isHydrated);
     return null;
   }
 
   return (
-    <GestureHandlerRootView>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <MobxStoreProvider>
         <PaperProvider theme={paperTheme}>
           <ThemeProvider

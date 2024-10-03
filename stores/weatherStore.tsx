@@ -3,6 +3,7 @@ import { CurrentWeather, Forecast, Province } from "@/type";
 import provinceUtils from "@/utils/provinceUtils";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { flow, makeAutoObservable } from "mobx";
+import { makePersistable, isHydrated } from "mobx-persist-store";
 class WeatherStore {
   provinces: { [id: string]: Province } = {};
   allProvinceIds: string[] = [];
@@ -29,6 +30,22 @@ class WeatherStore {
   state: "idle" | "loading" | "error" = "idle";
   constructor() {
     makeAutoObservable(this);
+    makePersistable(this, {
+      name: "weatherStore",
+      properties: [
+        "provinces",
+        "allProvinceIds",
+        "currentWeather",
+        "forecasts",
+        "selectedIndex",
+      ],
+      storage: AsyncStorage,
+      stringify: true,
+    });
+  }
+
+  get isHydrated() {
+    return isHydrated(this);
   }
 
   setCurrentWeather(currentWeather: { [provinceId: string]: CurrentWeather }) {
@@ -68,6 +85,24 @@ class WeatherStore {
     });
   }
 
+  get selectedForcastDaily() {
+    const currentTimestamp = Math.floor(Date.now() / 1000);
+    const list = this.forecasts[this.selectedProvinceId].list;
+    const closestPastItem = list.reduce((pre, curr) => {
+      return curr.dt < currentTimestamp && curr.dt > pre.dt ? curr : pre;
+    }, list[0]);
+
+    const closestPastDay = new Date(closestPastItem.dt * 1000);
+    const endOfNextDay = new Date(closestPastDay);
+    endOfNextDay.setDate(closestPastDay.getDate() + 1);
+    const endOfNextDayTimestamp = Math.floor(endOfNextDay.getTime() / 1000);
+    const filteredItems = list.filter(
+      (item) =>
+        item.dt >= closestPastItem.dt && item.dt <= endOfNextDayTimestamp
+    );
+    return [closestPastItem, ...filteredItems];
+  }
+
   get selectedProvince() {
     return this.provinces[this.selectedProvinceId];
   }
@@ -100,19 +135,16 @@ class WeatherStore {
 
       this.currentWeather[provinceId] = currentWeather;
       this.forecasts[provinceId] = forecast;
-
+      this.state = "idle";
       this.errorMsg = null;
-      this.save();
     } catch (error: any) {
       console.error("Failed to fetch data", error.message);
       this.state = "error";
       this.errorMsg = `Error fetching weather data. ${error.message}`;
-    } finally {
-      this.state = "idle";
     }
   });
 
-  async updateSelectedProvince(direction: "increase" | "decrease") {
+  updateSelectedProvince(direction: "increase" | "decrease") {
     const length = this.allProvinceIds.length;
     if (direction === "increase") {
       this.setSelectedIndex(
@@ -123,7 +155,6 @@ class WeatherStore {
         this.selectedIndex === 0 ? length - 1 : this.selectedIndex - 1
       );
     }
-    this.save();
   }
 
   deleteProvince(provinceId: string) {
@@ -135,12 +166,21 @@ class WeatherStore {
     this.setSelectedIndex(
       Math.min(this.selectedIndex, this.allProvinceIds.length - 1)
     );
-    this.save();
     return this.allProvinceIds.length;
   }
 
   deleteMany(provinceIds: string[]) {
-    provinceIds.forEach((provinceId) => this.deleteProvince(provinceId));
+    provinceIds.forEach((provinceId) => {
+      delete this.provinces[provinceId];
+      delete this.currentWeather[provinceId];
+      delete this.forecasts[provinceId];
+    });
+    this.setAllProvinceIds(
+      this.allProvinceIds.filter((id) => !provinceIds.includes(id))
+    );
+    this.setSelectedIndex(
+      Math.min(this.selectedIndex, this.allProvinceIds.length - 1)
+    );
     return this.allProvinceIds.length;
   }
 
@@ -150,69 +190,6 @@ class WeatherStore {
     this.setForecasts({});
     this.setProvinces({});
     this.setSelectedIndex(-1);
-    this.save();
-  }
-
-  async save() {
-    try {
-      if (this.allProvinceIds.length === 0) {
-        await AsyncStorage.clear();
-        return;
-      }
-
-      const data = {
-        jsonWeather: JSON.stringify(this.currentWeather),
-        jsonProvinces: JSON.stringify(this.provinces),
-        jsonProvinceIds: JSON.stringify(this.allProvinceIds),
-        jsonForecast: JSON.stringify(this.forecasts),
-        jsonSelected: JSON.stringify(this.selectedIndex),
-      };
-      await AsyncStorage.multiSet(Object.entries(data));
-    } catch (error) {
-      console.log("Error saving data: ", error);
-    }
-  }
-
-  async load() {
-    try {
-      const [
-        jsonWeather,
-        jsonProvinces,
-        jsonProvinceIds,
-        jsonForecast,
-        jsonSelected,
-      ] = await AsyncStorage.multiGet([
-        "jsonWeather",
-        "jsonProvinces",
-        "jsonProvinceIds",
-        "jsonForecast",
-        "jsonSelected",
-      ]);
-
-      if (jsonWeather[1]) {
-        this.setCurrentWeather(JSON.parse(jsonWeather[1]));
-      }
-
-      if (jsonProvinces[1]) {
-        this.setProvinces(JSON.parse(jsonProvinces[1]));
-      }
-
-      if (jsonProvinceIds[1]) {
-        this.setAllProvinceIds(JSON.parse(jsonProvinceIds[1]));
-      }
-
-      if (jsonForecast[1]) {
-        this.setForecasts(JSON.parse(jsonForecast[1]));
-      }
-
-      if (jsonSelected[1]) {
-        this.setSelectedIndex(JSON.parse(jsonSelected[1]));
-      }
-      this.setLoaded(true);
-    } catch (error) {
-      this.setLoaded(false);
-      console.log("Error loading data: ", error);
-    }
   }
 }
 
