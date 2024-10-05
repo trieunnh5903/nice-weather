@@ -5,7 +5,6 @@ import {
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
-import axios from "axios";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack, useNavigationContainerRef } from "expo-router";
 import { useEffect } from "react";
@@ -15,13 +14,7 @@ import { PaperProvider } from "react-native-paper";
 import { enableFreeze } from "react-native-screens";
 
 SplashScreen.preventAutoHideAsync();
-if (!process.env.EXPO_PUBLIC_OPEN_WEATHER_URL_KEY) {
-  console.error(
-    "Missing environment variable: EXPO_PUBLIC_OPEN_WEATHER_URL_KEY"
-  );
-} else {
-  axios.defaults.baseURL = process.env.EXPO_PUBLIC_OPEN_WEATHER_URL_KEY;
-}
+
 enableFreeze(true);
 export default function Layout() {
   const ref = useNavigationContainerRef();

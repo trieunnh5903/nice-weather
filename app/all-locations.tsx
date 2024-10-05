@@ -13,9 +13,8 @@ import { router, Stack, useNavigation } from "expo-router";
 import { ThemedText } from "@/components/ThemedText";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { CurrentWeather, MaterialIconName, Province } from "@/type";
+import { CurrentWeather, MaterialIconName, Place } from "@/type";
 import { observer } from "mobx-react-lite";
-import temperatureUtils from "@/utils/temperatureUtils";
 import { useWeatherTheme } from "@/hooks/useWeatherTheme";
 import { ImageBackground } from "expo-image";
 import RippleButtonIcon from "@/components/RippleButtonIcon";
@@ -34,7 +33,8 @@ import { useStores } from "@/hooks/useStore";
 import { FlatList } from "react-native-gesture-handler";
 import { CommonActions, useIsFocused } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
-import provinceUtils from "@/utils/provinceUtils";
+import provinceUtils from "@/utils/placeUtils";
+import weatherUtils from "@/utils/weatherUtils";
 
 interface CustomHeaderRightProps {
   icons: MaterialIconName[];
@@ -103,10 +103,10 @@ const AllLocation = () => {
   };
 
   const handleSelecteAll = () => {
-    if (selectedItems.length === weatherStore.allProvinceIds.length) {
+    if (selectedItems.length === weatherStore.allPlaceIds.length) {
       setSelectedItems([]);
     } else {
-      setSelectedItems(weatherStore.allProvinceIds);
+      setSelectedItems(weatherStore.allPlaceIds);
     }
   };
 
@@ -118,7 +118,7 @@ const AllLocation = () => {
       {
         text: "OK",
         onPress: () => {
-          if (selectedItems.length === weatherStore.allProvinceIds.length) {
+          if (selectedItems.length === weatherStore.allPlaceIds.length) {
             handleDeleteAll();
           } else {
             handleDeleteSelected();
@@ -139,15 +139,15 @@ const AllLocation = () => {
   };
 
   const handleDeleteSelected = () => {
-    const remains = weatherStore.deleteMany(selectedItems);
-    if (remains === 0) {
-      resetNavigation();
-    }
+    // const remains = weatherStore.deleteMany(selectedItems);
+    // if (remains === 0) {
+    //   resetNavigation();
+    // }
   };
 
   const handleDeleteAll = () => {
-    weatherStore.deleteAll();
-    resetNavigation();
+    // weatherStore.deleteAll();
+    // resetNavigation();
   };
 
   return (
@@ -317,7 +317,7 @@ const CustomHeaderLeft = memo(function CustomHeaderLeft({
         >
           <MaterialIcons
             name={
-              selectedItems.length === weatherStore.allProvinceIds.length
+              selectedItems.length === weatherStore.allPlaceIds.length
                 ? "check-circle"
                 : "radio-button-unchecked"
             }
@@ -362,8 +362,8 @@ const LocationList = observer(
 
     return (
       <FlatList
-        data={weatherStore.allProvinces}
-        keyExtractor={(item) => item.currentWeather.id.toString()}
+        data={weatherStore.allPlace}
+        keyExtractor={(item) => item.place.place_id}
         renderItem={({ item, index }) => {
           return (
             <WeatherItem
@@ -382,12 +382,11 @@ const LocationList = observer(
 
 export default AllLocation;
 
-interface WeatherAndProvince {
-  province: Province;
-  currentWeather: CurrentWeather;
-}
 interface WeatherItemProps {
-  item: WeatherAndProvince;
+  item: {
+    place: Place;
+    currentWeather: CurrentWeather;
+  };
   index: number;
   selectedItems: string[];
   onLocationPress: (index: number, id: string) => void;
@@ -395,58 +394,55 @@ interface WeatherItemProps {
 }
 
 const WeatherItem = function WeatherItem({
-  item: { currentWeather, province },
+  item: { currentWeather, place },
   index,
   selectedItems,
   animatedStyle,
   onLocationPress,
 }: WeatherItemProps) {
-  const theme = useWeatherTheme({
-    iconCode: currentWeather.weather[0].icon,
-    weatherCode: currentWeather.weather[0].id,
-  });
-  const textColor = theme?.textColor;
-  const itemId = provinceUtils.getId(province);
-
+  // const theme = useWeatherTheme({
+  //   iconCode: currentWeather.weather[0].icon,
+  //   weatherCode: currentWeather.weather[0].id,
+  // });
+  // const textColor = theme?.textColor;
+  // const itemId = provinceUtils.getId(province);
+  const rippleColor = useThemeColor("ripple");
+  const iconColor = useThemeColor("icon");
   return (
     <Pressable
-      onPress={() => onLocationPress(index, itemId)}
+      onPress={() => onLocationPress(index, place.place_id)}
       android_ripple={{
-        color: theme?.rippleColor,
+        color: rippleColor,
         foreground: true,
       }}
     >
-      <ImageBackground source={theme?.asset} style={styles.weather}>
+      <ImageBackground style={styles.weather}>
         <Animated.View style={[styles.rowCenter, { gap: 18 }, animatedStyle]}>
           <MaterialIcons
             name={
-              selectedItems.includes(itemId)
+              selectedItems.includes(place.place_id)
                 ? "check-circle"
                 : "radio-button-unchecked"
             }
             size={24}
-            color={textColor}
+            color={iconColor}
           />
 
           <View>
             <View style={styles.nameWrapper}>
-              {province.isUserLocation && (
-                <MaterialIcons name="location-on" size={24} color={textColor} />
+              {place.isUserLocation && (
+                <MaterialIcons name="location-on" size={24} color={iconColor} />
               )}
-              <ThemedText color={textColor}>
-                {provinceUtils.getName(province)}
-              </ThemedText>
+              <ThemedText>{place.name}</ThemedText>
             </View>
 
-            <ThemedText color={textColor}>
-              {provinceUtils.getAddress(province)}
-            </ThemedText>
+            <ThemedText>{provinceUtils.getAddress(place)}</ThemedText>
           </View>
         </Animated.View>
         <View style={{ flex: 1 }} />
         <View>
-          <ThemedText style={{ fontSize: 18 }} color={textColor}>
-            {temperatureUtils.formatCelcius(currentWeather.main.temp)}
+          <ThemedText style={{ fontSize: 18 }}>
+            {weatherUtils.formatCelcius(currentWeather.temperature)}
           </ThemedText>
         </View>
       </ImageBackground>

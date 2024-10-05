@@ -24,9 +24,15 @@ import { ThemedText } from "@/components/ThemedText";
 import * as ExpoLocation from "expo-location";
 import { Colors } from "@/constants/Colors";
 import { weatherApi } from "@/api/weatherApi";
-import { Province } from "@/type";
 import { useStores } from "@/hooks/useStore";
 import { StatusBar } from "expo-status-bar";
+import { Place } from "@/type";
+import placeUtils from "@/utils/placeUtils";
+
+interface SearchBarProps {
+  query: string;
+  onChange: (text: string) => void;
+}
 
 const SearchScreen = () => {
   const [query, setQuery] = useState("");
@@ -48,7 +54,7 @@ const SearchScreen = () => {
   const iconColor = useThemeColor("tint");
   return (
     <ThemedView enableInsetsTop style={styles.container}>
-      <StatusBar style="auto"/>
+      <StatusBar style="auto" />
       <ThemedView enableInsetsHorizontal style={styles.header}>
         <Pressable onPress={onBackPress}>
           <MaterialIcons name="arrow-back" size={24} color={iconColor} />
@@ -94,10 +100,13 @@ const CurrentLocationButton = observer(() => {
         coords: { latitude, longitude },
       } = await ExpoLocation.getCurrentPositionAsync({});
 
-      const location = await weatherApi.reverseGeocoding(latitude, longitude);
+      const location = await weatherApi.reverseGeocoding(
+        latitude.toString(),
+        longitude.toString()
+      );
 
       if (location) {
-        await weatherStore.addProvince({ ...location, isUserLocation: true });
+        await weatherStore.addPlace({ ...location, isUserLocation: true });
       }
 
       if (router.canGoBack()) {
@@ -122,7 +131,7 @@ const CurrentLocationButton = observer(() => {
   );
 });
 
-const SearchResults = ({ results }: { results: Province[] | undefined }) => {
+const SearchResults = ({ results }: { results: Place[] | undefined }) => {
   const { weatherStore } = useStores();
   if (!results) return;
   if (results.length === 0) {
@@ -133,8 +142,8 @@ const SearchResults = ({ results }: { results: Province[] | undefined }) => {
     );
   }
 
-  const onProvincePress = async (province: Province) => {
-    await weatherStore.addProvince(province);
+  const onPlacePress = async (place: Place) => {
+    await weatherStore.addPlace(place);
     if (router.canGoBack()) {
       router.back();
     } else {
@@ -144,33 +153,21 @@ const SearchResults = ({ results }: { results: Province[] | undefined }) => {
 
   return (
     <ScrollView>
-      {results.map((province) => {
-        const subtitleParts: string[] = [];
-        if (province.local_names?.vi) {
-          subtitleParts.push(province.local_names.vi);
-        }
-
-        if (province.state) {
-          subtitleParts.push(province.state);
-        }
-
-        subtitleParts.push(province.country);
-
-        const subtitle = subtitleParts.join(", ");
-
+      {results.map((place) => {
+        const address = placeUtils.getAddress(place);
         return (
           <TouchableOpacity
-            onPress={() => onProvincePress(province)}
-            key={`${province.lat}-${province.lon}-${province.country}-${province.name}`}
+            onPress={() => onPlacePress(place)}
+            key={place.place_id}
           >
             <ThemedView style={{ padding: 12 }}>
-              <ThemedText>{province.name}</ThemedText>
+              <ThemedText>{place.name}</ThemedText>
               <ThemedText
                 type="label"
                 darkColor={Colors.dark.tint}
                 lightColor={Colors.light.tint}
               >
-                {subtitle}
+                {address}
               </ThemedText>
             </ThemedView>
             <Divider />
@@ -180,10 +177,6 @@ const SearchResults = ({ results }: { results: Province[] | undefined }) => {
     </ScrollView>
   );
 };
-interface SearchBarProps {
-  query: string;
-  onChange: (text: string) => void;
-}
 
 const SearchBar = ({ query, onChange }: SearchBarProps) => {
   const color = useThemeColor("text");

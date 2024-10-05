@@ -1,9 +1,9 @@
-import { Province } from "@/type";
-import axios from "axios";
+import { weatherApi } from "@/api/weatherApi";
+import { Place } from "@/type";
 import { useEffect, useState } from "react";
 
 export function useSearchLocation(query: string) {
-  const [results, setResults] = useState<Province[]>();
+  const [results, setResults] = useState<Place[]>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   useEffect(() => {
@@ -19,10 +19,7 @@ export function useSearchLocation(query: string) {
     const handleSearch = async () => {
       setLoading(true);
       try {
-        const response = await axios.get<Province[]>(
-          `/geo/1.0/direct?q=${query}&limit=5&appid=${process.env.EXPO_PUBLIC_OPEN_WEATHER_API_KEY}`
-        );
-        const data = response.data;
+        const data = await weatherApi.directGeocoding(query);
         setResults(data);
         setError("");
       } catch (error) {

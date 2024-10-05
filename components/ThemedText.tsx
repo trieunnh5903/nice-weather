@@ -49,8 +49,9 @@ export function ThemedText({
         type === "subtitle" ? styles.subtitle : undefined,
         type === "link" ? styles.link : undefined,
         type === "label" ? styles.label : undefined,
+        !!fontSize && { fontSize },
         uppercase && { textTransform: "uppercase" },
-        { color: color || themeColor, lineHeight, fontSize },
+        { color: color || themeColor, lineHeight },
         style,
       ]}
       {...rest}
@@ -78,6 +79,7 @@ const styles = StyleSheet.create({
   defaultLight: {
     fontSize: 14,
     fontFamily: "OpenSans-Light",
+    fontWeight: "100",
   },
   label: {
     fontSize: 12,

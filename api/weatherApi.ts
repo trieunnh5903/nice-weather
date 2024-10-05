@@ -1,30 +1,69 @@
-import axios, { AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
+import { axiosSunriseInstance, axiosWeatherInstance } from "./axiosConfig";
 
-const apiKey = process.env.EXPO_PUBLIC_OPEN_WEATHER_API_KEY;
+const apiKey = process.env.EXPO_PUBLIC_WEATHER_API_KEY;
 
 async function fetchData(endpoint: string, params = {}) {
+  console.log(apiKey);
+
   try {
-    const response: AxiosResponse = await axios.get(endpoint, {
-      params: { ...params, appid: apiKey, units: "metric" },
+    const response: AxiosResponse = await axiosWeatherInstance.get(endpoint, {
+      params: { ...params, key: apiKey },
     });
     return response.data;
   } catch (error) {
-    console.log("API Error", error);
-    return null;
+    throw error;
   }
 }
 
-const reverseGeocoding = (lat: number, lon: number) =>
-  fetchData("/geo/1.0/reverse", { lat, lon, limit: 1 });
+const reverseGeocoding = async (lat: string, lon: string) => {
+  try {
+    return await fetchData("/api/v1/free/nearest_place", { lat, lon });
+  } catch (error) {
+    console.log("reverseGeocoding", error);
+    return null;
+  }
+};
 
-const fetchCurrentWeather = (lat: number, lon: number) =>
-  fetchData("/data/2.5/weather", { lat, lon });
+const directGeocoding = async (text: string) => {
+  try {
+    return await fetchData("/api/v1/free/find_places_prefix", { text });
+  } catch (error) {
+    console.log("directGeocoding", error);
+    return null;
+  }
+};
 
-const fetchForecast = (lat: number, lon: number) =>
-  fetchData("/data/2.5/forecast", { lat, lon });
+const fetchWeather = async (lat: string, lon: string) => {
+  try {
+    return await fetchData(
+      // `/point?lat=${lat}&lon=${lon}&sections=all&language=en&units=metric`
+      "/api/v1/free/point",
+      { lat, lon, sections: "all", language: "en", units: "metric" }
+    );
+  } catch (error) {
+    console.log("fetchWeather", error);
+    return null;
+  }
+};
+
+const fetchSunrise = async (lat: string, lng: string) => {
+  try {
+    const response = await axiosSunriseInstance.get(
+      // `json?lat=${lat}&lng=${lon}&date_start=today&date_end=tomorrow`
+      "/json",
+      { params: { lat, lng, date_start: "today", date_end: "tomorrow" } }
+    );
+    return response.data;
+  } catch (error) {
+    console.log("fetchSunrise Error", error);
+    return null;
+  }
+};
 
 export const weatherApi = {
+  fetchSunrise,
   reverseGeocoding,
-  fetchForecast,
-  fetchCurrentWeather,
+  directGeocoding,
+  fetchWeather,
 };
