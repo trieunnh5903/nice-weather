@@ -1,4 +1,4 @@
-import weatherIconMapping from "@/config/weatherIconMapping";
+import weatherIconMapping from "@/config/weatherIcon";
 import { MaterialIcons } from "@expo/vector-icons";
 
 export type WatherIcon = keyof typeof weatherIconMapping;
@@ -137,7 +137,7 @@ export interface CurrentWeather {
   cloud_cover: number;
 }
 
-interface Hourly {
+export interface Hourly {
   date: string;
   weather: string;
   icon: number;
@@ -157,7 +157,7 @@ interface Hourly {
   };
 }
 
-interface Daily {
+export interface Daily {
   day: string;
   weather: string;
   icon: number;

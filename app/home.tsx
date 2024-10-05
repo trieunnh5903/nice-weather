@@ -5,6 +5,7 @@ import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { router, useFocusEffect, useNavigation } from "expo-router";
 import { observer } from "mobx-react-lite";
 import {
+  FlatList,
   Gesture,
   GestureDetector,
   GestureStateChangeEvent,
@@ -12,7 +13,7 @@ import {
   ScrollView,
 } from "react-native-gesture-handler";
 import Units from "@/constants/Units";
-import { ImageBackground } from "expo-image";
+import { Image, ImageBackground } from "expo-image";
 import { useStores } from "@/hooks/useStore";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { lightTextColor, useWeatherTheme } from "@/hooks/useWeatherTheme";
@@ -22,7 +23,7 @@ import RippleButtonIcon from "@/components/RippleButtonIcon";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Colors } from "@/constants/Colors";
 import * as NavigationBar from "expo-navigation-bar";
-import { MaterialIconName } from "@/type";
+import { Hourly, MaterialIconName } from "@/type";
 import { StatusBar } from "expo-status-bar";
 import { CommonActions } from "@react-navigation/native";
 import { Path, Svg, Text as TextSvg } from "react-native-svg";
@@ -30,6 +31,7 @@ import { Size } from "@/constants/Size";
 import weatherUtils from "@/utils/weatherUtils";
 import { autorun } from "mobx";
 import placeUtils from "@/utils/placeUtils";
+import weatherIcon from "@/config/weatherIcon";
 interface HeaderIconsProps {
   onHeaderPress: (icon: string) => void;
   headerIcons: MaterialIconName[];
@@ -124,6 +126,7 @@ const HomeScreen: React.FC = observer(() => {
   }, [weatherStore]);
 
   const sunriseTomorrow = weatherStore.selectedSunrise.results[1];
+
   return (
     <>
       <StatusBar />
@@ -192,10 +195,14 @@ const HomeScreen: React.FC = observer(() => {
           >
             <CurrentWeatherInfo />
           </ImageBackground>
-          <View style={{ padding: 12 }}>
-            <ThemedText uppercase type="subtitle">
-              Life
-            </ThemedText>
+          <View>
+            <ListHourly />
+
+            <ThemedView paddingHorizontal={12}>
+              <ThemedText uppercase type="subtitle">
+                life
+              </ThemedText>
+            </ThemedView>
             {/* <View>
               <View
                 style={{
@@ -234,7 +241,7 @@ const HomeScreen: React.FC = observer(() => {
               </View>
             </View> */}
 
-            <View style={[styles.row, {justifyContent: 'space-evenly'}]}>
+            <View style={[styles.row, { justifyContent: "space-evenly" }]}>
               <View style={[styles.centered]}>
                 <HalfCircle />
               </View>
@@ -260,6 +267,47 @@ const HomeScreen: React.FC = observer(() => {
     </>
   );
 });
+
+const ListHourly = observer(() => {
+  const { weatherStore } = useStores();
+  const hourly = weatherStore.selectedWeather.hourly.data;
+
+  return (
+    <ThemedView>
+      <ThemedView paddingHorizontal={12}>
+        <ThemedText uppercase type="subtitle">
+          Hourly
+        </ThemedText>
+      </ThemedView>
+      <FlatList
+        horizontal
+        data={hourly}
+        keyExtractor={(item) => item.date}
+        renderItem={({ item, index }) => {
+          return <WeatherHourly item={item} index={index} />;
+        }}
+      />
+    </ThemedView>
+  );
+});
+
+const WeatherHourly = ({ item, index }: { item: Hourly; index: number }) => {
+  const date = new Date(item.date);
+  const time = date.toLocaleString("en-ES", { hour12: true, hour: "numeric" });
+  const icon = item.icon as keyof typeof weatherIcon;
+  const tag = index === 0 ? "Today" : time === "12 AM" ? "Tomorrow" : "";
+  return (
+    <ThemedView
+      padding={6}
+      style={[{ paddingLeft: index === 0 ? 12 : 0 }, styles.centered]}
+    >
+      <ThemedText>{tag}</ThemedText>
+      <ThemedText>{time}</ThemedText>
+      <Image source={weatherIcon[icon]} style={{ width: 24, height: 24 }} />
+      <ThemedText>{weatherUtils.formatCelcius(item.temperature)}</ThemedText>
+    </ThemedView>
+  );
+};
 
 const HalfCircle = () => {
   const { weatherStore } = useStores();

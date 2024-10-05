@@ -417,7 +417,7 @@ const WeatherItem = function WeatherItem({
       }}
     >
       <ImageBackground style={styles.weather}>
-        <Animated.View style={[styles.rowCenter, { gap: 18 }, animatedStyle]}>
+        <Animated.View style={[styles.rowCenter, { gap: 18, flex: 1, }, animatedStyle]}>
           <MaterialIcons
             name={
               selectedItems.includes(place.place_id)
@@ -428,7 +428,7 @@ const WeatherItem = function WeatherItem({
             color={iconColor}
           />
 
-          <View>
+          <View style={{flex: 1}}>
             <View style={styles.nameWrapper}>
               {place.isUserLocation && (
                 <MaterialIcons name="location-on" size={24} color={iconColor} />
@@ -439,9 +439,8 @@ const WeatherItem = function WeatherItem({
             <ThemedText>{provinceUtils.getAddress(place)}</ThemedText>
           </View>
         </Animated.View>
-        <View style={{ flex: 1 }} />
-        <View>
-          <ThemedText style={{ fontSize: 18 }}>
+        <View >
+          <ThemedText fontSize={18}>
             {weatherUtils.formatCelcius(currentWeather.temperature)}
           </ThemedText>
         </View>
@@ -477,6 +476,7 @@ const styles = StyleSheet.create({
   },
   nameWrapper: {
     flexDirection: "row",
+    alignItems: 'center'
   },
   headerRight: {
     flexDirection: "row",
