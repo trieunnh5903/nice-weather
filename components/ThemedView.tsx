@@ -12,10 +12,14 @@ export type ThemedViewProps = ViewProps & {
   flex?: boolean;
   padding?: number;
   paddingHorizontal?: number;
+  paddingLeft?: number;
+  paddingTop?: number;
+  paddingBottom?: number;
 };
 
 export function ThemedView({
   style,
+  paddingLeft,
   lightColor,
   darkColor,
   enableInsets,
@@ -23,6 +27,8 @@ export function ThemedView({
   enableInsetsTop,
   padding,
   paddingHorizontal,
+  paddingTop,
+  paddingBottom,
   flex,
   ...otherProps
 }: ThemedViewProps) {
@@ -35,7 +41,14 @@ export function ThemedView({
   return (
     <View
       style={[
-        { backgroundColor, padding, paddingHorizontal },
+        {
+          backgroundColor,
+          padding,
+          paddingHorizontal,
+          paddingLeft,
+          paddingTop,
+          paddingBottom,
+        },
         flex && { flex: 1 },
         enableInsets && {
           paddingTop: insets.top * 1.5,
@@ -45,7 +58,7 @@ export function ThemedView({
           paddingHorizontal: 16,
         },
         enableInsetsTop && {
-          paddingTop: insets.top * 1.5,
+          paddingTop: insets.top,
         },
         style,
       ]}

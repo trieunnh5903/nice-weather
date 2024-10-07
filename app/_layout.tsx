@@ -43,7 +43,7 @@ export default function Layout() {
     prepare();
   }, [loaded, ref, weatherStore]);
 
-  if (!loaded) {
+  if (!loaded || !weatherStore.isHydrated) {
     console.log("loaded", loaded);
     console.log("weatherStore.isHydrated", weatherStore.isHydrated);
     return null;

@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 12,
-    fontFamily: "OpenSans-Regular",
+    fontFamily: "OpenSans-Bold",
   },
   title: {
     fontSize: 18,

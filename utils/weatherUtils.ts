@@ -4,6 +4,10 @@ const formatCelcius = (temp: number) => {
   return Math.round(temp) + Units.Celsius;
 };
 
+const formatCelciusWithoutUnit = (temp: number) => {
+  return Math.round(temp) + "°";
+};
+
 function formatSunrise(timeString: string) {
   let [time, period] = timeString.split(" ");
 
@@ -12,7 +16,7 @@ function formatSunrise(timeString: string) {
   return `${hours}:${minutes} ${period}`;
 }
 
-const convertTo24Hour = (time: string) => {
+const convertToMinute = (time: string) => {
   let [hours, minutes] = time.split(" ")[0].split(":").map(Number);
   const period = time.split(" ")[1];
   if (period === "PM" && hours !== 12) hours += 12;
@@ -20,9 +24,26 @@ const convertTo24Hour = (time: string) => {
   return hours * 60 + minutes;
 };
 
+const days = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+
+const getDay = (date: string) => {
+  const d = new Date(date);
+  const dayOfWeek = d.getDay();
+
+  return days[dayOfWeek];
+};
+
 const periodOfSunriseAndSunset = (sunrise: string, sunset: string) => {
-  const sunriseMinutes = convertTo24Hour(sunrise);
-  const sunsetMinutes = convertTo24Hour(sunset);
+  const sunriseMinutes = convertToMinute(sunrise);
+  const sunsetMinutes = convertToMinute(sunset);
 
   return sunsetMinutes - sunriseMinutes;
 };
@@ -30,5 +51,8 @@ export default {
   formatCelcius,
   formatSunrise,
   periodOfSunriseAndSunset,
-  convertTo24Hour,
+  formatCelciusWithoutUnit,
+  convertToMinute,
+  getDay,
+  days,
 };

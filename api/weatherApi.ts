@@ -4,8 +4,6 @@ import { axiosSunriseInstance, axiosWeatherInstance } from "./axiosConfig";
 const apiKey = process.env.EXPO_PUBLIC_WEATHER_API_KEY;
 
 async function fetchData(endpoint: string, params = {}) {
-  console.log(apiKey);
-
   try {
     const response: AxiosResponse = await axiosWeatherInstance.get(endpoint, {
       params: { ...params, key: apiKey },
@@ -34,12 +32,14 @@ const directGeocoding = async (text: string) => {
   }
 };
 
-const fetchWeather = async (lat: string, lon: string) => {
+const fetchWeather = async (lat: string, lon: string, timezone: string) => {
+  console.log(lat, lon);
+
   try {
     return await fetchData(
       // `/point?lat=${lat}&lon=${lon}&sections=all&language=en&units=metric`
       "/api/v1/free/point",
-      { lat, lon, sections: "all", language: "en", units: "metric" }
+      { lat, lon, sections: "all", language: "en", units: "metric", timezone }
     );
   } catch (error) {
     console.log("fetchWeather", error);

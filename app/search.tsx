@@ -3,13 +3,13 @@ import {
   Alert,
   BackHandler,
   Platform,
-  Pressable,
   StyleSheet,
   ToastAndroid,
+  View,
 } from "react-native";
 import React, { useState } from "react";
 import { ThemedView } from "@/components/ThemedView";
-import { router } from "expo-router";
+import { router, Stack } from "expo-router";
 import {
   ScrollView,
   TextInput,
@@ -28,6 +28,7 @@ import { useStores } from "@/hooks/useStore";
 import { StatusBar } from "expo-status-bar";
 import { Place } from "@/type";
 import placeUtils from "@/utils/placeUtils";
+import RippleButtonIcon from "@/components/RippleButtonIcon";
 
 interface SearchBarProps {
   query: string;
@@ -53,15 +54,33 @@ const SearchScreen = () => {
 
   const iconColor = useThemeColor("tint");
   return (
-    <ThemedView enableInsetsTop style={styles.container}>
+    <ThemedView style={styles.container}>
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          title: "",
+          headerBackVisible: false,
+          headerLeft: () => {
+            return (
+              <View style={styles.headerLeft}>
+                <RippleButtonIcon onPress={onBackPress}>
+                  <MaterialIcons
+                    name="arrow-back"
+                    size={24}
+                    color={iconColor}
+                  />
+                </RippleButtonIcon>
+                <SearchBar query={query} onChange={handleSearchChange} />
+              </View>
+            );
+          },
+          headerTintColor: iconColor,
+          headerShadowVisible: false,
+        }}
+      />
       <StatusBar style="auto" />
-      <ThemedView enableInsetsHorizontal style={styles.header}>
-        <Pressable onPress={onBackPress}>
-          <MaterialIcons name="arrow-back" size={24} color={iconColor} />
-        </Pressable>
-        <SearchBar query={query} onChange={handleSearchChange} />
-      </ThemedView>
-      <Divider style={{ marginTop: 12 }} />
+
+      <Divider />
       {isLoading ? (
         <ActivityIndicator style={styles.loading} />
       ) : !query ? (
@@ -197,6 +216,9 @@ const SearchBar = ({ query, onChange }: SearchBarProps) => {
 export default SearchScreen;
 
 const styles = StyleSheet.create({
+  headerLeft: {
+    flexDirection: "row",
+  },
   currentLocation: {
     marginTop: 12,
     marginHorizontal: 16,

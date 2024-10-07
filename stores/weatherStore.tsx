@@ -1,13 +1,9 @@
 import { weatherApi } from "@/api/weatherApi";
 import { Place, Sunrise, Weather } from "@/type";
-import placeUtils from "@/utils/placeUtils";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { flow, makeAutoObservable } from "mobx";
 import { makePersistable, isHydrated } from "mobx-persist-store";
 class WeatherStore {
-  // allPlaceIds: string[] = [];
-  // currentWeather: { [placeId: string]: CurrentWeather } = {};
-  // forecasts: { [placeId: string]: Forecast } = {};
   places: { [id: string]: Place } = {};
   weather: { [id: string]: Weather } = {};
   allPlaceIds: string[] = [];
@@ -37,68 +33,13 @@ class WeatherStore {
     return isHydrated(this);
   }
 
-  // setCurrentWeather(currentWeather: { [provinceId: string]: CurrentWeather }) {
-  //   this.currentWeather = currentWeather;
-  // }
-
-  // setWeather(weather: { [placeId: string]: Weather }) {
-  //   this.weather = weather;
-  // }
-
-  // setLoaded(value: boolean) {
-  //   this.loaded = value;
-  // }
-
   setSelectedIndex(index: number) {
     this.selectedIndex = index;
   }
 
-  // setForecasts(forecast: { [provinceId: string]: Forecast }) {
-  //   this.forecasts = forecast;
-  // }
-
-  // setProvinces(provinces: { [id: string]: Province }) {
-  //   this.provinces = provinces;
-  // }
-
-  // setAllProvinceIds(provinceIds: string[]) {
-  //   this.allProvinceIds = provinceIds;
-  // }
-
   setState(state: "idle" | "loading" | "error") {
     this.state = state;
   }
-
-  // get allProvinces() {
-  //   return this.allProvinceIds.map((id) => {
-  //     return {
-  //       province: this.provinces[id],
-  //       currentWeather: this.currentWeather[id],
-  //     };
-  //   });
-  // }
-
-  // get selectedForcastDaily() {
-  //   const currentTimestamp = Math.floor(Date.now() / 1000);
-  //   const list = this.forecasts[this.selectedProvinceId].list;
-  //   const closestPastItem = list.reduce((pre, curr) => {
-  //     return curr.dt < currentTimestamp && curr.dt > pre.dt ? curr : pre;
-  //   }, list[0]);
-
-  //   const closestPastDay = new Date(closestPastItem.dt * 1000);
-  //   const endOfNextDay = new Date(closestPastDay);
-  //   endOfNextDay.setDate(closestPastDay.getDate() + 1);
-  //   const endOfNextDayTimestamp = Math.floor(endOfNextDay.getTime() / 1000);
-  //   const filteredItems = list.filter(
-  //     (item) =>
-  //       item.dt >= closestPastItem.dt && item.dt <= endOfNextDayTimestamp
-  //   );
-  //   return [closestPastItem, ...filteredItems];
-  // }
-
-  // get selectedProvince() {
-  //   return this.provinces[this.selectedProvinceId];
-  // }
 
   get selectedPlaceId() {
     return this.allPlaceIds[this.selectedIndex];
@@ -134,7 +75,7 @@ class WeatherStore {
       this.state = "loading";
 
       const [weather, sunrise] = yield Promise.all([
-        weatherApi.fetchWeather(place.lat, place.lon),
+        weatherApi.fetchWeather(place.lat, place.lon, place.timezone),
         weatherApi.fetchSunrise(place.lat, place.lon),
       ]);
 
@@ -157,11 +98,8 @@ class WeatherStore {
         this.places[place.place_id] = place;
         this.allPlaceIds.push(place.place_id);
         this.selectedIndex = this.allPlaceIds.length - 1;
-        // this.setSelectedIndex(this.allPlaceIds.length - 1);
       } else {
         this.selectedIndex = this.allPlaceIds.indexOf(place.place_id);
-
-        // this.setSelectedIndex(this.allPlaceIds.indexOf(placeId));
       }
       this.sunrise[place.place_id] = sunrise;
       this.weather[place.place_id] = weather;
@@ -179,43 +117,34 @@ class WeatherStore {
     if (direction === "increase") {
       this.selectedIndex =
         this.selectedIndex === length - 1 ? 0 : this.selectedIndex + 1;
-      // this.setSelectedIndex(
-      //   this.selectedIndex === length - 1 ? 0 : this.selectedIndex + 1
-      // );
     } else {
       this.selectedIndex =
         this.selectedIndex === 0 ? length - 1 : this.selectedIndex - 1;
-      // this.setSelectedIndex(
-      //   this.selectedIndex === 0 ? length - 1 : this.selectedIndex - 1
-      // );
     }
   }
 
   deletePlace(placeId: string) {
-    //   if (!(placeId in this.places)) return;
-    //   delete this.places[placeId];
-    //   delete this.weather[placeId];
-    //   delete this.forecasts[placeId];
-    //   this.setAllProvinceIds(this.allProvinceIds.filter((i) => i !== provinceId));
-    //   this.setSelectedIndex(
-    //     Math.min(this.selectedIndex, this.allProvinceIds.length - 1)
-    //   );
-    //   return this.allProvinceIds.length;
+    if (!(placeId in this.places)) return;
+    delete this.places[placeId];
+    delete this.weather[placeId];
+    delete this.sunrise[placeId];
+    this.allPlaceIds = this.allPlaceIds.filter((i) => i !== placeId);
+    this.setSelectedIndex(
+      Math.min(this.selectedIndex, this.allPlaceIds.length - 1)
+    );
   }
 
   deleteMany(placeIds: string[]) {
-    //   provinceIds.forEach((provinceId) => {
-    //     delete this.provinces[provinceId];
-    //     delete this.currentWeather[provinceId];
-    //     delete this.forecasts[provinceId];
-    //   });
-    //   this.setAllProvinceIds(
-    //     this.allProvinceIds.filter((id) => !provinceIds.includes(id))
-    //   );
-    //   this.setSelectedIndex(
-    //     Math.min(this.selectedIndex, this.allProvinceIds.length - 1)
-    //   );
-    //   return this.allProvinceIds.length;
+    placeIds.forEach((placeId) => {
+      delete this.weather[placeId];
+      delete this.sunrise[placeId];
+      delete this.places[placeId];
+    });
+    this.allPlaceIds = this.allPlaceIds.filter((id) => !placeIds.includes(id));
+    this.setSelectedIndex(
+      Math.min(this.selectedIndex, this.allPlaceIds.length - 1)
+    );
+    return this.allPlaceIds.length;
   }
 
   deleteAll() {

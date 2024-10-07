@@ -15,7 +15,6 @@ import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { CurrentWeather, MaterialIconName, Place } from "@/type";
 import { observer } from "mobx-react-lite";
-import { useWeatherTheme } from "@/hooks/useWeatherTheme";
 import { ImageBackground } from "expo-image";
 import RippleButtonIcon from "@/components/RippleButtonIcon";
 import Animated, {
@@ -31,10 +30,11 @@ import Animated, {
 } from "react-native-reanimated";
 import { useStores } from "@/hooks/useStore";
 import { FlatList } from "react-native-gesture-handler";
-import { CommonActions, useIsFocused } from "@react-navigation/native";
+import { CommonActions } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import provinceUtils from "@/utils/placeUtils";
 import weatherUtils from "@/utils/weatherUtils";
+import { Divider } from "react-native-paper";
 
 interface CustomHeaderRightProps {
   icons: MaterialIconName[];
@@ -139,15 +139,15 @@ const AllLocation = () => {
   };
 
   const handleDeleteSelected = () => {
-    // const remains = weatherStore.deleteMany(selectedItems);
-    // if (remains === 0) {
-    //   resetNavigation();
-    // }
+    const remains = weatherStore.deleteMany(selectedItems);
+    if (remains === 0) {
+      resetNavigation();
+    }
   };
 
   const handleDeleteAll = () => {
-    // weatherStore.deleteAll();
-    // resetNavigation();
+    weatherStore.deleteAll();
+    resetNavigation();
   };
 
   return (
@@ -179,10 +179,11 @@ const AllLocation = () => {
             );
           },
           headerTintColor: iconColor,
-          headerShadowVisible: false,
           headerTitleAlign: "left",
+          headerShadowVisible: false,
         }}
       />
+      <Divider />
       <LocationList
         progress={progress}
         multipleDelete={multipleDelete}
@@ -417,7 +418,9 @@ const WeatherItem = function WeatherItem({
       }}
     >
       <ImageBackground style={styles.weather}>
-        <Animated.View style={[styles.rowCenter, { gap: 18, flex: 1, }, animatedStyle]}>
+        <Animated.View
+          style={[styles.rowCenter, { gap: 18, flex: 1 }, animatedStyle]}
+        >
           <MaterialIcons
             name={
               selectedItems.includes(place.place_id)
@@ -428,7 +431,7 @@ const WeatherItem = function WeatherItem({
             color={iconColor}
           />
 
-          <View style={{flex: 1}}>
+          <View style={{ flex: 1 }}>
             <View style={styles.nameWrapper}>
               {place.isUserLocation && (
                 <MaterialIcons name="location-on" size={24} color={iconColor} />
@@ -439,7 +442,7 @@ const WeatherItem = function WeatherItem({
             <ThemedText>{provinceUtils.getAddress(place)}</ThemedText>
           </View>
         </Animated.View>
-        <View >
+        <View>
           <ThemedText fontSize={18}>
             {weatherUtils.formatCelcius(currentWeather.temperature)}
           </ThemedText>
@@ -476,7 +479,7 @@ const styles = StyleSheet.create({
   },
   nameWrapper: {
     flexDirection: "row",
-    alignItems: 'center'
+    alignItems: "center",
   },
   headerRight: {
     flexDirection: "row",
