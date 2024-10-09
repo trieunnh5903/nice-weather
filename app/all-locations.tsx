@@ -13,7 +13,7 @@ import { router, Stack, useNavigation } from "expo-router";
 import { ThemedText } from "@/components/ThemedText";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { CurrentWeather, MaterialIconName, Place } from "@/type";
+import { MaterialIconName, Place } from "@/type";
 import { observer } from "mobx-react-lite";
 import { ImageBackground } from "expo-image";
 import RippleButtonIcon from "@/components/RippleButtonIcon";
@@ -35,6 +35,8 @@ import { StatusBar } from "expo-status-bar";
 import provinceUtils from "@/utils/placeUtils";
 import weatherUtils from "@/utils/weatherUtils";
 import { Divider } from "react-native-paper";
+import { useQueries } from "@tanstack/react-query";
+import { weatherApi } from "@/api/weatherApi";
 
 interface CustomHeaderRightProps {
   icons: MaterialIconName[];
@@ -190,7 +192,7 @@ const AllLocation = () => {
         selectedItems={selectedItems}
         handleSelectItem={handleSelectItem}
       />
-      <View style={{ flex: 1 }} />
+      <ThemedView flex />
       {multipleDelete && (
         <Animated.View entering={FadeInDown} exiting={FadeOutDown}>
           <ThemedView style={[styles.footerDelete, { borderTopColor: border }]}>
@@ -241,7 +243,7 @@ const CustomHeaderRight = memo(function CustomHeaderRight({
   });
 
   return (
-    <View style={styles.centered}>
+    <ThemedView style={styles.centered}>
       <Animated.View style={selectedAnimatedStyle}>
         <ThemedText>{numberOfSelected} selected</ThemedText>
       </Animated.View>
@@ -266,7 +268,7 @@ const CustomHeaderRight = memo(function CustomHeaderRight({
           color={iconColor}
         />
       </Animated.View>
-    </View>
+    </ThemedView>
   );
 });
 
@@ -304,7 +306,6 @@ const CustomHeaderLeft = memo(function CustomHeaderLeft({
 
   return (
     <View style={styles.rowCenter}>
-      <StatusBar style="auto" />
       <Animated.View style={[styles.rowCenter, backAnimatedStyle]}>
         <RippleButtonIcon onPress={onBackPress}>
           <MaterialIcons name="arrow-back" size={24} color={radioButtonColor} />
@@ -365,6 +366,7 @@ const LocationList = observer(
       <FlatList
         data={weatherStore.allPlace}
         keyExtractor={(item) => item.place.place_id}
+        ItemSeparatorComponent={() => <Divider />}
         renderItem={({ item, index }) => {
           return (
             <WeatherItem
@@ -386,7 +388,6 @@ export default AllLocation;
 interface WeatherItemProps {
   item: {
     place: Place;
-    currentWeather: CurrentWeather;
   };
   index: number;
   selectedItems: string[];
@@ -395,18 +396,12 @@ interface WeatherItemProps {
 }
 
 const WeatherItem = function WeatherItem({
-  item: { currentWeather, place },
+  item: { place },
   index,
   selectedItems,
   animatedStyle,
   onLocationPress,
 }: WeatherItemProps) {
-  // const theme = useWeatherTheme({
-  //   iconCode: currentWeather.weather[0].icon,
-  //   weatherCode: currentWeather.weather[0].id,
-  // });
-  // const textColor = theme?.textColor;
-  // const itemId = provinceUtils.getId(province);
   const rippleColor = useThemeColor("ripple");
   const iconColor = useThemeColor("icon");
   return (
@@ -431,22 +426,26 @@ const WeatherItem = function WeatherItem({
             color={iconColor}
           />
 
-          <View style={{ flex: 1 }}>
-            <View style={styles.nameWrapper}>
+          <ThemedView flex>
+            <ThemedView style={styles.nameWrapper}>
               {place.isUserLocation && (
                 <MaterialIcons name="location-on" size={24} color={iconColor} />
               )}
               <ThemedText>{place.name}</ThemedText>
-            </View>
+            </ThemedView>
 
-            <ThemedText>{provinceUtils.getAddress(place)}</ThemedText>
-          </View>
+            <ThemedText numberOfLines={1}>
+              {provinceUtils.getAddress(place)}
+            </ThemedText>
+          </ThemedView>
         </Animated.View>
-        <View>
-          <ThemedText fontSize={18}>
-            {weatherUtils.formatCelcius(currentWeather.temperature)}
-          </ThemedText>
-        </View>
+        {place.temperature && (
+          <ThemedView>
+            <ThemedText fontSize={18}>
+              {weatherUtils.formatCelcius(place.temperature)}
+            </ThemedText>
+          </ThemedView>
+        )}
       </ImageBackground>
     </Pressable>
   );

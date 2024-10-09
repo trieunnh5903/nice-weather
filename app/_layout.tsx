@@ -5,6 +5,11 @@ import {
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
+import {
+  QueryCache,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack, useNavigationContainerRef } from "expo-router";
 import { useEffect } from "react";
@@ -12,8 +17,20 @@ import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PaperProvider } from "react-native-paper";
 import { enableFreeze } from "react-native-screens";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 
 SplashScreen.preventAutoHideAsync();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { staleTime: 3600 * 1000, gcTime: 2 * 24 * 3600 * 1000 },
+  },
+});
+
+const asyncStoragePersister = createAsyncStoragePersister({
+  storage: AsyncStorage,
+});
 
 enableFreeze(true);
 export default function Layout() {
@@ -52,18 +69,23 @@ export default function Layout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <MobxStoreProvider>
-        <PaperProvider theme={paperTheme}>
-          <ThemeProvider
-            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-          >
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                animation: "fade_from_bottom",
-              }}
-            ></Stack>
-          </ThemeProvider>
-        </PaperProvider>
+        <PersistQueryClientProvider
+          persistOptions={{ persister: asyncStoragePersister }}
+          client={queryClient}
+        >
+          <PaperProvider theme={paperTheme}>
+            <ThemeProvider
+              value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+            >
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  animation: "fade_from_bottom",
+                }}
+              ></Stack>
+            </ThemeProvider>
+          </PaperProvider>
+        </PersistQueryClientProvider>
       </MobxStoreProvider>
     </GestureHandlerRootView>
   );

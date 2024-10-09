@@ -41,16 +41,9 @@ const getDay = (date: string) => {
   return days[dayOfWeek];
 };
 
-const periodOfSunriseAndSunset = (sunrise: string, sunset: string) => {
-  const sunriseMinutes = convertToMinute(sunrise);
-  const sunsetMinutes = convertToMinute(sunset);
-
-  return sunsetMinutes - sunriseMinutes;
-};
 export default {
   formatCelcius,
   formatSunrise,
-  periodOfSunriseAndSunset,
   formatCelciusWithoutUnit,
   convertToMinute,
   getDay,

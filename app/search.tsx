@@ -7,7 +7,7 @@ import {
   ToastAndroid,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ThemedView } from "@/components/ThemedView";
 import { router, Stack } from "expo-router";
 import {
@@ -29,6 +29,8 @@ import { StatusBar } from "expo-status-bar";
 import { Place } from "@/type";
 import placeUtils from "@/utils/placeUtils";
 import RippleButtonIcon from "@/components/RippleButtonIcon";
+import { weatherQueryOptions } from "@/hooks/useWeatherData";
+import { useQuery } from "@tanstack/react-query";
 
 interface SearchBarProps {
   query: string;
@@ -95,10 +97,13 @@ const SearchScreen = () => {
 };
 
 const CurrentLocationButton = observer(() => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [placeId, setPlaceId] = useState<string>("");
+  const { isSuccess, data } = useQuery(weatherQueryOptions(placeId));
   const { weatherStore } = useStores();
   const getCurrentPosition = async () => {
+    setIsLoading(true);
     try {
-      weatherStore.setState("loading");
       let { status } = await ExpoLocation.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         if (Platform.OS === "android") {
@@ -125,22 +130,30 @@ const CurrentLocationButton = observer(() => {
       );
 
       if (location) {
-        await weatherStore.addPlace({ ...location, isUserLocation: true });
-      }
-
-      if (router.canGoBack()) {
-        router.back();
-      } else {
-        router.replace("/");
+        weatherStore.addPlace({ ...location, isUserLocation: true });
+        setPlaceId(location.place_id);
       }
     } catch (error) {
       console.log("error", error);
     }
   };
 
+  useEffect(() => {
+    if (isSuccess) {
+      weatherStore.updateTemperature(placeId, data.current.temperature);
+      if (router.canGoBack()) {
+        router.back();
+      } else {
+        router.replace("/");
+      }
+      setIsLoading(false);
+    }
+    return () => {};
+  }, [data, isSuccess, placeId, weatherStore]);
+
   return (
     <Button
-      loading={weatherStore.state === "loading" ? true : false}
+      loading={isLoading ? true : false}
       mode="outlined"
       style={styles.currentLocation}
       onPress={getCurrentPosition}
@@ -151,8 +164,27 @@ const CurrentLocationButton = observer(() => {
 });
 
 const SearchResults = ({ results }: { results: Place[] | undefined }) => {
+  const [placeId, setPlaceId] = useState<string>("");
+  const { isSuccess, data } = useQuery(weatherQueryOptions(placeId));
   const { weatherStore } = useStores();
-  if (!results) return;
+  const onPlacePress = (place: Place) => {
+    weatherStore.addPlace(place);
+    setPlaceId(place.place_id);
+  };
+
+  useEffect(() => {
+    if (isSuccess) {
+      weatherStore.updateTemperature(placeId, data.current.temperature);
+      if (router.canGoBack()) {
+        router.back();
+      } else {
+        router.replace("/");
+      }
+    }
+    return () => {};
+  }, [data, isSuccess, placeId, weatherStore]);
+
+  if (!results) return null;
   if (results.length === 0) {
     return (
       <ThemedView style={{ padding: 6, alignItems: "center" }}>
@@ -160,15 +192,6 @@ const SearchResults = ({ results }: { results: Place[] | undefined }) => {
       </ThemedView>
     );
   }
-
-  const onPlacePress = async (place: Place) => {
-    await weatherStore.addPlace(place);
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace("/");
-    }
-  };
 
   return (
     <ScrollView>

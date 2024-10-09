@@ -85,6 +85,7 @@ export interface Place {
   timezone: string;
   type: string;
   isUserLocation?: boolean;
+  temperature?: number;
 }
 
 export interface Sunrise {

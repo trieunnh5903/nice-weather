@@ -1,13 +1,19 @@
 import { AxiosResponse } from "axios";
 import { axiosSunriseInstance, axiosWeatherInstance } from "./axiosConfig";
+import { Place, Sunrise, Weather } from "@/type";
 
 const apiKey = process.env.EXPO_PUBLIC_WEATHER_API_KEY;
 
-async function fetchData(endpoint: string, params = {}) {
+async function fetchData<T>(endpoint: string, params = {}) {
   try {
-    const response: AxiosResponse = await axiosWeatherInstance.get(endpoint, {
-      params: { ...params, key: apiKey },
-    });
+    console.log(endpoint);
+    
+    const response: AxiosResponse<T> = await axiosWeatherInstance.get(
+      endpoint,
+      {
+        params: { ...params, key: apiKey },
+      }
+    );
     return response.data;
   } catch (error) {
     throw error;
@@ -16,7 +22,7 @@ async function fetchData(endpoint: string, params = {}) {
 
 const reverseGeocoding = async (lat: string, lon: string) => {
   try {
-    return await fetchData("/api/v1/free/nearest_place", { lat, lon });
+    return await fetchData<Place>("/api/v1/free/nearest_place", { lat, lon });
   } catch (error) {
     console.log("reverseGeocoding", error);
     return null;
@@ -25,31 +31,32 @@ const reverseGeocoding = async (lat: string, lon: string) => {
 
 const directGeocoding = async (text: string) => {
   try {
-    return await fetchData("/api/v1/free/find_places_prefix", { text });
+    return await fetchData<Place[]>("/api/v1/free/find_places_prefix", {
+      text,
+    });
   } catch (error) {
     console.log("directGeocoding", error);
-    return null;
+    return;
   }
 };
 
-const fetchWeather = async (lat: string, lon: string, timezone: string) => {
-  console.log(lat, lon);
-
+const fetchWeather = async (placeId: string) => {
   try {
-    return await fetchData(
-      // `/point?lat=${lat}&lon=${lon}&sections=all&language=en&units=metric`
-      "/api/v1/free/point",
-      { lat, lon, sections: "all", language: "en", units: "metric", timezone }
-    );
+    return await fetchData<Weather>("/api/v1/free/point", {
+      place_id: placeId,
+      sections: "all",
+      language: "en",
+      units: "metric",
+    });
   } catch (error) {
     console.log("fetchWeather", error);
-    return null;
+    throw error;
   }
 };
 
 const fetchSunrise = async (lat: string, lng: string) => {
   try {
-    const response = await axiosSunriseInstance.get(
+    const response = await axiosSunriseInstance.get<Sunrise>(
       // `json?lat=${lat}&lng=${lon}&date_start=today&date_end=tomorrow`
       "/json",
       { params: { lat, lng, date_start: "today", date_end: "tomorrow" } }
@@ -57,7 +64,7 @@ const fetchSunrise = async (lat: string, lng: string) => {
     return response.data;
   } catch (error) {
     console.log("fetchSunrise Error", error);
-    return null;
+    throw error;
   }
 };
 

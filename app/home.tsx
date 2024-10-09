@@ -10,10 +10,14 @@ import {
   GestureStateChangeEvent,
   PanGestureHandlerEventPayload,
 } from "react-native-gesture-handler";
-import { Image, ImageBackground } from "expo-image";
+import { Image } from "expo-image";
 import { useStores } from "@/hooks/useStore";
-import { memo, useCallback, useEffect, useState } from "react";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { memo, useCallback, useEffect, useMemo } from "react";
+import Animated, {
+  useAnimatedProps,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import RippleButtonIcon from "@/components/RippleButtonIcon";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Colors } from "@/constants/Colors";
@@ -28,6 +32,13 @@ import {
   lineDataItem,
   yAxisSides,
 } from "react-native-gifted-charts";
+import {
+  useCurrentWeatherSelected,
+  useDailyWeatherSelected,
+  useHourlyWeatherSelected,
+  useSunriseSelected,
+} from "@/hooks/useWeatherData";
+
 interface HeaderIconsProps {
   onHeaderPress: (icon: string) => void;
   headerIcons: MaterialIconName[];
@@ -38,17 +49,20 @@ interface WeatherHourlyProps {
   index: number;
   width: number;
   nextDayIndex: number;
+  currentTimeIndex: number;
 }
 interface WeatherDailyProps {
   item: Daily;
   index: number;
   width: number;
 }
+
+const AnimatedPath = Animated.createAnimatedComponent(Path);
+
 const HomeScreen: React.FC = () => {
   console.log("home");
   const headerIcons: MaterialIconName[] = ["menu", "add", "delete-outline"];
   const { weatherStore } = useStores();
-
   const navigation = useNavigation();
   const onHeaderPress = (icon: string) => {
     switch (icon) {
@@ -113,6 +127,7 @@ const HomeScreen: React.FC = () => {
 const PlaceNavigation = () => {
   const { weatherStore } = useStores();
   const iconColor = useThemeColor("icon");
+  console.log('PlaceNavigation');
 
   const onLeftPress = useCallback(() => {
     weatherStore.updateSelectedPlace("decrease");
@@ -161,26 +176,42 @@ const PlaceNavigation = () => {
   );
 };
 
-const ListDaily = () => {
+const ListDaily = observer(() => {
   const weatherItemWidth = 90;
-  const { weatherStore } = useStores();
   const textColor = useThemeColor("text");
-  const daily = weatherStore.selectedWeather.daily.data;
-  const tempMaxData: lineDataItem[] = daily.map((item) => ({
-    value: Math.round(item.all_day.temperature_max),
-    dataPointText: Math.round(item.all_day.temperature_max).toString(),
-  }));
+  const { data: daily } = useDailyWeatherSelected();
 
-  const minTemperature = Math.min(...tempMaxData.map((item) => item.value));
-  const maxTemperature = Math.max(...tempMaxData.map((item) => item.value));
+  const { tempMaxData, tempMinData } = useMemo(() => {
+    if (!daily || daily.length === 0) {
+      return {
+        tempMaxData: [],
+        tempMinData: [],
+      };
+    }
 
-  const tempMinData: lineDataItem[] = daily.map((item) => ({
-    value: Math.round(item.all_day.temperature_min),
-    dataPointText: Math.round(item.all_day.temperature_min).toString(),
-  }));
-  const minTemperature2 = Math.min(...tempMinData.map((item) => item.value));
-  const maxTemperature2 = Math.max(...tempMinData.map((item) => item.value));
-  const noOfSections2 = maxTemperature2 - minTemperature2 + 1;
+    let tempMaxData: lineDataItem[] = [];
+    let tempMinData: lineDataItem[] = [];
+
+    daily.forEach((item) => {
+      const tempMaxValue = Math.round(item.all_day.temperature_max);
+      const tempMinValue = Math.round(item.all_day.temperature_min);
+
+      tempMaxData.push({
+        value: tempMaxValue,
+        dataPointText: tempMaxValue.toString(),
+      });
+      tempMinData.push({
+        value: tempMinValue,
+        dataPointText: tempMinValue.toString(),
+      });
+    });
+
+    return {
+      tempMaxData,
+      tempMinData,
+    };
+  }, [daily]);
+  if (!daily || daily.length === 0) return null;
   return (
     <ThemedView>
       <ThemedView paddingHorizontal={12}>
@@ -212,6 +243,8 @@ const ListDaily = () => {
               adjustToWidth
               textFontSize={13}
               textShiftY={-6}
+              color={textColor}
+              dataPointsColor={textColor}
               textShiftX={-6}
               trimYAxisAtTop
               initialSpacing={weatherItemWidth / 2}
@@ -222,16 +255,15 @@ const ListDaily = () => {
               xAxisLabelsHeight={0}
               overflowTop={10}
               animateOnDataChange
-              noOfSections={2}
-              maxValue={maxTemperature - minTemperature + 1}
-              yAxisOffset={minTemperature}
-              stepHeight={10}
+              height={30}
             />
           </ThemedView>
           <ThemedView paddingTop={13}>
             <LineChart
               yAxisSide={yAxisSides.RIGHT}
               disableScroll
+              color={textColor}
+              dataPointsColor={textColor}
               data={tempMinData}
               adjustToWidth
               textFontSize={13}
@@ -246,38 +278,55 @@ const ListDaily = () => {
               animateOnDataChange
               xAxisLabelsHeight={0}
               overflowTop={10}
-              noOfSections={noOfSections2}
-              maxValue={maxTemperature2 - minTemperature2 + 1}
-              yAxisOffset={minTemperature2}
-              stepHeight={10}
+              height={30}
             />
           </ThemedView>
         </ThemedView>
       </ScrollView>
     </ThemedView>
   );
-};
+});
 
 const ListHourly = observer(() => {
   const weatherItemWidth = 70;
-  const { weatherStore } = useStores();
-  const hourly = weatherStore.selectedWeather.hourly.data;
   const textColor = useThemeColor("text");
-  const temperatures: number[] = [];
-  const chartData = hourly.map((item) => {
-    temperatures.push(item.temperature);
-    return {
+  const { data: hourly } = useHourlyWeatherSelected();
+  const { data: sunrise } = useSunriseSelected();
+  const { chartData, nextDayIndex, currentTimeIndex } = useMemo(() => {
+    if (!hourly || hourly.length === 0)
+      return {
+        chartData: [],
+        nextDayIndex: 0,
+        currentTimeIndex: 0,
+      };
+    const chartData = hourly.map((item) => ({
       value: Math.round(item.temperature),
       dataPointText: weatherUtils.formatCelciusWithoutUnit(item.temperature),
+    }));
+
+    const now = new Date(hourly[0].date);
+    const nextDayIndex = hourly.findIndex((item) => {
+      const date = new Date(item.date);
+      return now.getHours() > date.getHours();
+    });
+
+    const hour = new Date().toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      timeZone: sunrise?.[0].timezone,
+    });
+    const currentTimeIndex = hourly.findIndex((item) => {
+      const date = new Date(item.date);
+      return hour === date.getHours().toString();
+    });
+
+    return {
+      chartData,
+      nextDayIndex,
+      currentTimeIndex: Math.max(0, currentTimeIndex),
     };
-  });
-  const minTemperature = Math.min(...temperatures);
-  const maxTemperature = Math.max(...temperatures);
-  const now = new Date(hourly[0].date);
-  const nextDayIndex = hourly.findIndex((item) => {
-    const date = new Date(item.date);
-    return now.getHours() > date.getHours();
-  });
+  }, [hourly, sunrise]);
+
+  if (!hourly || hourly.length === 0) return;
 
   return (
     <ThemedView>
@@ -298,6 +347,7 @@ const ListHourly = observer(() => {
                     index={index}
                     width={weatherItemWidth}
                     nextDayIndex={nextDayIndex}
+                    currentTimeIndex={currentTimeIndex}
                   />
                 );
               })}
@@ -313,6 +363,8 @@ const ListHourly = observer(() => {
               textFontSize={13}
               textShiftY={-6}
               textShiftX={-6}
+              color={textColor}
+              dataPointsColor={textColor}
               trimYAxisAtTop
               initialSpacing={weatherItemWidth / 2}
               textColor={textColor}
@@ -322,10 +374,7 @@ const ListHourly = observer(() => {
               xAxisLabelsHeight={0}
               overflowTop={10}
               animateOnDataChange
-              noOfSections={4}
-              maxValue={maxTemperature - minTemperature + 1}
-              yAxisOffset={minTemperature}
-              stepHeight={10}
+              height={50}
             />
           </ThemedView>
         </ThemedView>
@@ -352,41 +401,8 @@ const WeatherDaily = ({ index, item, width }: WeatherDailyProps) => {
         <ThemedView style={[styles.row, styles.centered]}>
           <Image source={weatherIcon[7]} style={{ width: 16, height: 16 }} />
           <ThemedView paddingLeft={2}>
-            <ThemedText>{item.all_day.cloud_cover.total}%</ThemedText>
-          </ThemedView>
-        </ThemedView>
-      </ThemedView>
-    </ThemedView>
-  );
-};
-
-const Sunrise = () => {
-  const { weatherStore } = useStores();
-  const iconColor = useThemeColor("icon");
-  const sunriseTomorrow = weatherStore.selectedSunrise.results[1];
-  return (
-    <ThemedView>
-      <ThemedView paddingHorizontal={12}>
-        <ThemedText uppercase type="subtitle">
-          life
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={[styles.row, { justifyContent: "space-evenly" }]}>
-        <ThemedView style={[styles.centered]}>
-          <HalfCircle />
-        </ThemedView>
-        <ThemedView style={[styles.centered, styles.gap_6, styles.tomorrow]}>
-          <ThemedText>Tomorrow</ThemedText>
-          <ThemedView style={[styles.row, styles.centered, styles.gap_6]}>
-            <Feather name="sunrise" size={24} color={iconColor} />
-            <ThemedText>
-              {weatherUtils.formatSunrise(sunriseTomorrow.sunrise)}
-            </ThemedText>
-          </ThemedView>
-          <ThemedView style={[styles.row, styles.centered, styles.gap_6]}>
-            <Feather name="sunset" size={24} color={iconColor} />
-            <ThemedText>
-              {weatherUtils.formatSunrise(sunriseTomorrow.sunset)}
+            <ThemedText fontSize={12}>
+              {item.all_day.cloud_cover.total}%
             </ThemedText>
           </ThemedView>
         </ThemedView>
@@ -400,11 +416,17 @@ const WeatherHourly = ({
   index,
   width,
   nextDayIndex,
+  currentTimeIndex,
 }: WeatherHourlyProps) => {
   const date = new Date(item.date);
   const time = date.toLocaleString("en-ES", { hour12: true, hour: "numeric" });
   const icon = item.icon as keyof typeof weatherIcon;
-  const tag = index === 0 ? "Today" : index === nextDayIndex ? "Tomorrow" : "";
+  const tag =
+    index === currentTimeIndex
+      ? "Today"
+      : index === nextDayIndex
+      ? "Tomorrow"
+      : "";
   return (
     <ThemedView style={styles.centered}>
       <ThemedText type="label">{tag}</ThemedText>
@@ -417,7 +439,7 @@ const WeatherHourly = ({
         <ThemedView style={[styles.row, styles.centered]}>
           <Image source={weatherIcon[7]} style={{ width: 16, height: 16 }} />
           <ThemedView paddingLeft={2}>
-            <ThemedText>{item.cloud_cover.total}%</ThemedText>
+            <ThemedText fontSize={12}>{item.cloud_cover.total}%</ThemedText>
           </ThemedView>
         </ThemedView>
       </ThemedView>
@@ -425,8 +447,67 @@ const WeatherHourly = ({
   );
 };
 
-const HalfCircle = () => {
-  const { weatherStore } = useStores();
+const Sunrise = observer(() => {
+  const iconColor = useThemeColor("icon");
+  const { data } = useSunriseSelected();
+  if (!data) return null;
+  const today = data[0];
+  const tomorrow = data[1];
+  const now = new Date().toLocaleString("en-US", {
+    timeZone: today.timezone,
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  const currentTimeInPercent =
+    (weatherUtils.convertToMinute(now) -
+      weatherUtils.convertToMinute(today.sunrise)) /
+    (weatherUtils.convertToMinute(today.sunset) -
+      weatherUtils.convertToMinute(today.sunrise));
+
+  return (
+    <ThemedView>
+      <ThemedView paddingHorizontal={12}>
+        <ThemedText uppercase type="subtitle">
+          life
+        </ThemedText>
+      </ThemedView>
+      <ThemedView style={[styles.row, { justifyContent: "space-evenly" }]}>
+        <ThemedView style={[styles.centered]}>
+          <SunriseChart currentTimeInPercent={currentTimeInPercent} />
+        </ThemedView>
+        <ThemedView
+          style={[
+            styles.centered,
+            styles.gap_6,
+            styles.tomorrow,
+            { borderColor: iconColor },
+          ]}
+        >
+          <ThemedText>Tomorrow</ThemedText>
+          <ThemedView style={[styles.row, styles.centered, styles.gap_6]}>
+            <Feather name="sunrise" size={24} color={iconColor} />
+            <ThemedText>
+              {weatherUtils.formatSunrise(tomorrow.sunrise)}
+            </ThemedText>
+          </ThemedView>
+          <ThemedView style={[styles.row, styles.centered, styles.gap_6]}>
+            <Feather name="sunset" size={24} color={iconColor} />
+            <ThemedText>
+              {weatherUtils.formatSunrise(tomorrow.sunset)}
+            </ThemedText>
+          </ThemedView>
+        </ThemedView>
+      </ThemedView>
+    </ThemedView>
+  );
+});
+
+const SunriseChart = ({
+  currentTimeInPercent,
+}: {
+  currentTimeInPercent: number;
+}) => {
   const width = (Size.screenWidth - 12 * 2) / 2;
   const height = width / 2;
   const radius = width / 4;
@@ -434,60 +515,54 @@ const HalfCircle = () => {
   const startX = width / 4;
   const endX = (width / 4) * 3;
   const p = radius * Math.PI;
-  const circleColor = useThemeColor("placeholder");
+  const strokeDashoffset = useSharedValue(p);
+  const bacgroundColor = useThemeColor("placeholder");
   const textColor = useThemeColor("text");
-  const sunrise = weatherStore.selectedSunrise;
-  const period = weatherUtils.periodOfSunriseAndSunset(
-    sunrise.results[0].sunrise,
-    sunrise.results[0].sunset
-  );
+  useEffect(() => {
+    if (currentTimeInPercent < 1) {
+      strokeDashoffset.value = withTiming(p * (1 - currentTimeInPercent), {
+        duration: 1000,
+      });
+    } else {
+      strokeDashoffset.value = withTiming(p, {
+        duration: 1000,
+      });
+    }
+  }, [currentTimeInPercent, p, strokeDashoffset]);
 
-  const date = new Date();
+  const animatedProps = useAnimatedProps(() => ({
+    strokeDashoffset: strokeDashoffset.value,
+  }));
 
-  const now = date.toLocaleString("en-US", {
-    timeZone: sunrise.results[0].timezone,
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
+  const { data, isPending, isError } = useSunriseSelected();
 
-  const percent =
-    (weatherUtils.convertToMinute(now) -
-      weatherUtils.convertToMinute(sunrise.results[0].sunrise)) /
-    period;
+  if (isPending || isError) {
+    return null;
+  }
 
   return (
-    <ThemedView>
-      <Svg height={height} width={width}>
-        <Path
-          d={`M ${startX} ${centerY} A ${radius} ${radius} 0 0 1 ${endX} ${centerY}`}
-          fill="transparent"
-          stroke={circleColor}
-          strokeWidth="4"
-        />
-        <Path
-          d={`M ${startX} ${centerY} A ${radius} ${radius} 0 0 1 ${endX} ${centerY}`}
-          fill="transparent"
-          stroke={"#FFDE21"}
-          strokeWidth="4"
-          strokeDasharray={p}
-          strokeDashoffset={percent < 1 ? p * (1 - percent) : p}
-        />
-
-        <TextSvg
-          x={startX - 20}
-          y={centerY + 20}
-          fontSize="14"
-          fill={textColor}
-        >
-          {weatherUtils.formatSunrise(sunrise.results[0].sunrise)}
-        </TextSvg>
-
-        <TextSvg x={endX - 20} y={centerY + 20} fontSize="14" fill={textColor}>
-          {weatherUtils.formatSunrise(sunrise.results[0].sunset)}
-        </TextSvg>
-      </Svg>
-    </ThemedView>
+    <Svg height={height} width={width}>
+      <Path
+        d={`M ${startX} ${centerY} A ${radius} ${radius} 0 0 1 ${endX} ${centerY}`}
+        fill="transparent"
+        stroke={bacgroundColor}
+        strokeWidth="4"
+      />
+      <AnimatedPath
+        d={`M ${startX} ${centerY} A ${radius} ${radius} 0 0 1 ${endX} ${centerY}`}
+        fill="transparent"
+        stroke={"#FFDE21"}
+        strokeWidth="4"
+        strokeDasharray={p}
+        animatedProps={animatedProps}
+      />
+      <TextSvg x={startX - 20} y={centerY + 20} fontSize="14" fill={textColor}>
+        {weatherUtils.formatSunrise(data[0].sunrise)}
+      </TextSvg>
+      <TextSvg x={endX - 20} y={centerY + 20} fontSize="14" fill={textColor}>
+        {weatherUtils.formatSunrise(data[0].sunset)}
+      </TextSvg>
+    </Svg>
   );
 };
 
@@ -519,8 +594,8 @@ const HeaderIcons = memo(function Component({
 
 const CurrentWeatherInfo: React.FC = observer(() => {
   const { weatherStore } = useStores();
-
-  const currentWeather = weatherStore.selectedCurrenWeather;
+  const { data } = useCurrentWeatherSelected();
+  // const currentWeather = weatherStore.selectedCurrenWeather;
 
   const iconColor = useThemeColor("icon");
 
@@ -544,14 +619,15 @@ const CurrentWeatherInfo: React.FC = observer(() => {
   );
 
   const pan = Gesture.Pan().onEnd(onSwipe).runOnJS(true);
-  const cloudCover = `Cloud cover ${currentWeather.cloud_cover}%`;
+  if (!data) return;
+  const cloudCover = `Cloud cover ${data.cloud_cover}%`;
   return (
     <GestureDetector gesture={pan}>
       <ThemedView style={styles.current}>
         <ThemedText style={styles.celcius}>
-          {weatherUtils.formatCelcius(currentWeather.temperature)}
+          {weatherUtils.formatCelcius(data.temperature)}
         </ThemedText>
-        <ThemedText color={iconColor}>{currentWeather.summary}</ThemedText>
+        <ThemedText color={iconColor}>{data.summary}</ThemedText>
         <ThemedText type="label" color={iconColor}>
           {cloudCover}
         </ThemedText>
@@ -589,7 +665,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
   },
   celcius: {
-    fontSize: 66,
+    fontSize: 70,
   },
   weatherBg: {
     paddingBottom: 18,
