@@ -127,7 +127,7 @@ const HomeScreen: React.FC = () => {
 const PlaceNavigation = () => {
   const { weatherStore } = useStores();
   const iconColor = useThemeColor("icon");
-  console.log('PlaceNavigation');
+  console.log("PlaceNavigation");
 
   const onLeftPress = useCallback(() => {
     weatherStore.updateSelectedPlace("decrease");
@@ -698,6 +698,7 @@ const styles = StyleSheet.create({
     gap: 18,
     paddingHorizontal: 12,
     paddingTop: 12,
+    alignItems: "center",
   },
 });
 
