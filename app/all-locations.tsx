@@ -105,10 +105,10 @@ const AllLocation = () => {
   };
 
   const handleSelecteAll = () => {
-    if (selectedItems.length === weatherStore.allPlaceIds.length) {
+    if (selectedItems.length === weatherStore.places.length) {
       setSelectedItems([]);
     } else {
-      setSelectedItems(weatherStore.allPlaceIds);
+      setSelectedItems(weatherStore.places.map((place) => place.place_id));
     }
   };
 
@@ -120,7 +120,7 @@ const AllLocation = () => {
       {
         text: "OK",
         onPress: () => {
-          if (selectedItems.length === weatherStore.allPlaceIds.length) {
+          if (selectedItems.length === weatherStore.places.length) {
             handleDeleteAll();
           } else {
             handleDeleteSelected();
@@ -319,7 +319,7 @@ const CustomHeaderLeft = memo(function CustomHeaderLeft({
         >
           <MaterialIcons
             name={
-              selectedItems.length === weatherStore.allPlaceIds.length
+              selectedItems.length === weatherStore.places.length
                 ? "check-circle"
                 : "radio-button-unchecked"
             }
@@ -345,6 +345,13 @@ const LocationList = observer(
   }: LocationListProps) => {
     const { weatherStore } = useStores();
     console.log("LocationList");
+    const allWeather = useQueries({
+      queries: weatherStore.places.map((place) => ({
+        queryKey: ["weather", place.place_id],
+        queryFn: () => weatherApi.fetchWeather(place.place_id),
+      })),
+    });
+
     const onLocationPress = (index: number, id: string) => {
       if (multipleDelete) {
         handleSelectItem(id);
@@ -364,15 +371,16 @@ const LocationList = observer(
 
     return (
       <FlatList
-        data={weatherStore.allPlace}
-        keyExtractor={(item) => item.place.place_id}
+        data={weatherStore.places}
+        keyExtractor={(item) => item.place_id}
         ItemSeparatorComponent={() => <Divider />}
         renderItem={({ item, index }) => {
           return (
             <WeatherItem
+              temperature={allWeather[index].data?.current.temperature}
               animatedStyle={animatedStyle}
               onLocationPress={onLocationPress}
-              item={item}
+              place={item}
               index={index}
               selectedItems={selectedItems}
             />
@@ -386,21 +394,21 @@ const LocationList = observer(
 export default AllLocation;
 
 interface WeatherItemProps {
-  item: {
-    place: Place;
-  };
+  place: Place;
   index: number;
   selectedItems: string[];
   onLocationPress: (index: number, id: string) => void;
   animatedStyle: StyleProp<AnimatedStyle<StyleProp<ViewStyle>>>;
+  temperature: number | undefined;
 }
 
 const WeatherItem = function WeatherItem({
-  item: { place },
+  place,
   index,
   selectedItems,
   animatedStyle,
   onLocationPress,
+  temperature,
 }: WeatherItemProps) {
   const rippleColor = useThemeColor("ripple");
   const iconColor = useThemeColor("icon");
@@ -439,10 +447,10 @@ const WeatherItem = function WeatherItem({
             </ThemedText>
           </ThemedView>
         </Animated.View>
-        {place.temperature && (
+        {temperature && (
           <ThemedView>
             <ThemedText fontSize={18}>
-              {weatherUtils.formatCelcius(place.temperature)}
+              {weatherUtils.formatCelcius(temperature)}
             </ThemedText>
           </ThemedView>
         )}

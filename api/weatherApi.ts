@@ -7,7 +7,6 @@ const apiKey = process.env.EXPO_PUBLIC_WEATHER_API_KEY;
 async function fetchData<T>(endpoint: string, params = {}) {
   try {
     console.log(endpoint);
-    
     const response: AxiosResponse<T> = await axiosWeatherInstance.get(
       endpoint,
       {
@@ -56,11 +55,10 @@ const fetchWeather = async (placeId: string) => {
 
 const fetchSunrise = async (lat: string, lng: string) => {
   try {
-    const response = await axiosSunriseInstance.get<Sunrise>(
-      // `json?lat=${lat}&lng=${lon}&date_start=today&date_end=tomorrow`
-      "/json",
-      { params: { lat, lng, date_start: "today", date_end: "tomorrow" } }
-    );
+    console.log("fetchSunrise");
+    const response = await axiosSunriseInstance.get<Sunrise>("/json", {
+      params: { lat, lng, date_start: "today", date_end: "tomorrow" },
+    });
     return response.data;
   } catch (error) {
     console.log("fetchSunrise Error", error);

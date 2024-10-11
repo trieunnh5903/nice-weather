@@ -1,7 +1,11 @@
-import { Alert, StyleSheet, ScrollView } from "react-native";
+import { Alert, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { Feather, MaterialIcons } from "@expo/vector-icons";
+import {
+  Feather,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from "@expo/vector-icons";
 import { router, useNavigation } from "expo-router";
 import { Observer, observer } from "mobx-react-lite";
 import {
@@ -32,13 +36,10 @@ import {
   lineDataItem,
   yAxisSides,
 } from "react-native-gifted-charts";
-import {
-  useCurrentWeatherSelected,
-  useDailyWeatherSelected,
-  useHourlyWeatherSelected,
-  useSunriseSelected,
-} from "@/hooks/useWeatherData";
+import { useSunriseSelected, useWeatherSelected } from "@/hooks/useWeatherData";
 
+import { MenuView } from "@react-native-menu/menu";
+import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 interface HeaderIconsProps {
   onHeaderPress: (icon: string) => void;
   headerIcons: MaterialIconName[];
@@ -78,14 +79,14 @@ const HomeScreen: React.FC = () => {
           {
             text: "Yes",
             onPress: () => {
-              if (weatherStore.allPlaceIds.length === 1) {
+              if (weatherStore.places.length === 1) {
                 navigation.dispatch(
                   CommonActions.reset({
                     routes: [{ name: "index", key: "index" }],
                   })
                 );
               }
-              weatherStore.deletePlace(weatherStore.selectedPlaceId);
+              weatherStore.deletePlace(weatherStore.selectedPlace.place_id);
             },
           },
         ]);
@@ -159,7 +160,7 @@ const PlaceNavigation = () => {
               </ThemedText>
             </ThemedView>
             <ThemedText color={iconColor}>{`${weatherStore.selectedIndex + 1}/${
-              weatherStore.allPlaceIds.length
+              weatherStore.places.length
             }`}</ThemedText>
           </ThemedView>
         )}
@@ -179,7 +180,7 @@ const PlaceNavigation = () => {
 const ListDaily = observer(() => {
   const weatherItemWidth = 90;
   const textColor = useThemeColor("text");
-  const { data: daily } = useDailyWeatherSelected();
+  const daily = useWeatherSelected()?.daily.data;
 
   const { tempMaxData, tempMinData } = useMemo(() => {
     if (!daily || daily.length === 0) {
@@ -290,8 +291,8 @@ const ListDaily = observer(() => {
 const ListHourly = observer(() => {
   const weatherItemWidth = 70;
   const textColor = useThemeColor("text");
-  const { data: hourly } = useHourlyWeatherSelected();
-  const { data: sunrise } = useSunriseSelected();
+  const hourly = useWeatherSelected()?.hourly.data;
+  const sunrise = useSunriseSelected();
   const { chartData, nextDayIndex, currentTimeIndex } = useMemo(() => {
     if (!hourly || hourly.length === 0)
       return {
@@ -449,7 +450,7 @@ const WeatherHourly = ({
 
 const Sunrise = observer(() => {
   const iconColor = useThemeColor("icon");
-  const { data } = useSunriseSelected();
+  const data = useSunriseSelected();
   if (!data) return null;
   const today = data[0];
   const tomorrow = data[1];
@@ -534,9 +535,9 @@ const SunriseChart = ({
     strokeDashoffset: strokeDashoffset.value,
   }));
 
-  const { data, isPending, isError } = useSunriseSelected();
+  const data = useSunriseSelected();
 
-  if (isPending || isError) {
+  if (!data) {
     return null;
   }
 
@@ -570,35 +571,54 @@ const HeaderIcons = memo(function Component({
   onHeaderPress,
   headerIcons,
 }: HeaderIconsProps) {
-  const rippleColor = useThemeColor("ripple", {
-    dark: Colors.dark.ripple,
-    light: Colors.dark.ripple,
-  });
-
   const iconColor = useThemeColor("icon");
-
+  const queryClient = useQueryClient();
   return (
     <ThemedView style={styles.header}>
       {headerIcons.map((icon) => (
         <RippleButtonIcon
           onPress={() => onHeaderPress(icon)}
           key={"header" + icon}
-          rippleColor={rippleColor}
         >
           <MaterialIcons name={icon} size={26} color={iconColor} />
         </RippleButtonIcon>
       ))}
+      <MenuView
+        onPressAction={({ nativeEvent }) => {
+          if (nativeEvent.event === "update") {
+            queryClient.invalidateQueries();
+          } else if (nativeEvent.event === "setting") {
+            router.navigate("/setting");
+          }
+        }}
+        actions={[
+          {
+            id: "update",
+            title: "Update now",
+          },
+          {
+            id: "setting",
+            title: "Setting",
+          },
+        ]}
+        shouldOpenOnLongPress={false}
+      >
+        <RippleButtonIcon>
+          <MaterialCommunityIcons
+            name={"dots-vertical"}
+            size={26}
+            color={iconColor}
+          />
+        </RippleButtonIcon>
+      </MenuView>
     </ThemedView>
   );
 });
 
 const CurrentWeatherInfo: React.FC = observer(() => {
   const { weatherStore } = useStores();
-  const { data } = useCurrentWeatherSelected();
-  // const currentWeather = weatherStore.selectedCurrenWeather;
-
+  const data = useWeatherSelected()?.current;
   const iconColor = useThemeColor("icon");
-
   const onLeftPress = useCallback(() => {
     weatherStore.updateSelectedPlace("decrease");
   }, [weatherStore]);
@@ -628,13 +648,39 @@ const CurrentWeatherInfo: React.FC = observer(() => {
           {weatherUtils.formatCelcius(data.temperature)}
         </ThemedText>
         <ThemedText color={iconColor}>{data.summary}</ThemedText>
-        <ThemedText type="label" color={iconColor}>
-          {cloudCover}
-        </ThemedText>
+        <ThemedText color={iconColor}>{cloudCover}</ThemedText>
+        <DataStatus />
       </ThemedView>
     </GestureDetector>
   );
 });
+
+const DataStatus = () => {
+  // const { weatherStore } = useStores();
+  // const queryClient = useQueryClient();
+  const isFetching = useIsFetching();
+  // const dataUpdatedAt = queryClient.getQueryState([
+  //   "weather",
+  //   weatherStore.selectedPlace.place_id,
+  // ])?.dataUpdatedAt;
+  // if (!dataUpdatedAt) return null;
+  const date = new Date().toLocaleTimeString(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  if (isFetching)
+    return (
+      <ThemedView style={styles.row}>
+        <ActivityIndicator size={12} />
+        <ThemedView paddingLeft={6}>
+          <ThemedText type="label">Updating...</ThemedText>
+        </ThemedView>
+      </ThemedView>
+    );
+
+  return <ThemedText type="label">Updated at {date}</ThemedText>;
+};
 
 const styles = StyleSheet.create({
   tomorrow: {

@@ -3,15 +3,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { makeAutoObservable } from "mobx";
 import { makePersistable, isHydrated } from "mobx-persist-store";
 class WeatherStore {
-  places: { [id: string]: Place } = {};
-  allPlaceIds: string[] = [];
+  places: Place[] = [];
   selectedIndex: number = -1;
   loaded: boolean = false;
   constructor() {
     makeAutoObservable(this);
     makePersistable(this, {
       name: "weatherStore",
-      properties: ["places", "allPlaceIds", "selectedIndex"],
+      properties: ["places", "selectedIndex"],
       storage: AsyncStorage,
       stringify: true,
     });
@@ -25,20 +24,8 @@ class WeatherStore {
     this.selectedIndex = index;
   }
 
-  get selectedPlaceId() {
-    return this.allPlaceIds[this.selectedIndex];
-  }
-
   get selectedPlace() {
-    return this.places[this.selectedPlaceId];
-  }
-
-  get allPlace() {
-    return this.allPlaceIds.map((id) => {
-      return {
-        place: this.places[id],
-      };
-    });
+    return this.places[this.selectedIndex];
   }
 
   addPlace(place: Place) {
@@ -46,24 +33,19 @@ class WeatherStore {
       return;
     }
 
-    if (!this.allPlaceIds.includes(place.place_id)) {
-      this.places[place.place_id] = place;
-      this.allPlaceIds.push(place.place_id);
-      this.selectedIndex = this.allPlaceIds.length - 1;
+    const index = this.places.findIndex(
+      (item) => item.place_id === place.place_id
+    );
+    if (index < 0) {
+      this.places.push(place);
+      this.selectedIndex = this.places.length - 1;
     } else {
-      this.selectedIndex = this.allPlaceIds.indexOf(place.place_id);
+      this.selectedIndex = index;
     }
   }
 
-  updateTemperature(placeId: string, temperature: number) {
-    this.places[placeId] = {
-      ...this.places[placeId],
-      temperature,
-    };
-  }
-
   updateSelectedPlace(direction: "increase" | "decrease") {
-    const length = this.allPlaceIds.length;
+    const length = this.places.length;
     if (direction === "increase") {
       this.selectedIndex =
         this.selectedIndex === length - 1 ? 0 : this.selectedIndex + 1;
@@ -74,28 +56,20 @@ class WeatherStore {
   }
 
   deletePlace(placeId: string) {
-    if (!(placeId in this.places)) return;
-    delete this.places[placeId];
-    this.allPlaceIds = this.allPlaceIds.filter((i) => i !== placeId);
-    this.setSelectedIndex(
-      Math.min(this.selectedIndex, this.allPlaceIds.length - 1)
-    );
+    this.places = this.places.filter((i) => i.place_id !== placeId);
+    this.setSelectedIndex(Math.min(this.selectedIndex, this.places.length - 1));
   }
 
   deleteMany(placeIds: string[]) {
-    placeIds.forEach((placeId) => {
-      delete this.places[placeId];
-    });
-    this.allPlaceIds = this.allPlaceIds.filter((id) => !placeIds.includes(id));
-    this.setSelectedIndex(
-      Math.min(this.selectedIndex, this.allPlaceIds.length - 1)
+    this.places = this.places.filter(
+      (place) => !placeIds.includes(place.place_id)
     );
-    return this.allPlaceIds.length;
+    this.setSelectedIndex(Math.min(this.selectedIndex, this.places.length - 1));
+    return this.places.length;
   }
 
   deleteAll() {
-    this.places = {};
-    this.allPlaceIds = [];
+    this.places = [];
     this.selectedIndex = -1;
   }
 }

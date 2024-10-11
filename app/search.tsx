@@ -25,7 +25,6 @@ import * as ExpoLocation from "expo-location";
 import { Colors } from "@/constants/Colors";
 import { weatherApi } from "@/api/weatherApi";
 import { useStores } from "@/hooks/useStore";
-import { StatusBar } from "expo-status-bar";
 import { Place } from "@/type";
 import placeUtils from "@/utils/placeUtils";
 import RippleButtonIcon from "@/components/RippleButtonIcon";
@@ -44,7 +43,6 @@ const SearchScreen = () => {
   const handleSearchChange = (e: string) => {
     setQuery(e);
   };
-  console.log("search");
 
   const onBackPress = () => {
     if (router.canGoBack()) {
@@ -80,7 +78,6 @@ const SearchScreen = () => {
           headerShadowVisible: false,
         }}
       />
-      <StatusBar style="auto" />
 
       <Divider />
       {isLoading ? (
@@ -99,7 +96,7 @@ const SearchScreen = () => {
 const CurrentLocationButton = observer(() => {
   const [isLoading, setIsLoading] = useState(false);
   const [placeId, setPlaceId] = useState<string>("");
-  const { isSuccess, data } = useQuery(weatherQueryOptions(placeId));
+  const { isSuccess } = useQuery(weatherQueryOptions(placeId));
   const { weatherStore } = useStores();
   const getCurrentPosition = async () => {
     setIsLoading(true);
@@ -140,7 +137,6 @@ const CurrentLocationButton = observer(() => {
 
   useEffect(() => {
     if (isSuccess) {
-      weatherStore.updateTemperature(placeId, data.current.temperature);
       if (router.canGoBack()) {
         router.back();
       } else {
@@ -149,7 +145,7 @@ const CurrentLocationButton = observer(() => {
       setIsLoading(false);
     }
     return () => {};
-  }, [data, isSuccess, placeId, weatherStore]);
+  }, [isSuccess]);
 
   return (
     <Button
@@ -165,7 +161,7 @@ const CurrentLocationButton = observer(() => {
 
 const SearchResults = ({ results }: { results: Place[] | undefined }) => {
   const [placeId, setPlaceId] = useState<string>("");
-  const { isSuccess, data } = useQuery(weatherQueryOptions(placeId));
+  const { isSuccess } = useQuery(weatherQueryOptions(placeId));
   const { weatherStore } = useStores();
   const onPlacePress = (place: Place) => {
     weatherStore.addPlace(place);
@@ -174,7 +170,6 @@ const SearchResults = ({ results }: { results: Place[] | undefined }) => {
 
   useEffect(() => {
     if (isSuccess) {
-      weatherStore.updateTemperature(placeId, data.current.temperature);
       if (router.canGoBack()) {
         router.back();
       } else {
@@ -182,7 +177,7 @@ const SearchResults = ({ results }: { results: Place[] | undefined }) => {
       }
     }
     return () => {};
-  }, [data, isSuccess, placeId, weatherStore]);
+  }, [isSuccess]);
 
   if (!results) return null;
   if (results.length === 0) {
