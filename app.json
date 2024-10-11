@@ -42,9 +42,7 @@
       [
         "expo-asset",
         {
-          "assets": [
-            "./assets/images/weather/cloud.jpg"
-          ]
+          "assets": []
         }
       ]
     ],
