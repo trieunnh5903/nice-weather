@@ -1,4 +1,10 @@
-import { Alert, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
+import {
+  Alert,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+  Appearance,
+} from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import {
@@ -199,11 +205,11 @@ const ListDaily = observer(() => {
 
       tempMaxData.push({
         value: tempMaxValue,
-        dataPointText: tempMaxValue.toString(),
+        dataPointText: weatherUtils.formatCelciusWithoutUnit(tempMaxValue),
       });
       tempMinData.push({
         value: tempMinValue,
-        dataPointText: tempMinValue.toString(),
+        dataPointText: weatherUtils.formatCelciusWithoutUnit(tempMinValue),
       });
     });
 
@@ -572,6 +578,7 @@ const HeaderIcons = memo(function Component({
   headerIcons,
 }: HeaderIconsProps) {
   const iconColor = useThemeColor("icon");
+
   const queryClient = useQueryClient();
   return (
     <ThemedView style={styles.header}>
