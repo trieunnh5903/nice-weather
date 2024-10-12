@@ -36,9 +36,12 @@ enableFreeze(true);
 export default function Layout() {
   const ref = useNavigationContainerRef();
   const { weatherStore } = useStores();
-  const colorScheme = useColorScheme();
+  const systemTheme = useColorScheme();
+  const persistTheme = weatherStore.theme;
+  const selectTheme = persistTheme ?? systemTheme ?? "light";
   const paperTheme =
-    colorScheme === "dark" ? PaperTheme.dark : PaperTheme.light;
+    selectTheme === "dark" ? PaperTheme.dark : PaperTheme.light;
+  const navigationTheme = selectTheme === "dark" ? DarkTheme : DefaultTheme;
   const [loaded] = useFonts({
     "OpenSans-Regular": require("../assets/fonts/OpenSans-Regular.ttf"),
     "OpenSans-Medium": require("../assets/fonts/OpenSans-Medium.ttf"),
@@ -74,9 +77,7 @@ export default function Layout() {
           client={queryClient}
         >
           <PaperProvider theme={paperTheme}>
-            <ThemeProvider
-              value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-            >
+            <ThemeProvider value={navigationTheme}>
               <Stack
                 screenOptions={{
                   headerShown: false,

@@ -1,6 +1,6 @@
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { View, type ViewProps } from "react-native";
 
-import { useThemeColor } from "@/hooks/useThemeColor";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export type ThemedViewProps = ViewProps & {
@@ -35,16 +35,13 @@ export function ThemedView({
   ...otherProps
 }: ThemedViewProps) {
   const insets = useSafeAreaInsets();
-  const backgroundColor = useThemeColor("background", {
-    light: lightColor,
-    dark: darkColor,
-  });
+  const themeColor = useAppTheme();
 
   return (
     <View
       style={[
         {
-          backgroundColor,
+          backgroundColor: themeColor.background,
           padding,
           paddingHorizontal,
           paddingVertical,

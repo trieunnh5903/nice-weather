@@ -2,17 +2,17 @@ import { Place } from "@/type";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { makeAutoObservable } from "mobx";
 import { makePersistable, isHydrated } from "mobx-persist-store";
-import { Appearance } from "react-native";
+import { ColorSchemeName } from "react-native";
 class WeatherStore {
+  theme: ColorSchemeName = null;
   places: Place[] = [];
   selectedIndex: number = -1;
-  isDarkMode = false;
   loaded: boolean = false;
   constructor() {
     makeAutoObservable(this);
     makePersistable(this, {
       name: "weatherStore",
-      properties: ["places", "selectedIndex"],
+      properties: ["places", "theme", "selectedIndex"],
       storage: AsyncStorage,
       stringify: true,
     });
@@ -46,8 +46,8 @@ class WeatherStore {
     }
   }
 
-  toggleTheme() {
-    this.isDarkMode = !this.isDarkMode;
+  changeTheme(newTheme: ColorSchemeName) {
+    this.theme = newTheme;
   }
 
   updateSelectedPlace(direction: "increase" | "decrease") {

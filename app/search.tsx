@@ -18,7 +18,6 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import { Button, Divider } from "react-native-paper";
 import { observer } from "mobx-react-lite";
-import { useThemeColor } from "@/hooks/useThemeColor";
 import { useSearchLocation } from "@/hooks/useSearchLocation";
 import { ThemedText } from "@/components/ThemedText";
 import * as ExpoLocation from "expo-location";
@@ -30,6 +29,7 @@ import placeUtils from "@/utils/placeUtils";
 import RippleButtonIcon from "@/components/RippleButtonIcon";
 import { weatherQueryOptions } from "@/hooks/useWeatherData";
 import { useQuery } from "@tanstack/react-query";
+import { useAppTheme } from "@/hooks/useAppTheme";
 
 interface SearchBarProps {
   query: string;
@@ -51,8 +51,8 @@ const SearchScreen = () => {
       BackHandler.exitApp();
     }
   };
-
-  const iconColor = useThemeColor("tint");
+  const themeColor = useAppTheme();
+  const iconColor = themeColor.primary;
   return (
     <ThemedView style={styles.container}>
       <Stack.Screen
@@ -167,6 +167,7 @@ const SearchResults = ({ results }: { results: Place[] | undefined }) => {
     weatherStore.addPlace(place);
     setPlaceId(place.place_id);
   };
+  const themeColor = useAppTheme();
 
   useEffect(() => {
     if (isSuccess) {
@@ -201,8 +202,8 @@ const SearchResults = ({ results }: { results: Place[] | undefined }) => {
               <ThemedText>{place.name}</ThemedText>
               <ThemedText
                 type="label"
-                darkColor={Colors.dark.tint}
-                lightColor={Colors.light.tint}
+                darkColor={themeColor.primary}
+                lightColor={themeColor.primary}
               >
                 {address}
               </ThemedText>
@@ -216,8 +217,9 @@ const SearchResults = ({ results }: { results: Place[] | undefined }) => {
 };
 
 const SearchBar = ({ query, onChange }: SearchBarProps) => {
-  const color = useThemeColor("text");
-  const placeholderColor = useThemeColor("placeholder");
+  const themeColor = useAppTheme();
+  const color = themeColor.text;
+  const placeholderColor = themeColor.placeholder;
 
   return (
     <TextInput

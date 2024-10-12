@@ -1,5 +1,6 @@
 import {
   Appearance,
+  ColorSchemeName,
   Pressable,
   StyleSheet,
   useColorScheme,
@@ -9,9 +10,11 @@ import { ThemedView } from "@/components/ThemedView";
 import { Stack } from "expo-router";
 import { ThemedText } from "@/components/ThemedText";
 import { Divider, Modal, Portal, RadioButton } from "react-native-paper";
-import { useThemeColor } from "@/hooks/useThemeColor";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Size } from "@/constants/Size";
+import { useAppTheme } from "@/hooks/useAppTheme";
+import { useStores } from "@/hooks/useStore";
+import { Observer } from "mobx-react-lite";
 
 interface SectionProps {
   title: string;
@@ -20,6 +23,7 @@ interface SectionProps {
 }
 
 const SettingScreen = () => {
+  const { weatherStore } = useStores();
   const [visible, setVisible] = React.useState(0);
   const showModal = (value: number) => setVisible(value);
   const hideModal = () => setVisible(0);
@@ -45,11 +49,21 @@ const SettingScreen = () => {
         onPress={() => showModal(2)}
       />
 
-      <Section
-        title="Theme"
-        subtitle={theme === "dark" ? "Dark mode" : "Light mode"}
-        onPress={() => showModal(3)}
-      />
+      <Observer>
+        {() => (
+          <Section
+            title="Theme"
+            subtitle={
+              !weatherStore.theme
+                ? "Default"
+                : weatherStore.theme === "dark"
+                ? "Dark mode"
+                : "Light mode"
+            }
+            onPress={() => showModal(3)}
+          />
+        )}
+      </Observer>
 
       <Portal>
         <Modal
@@ -83,44 +97,83 @@ const SettingScreen = () => {
 };
 
 const ThemeModal = ({ hideModal }: { hideModal: () => void }) => {
-  const theme = useColorScheme();
+  const systemTheme = useColorScheme();
+  const { weatherStore } = useStores();
+  const handleChangeTheme = (theme: ColorSchemeName) => {
+    Appearance.setColorScheme(theme);
+    weatherStore.changeTheme(theme);
+    console.log("theme", weatherStore.theme);
+    console.log("systemTheme", systemTheme);
+  };
   return (
     <ThemedView padding={20} style={styles.modal}>
       <ThemedView paddingBottom={20}>
         <ThemedText type="title">Theme</ThemedText>
       </ThemedView>
       <ThemedView>
-        <ThemedView>
-          <TouchableOpacity
-            onPress={() => Appearance.setColorScheme("dark")}
-            style={styles.rowCentered}
-          >
-            <RadioButton
-              value={"item1"}
-              status={theme === "dark" ? "checked" : "unchecked"}
-            />
-            <ThemedText type="defaultMedium">Dark</ThemedText>
-          </TouchableOpacity>
-          <ThemedView paddingVertical={6}>
-            <Divider />
-          </ThemedView>
-        </ThemedView>
+        <Observer>
+          {() => (
+            <ThemedView>
+              <TouchableOpacity
+                onPress={() => handleChangeTheme("dark")}
+                style={styles.rowCentered}
+              >
+                <RadioButton
+                  value={"item1"}
+                  status={
+                    weatherStore.theme === "dark" ? "checked" : "unchecked"
+                  }
+                />
+                <ThemedText type="defaultMedium">Dark</ThemedText>
+              </TouchableOpacity>
+              <ThemedView paddingVertical={6}>
+                <Divider />
+              </ThemedView>
+            </ThemedView>
+          )}
+        </Observer>
 
-        <ThemedView>
-          <TouchableOpacity
-            onPress={() => Appearance.setColorScheme("light")}
-            style={styles.rowCentered}
-          >
-            <RadioButton
-              value={"item2"}
-              status={theme === "light" ? "checked" : "unchecked"}
-            />
-            <ThemedText type="defaultMedium">Light</ThemedText>
-          </TouchableOpacity>
-          <ThemedView paddingVertical={6}>
-            <Divider />
-          </ThemedView>
-        </ThemedView>
+        <Observer>
+          {() => (
+            <ThemedView>
+              <TouchableOpacity
+                onPress={() => handleChangeTheme("light")}
+                style={styles.rowCentered}
+              >
+                <RadioButton
+                  value={"item2"}
+                  status={
+                    weatherStore.theme === "light" ? "checked" : "unchecked"
+                  }
+                />
+                <ThemedText type="defaultMedium">Light</ThemedText>
+              </TouchableOpacity>
+              <ThemedView paddingVertical={6}>
+                <Divider />
+              </ThemedView>
+            </ThemedView>
+          )}
+        </Observer>
+
+        <Observer>
+          {() => (
+            <ThemedView>
+              <TouchableOpacity
+                onPress={() => handleChangeTheme(null)}
+                style={styles.rowCentered}
+              >
+                <RadioButton
+                  value={"item3"}
+                  status={!weatherStore.theme ? "checked" : "unchecked"}
+                />
+                <ThemedText type="defaultMedium">Default</ThemedText>
+              </TouchableOpacity>
+              <ThemedView paddingVertical={6}>
+                <Divider />
+              </ThemedView>
+            </ThemedView>
+          )}
+        </Observer>
       </ThemedView>
       <ThemedView paddingTop={20} style={styles.rowCentered}>
         <ThemedView flex />
@@ -133,7 +186,7 @@ const ThemeModal = ({ hideModal }: { hideModal: () => void }) => {
 };
 
 const UnitModal = ({ hideModal }: { hideModal: () => void }) => {
-  const values = ["Celcius", "Celcius 2"];
+  const values = ["Celsius (°C)", "Fahrenheit (°F)"];
   const [checked, setChecked] = React.useState(values[0]);
   return (
     <ThemedView padding={20} style={styles.modal}>
@@ -220,19 +273,20 @@ const UpdateInterval = ({ hideModal }: { hideModal: () => void }) => {
 };
 
 const Section = ({ onPress, subtitle, title }: SectionProps) => {
-  const rippleColor = useThemeColor("ripple");
-  const subtitleColor = useThemeColor("subtitleText");
+  const themeColor = useAppTheme();
 
   return (
     <Pressable
       onPress={onPress}
-      android_ripple={{ color: rippleColor, foreground: true }}
+      android_ripple={{ color: themeColor.ripple, foreground: true }}
     >
       <ThemedView padding={16} paddingBottom={0}>
         <ThemedText type="defaultMedium" fontSize={16}>
           {title}
         </ThemedText>
-        {subtitle && <ThemedText color={subtitleColor}>{subtitle}</ThemedText>}
+        {subtitle && (
+          <ThemedText color={themeColor.subtitleText}>{subtitle}</ThemedText>
+        )}
         <ThemedView paddingTop={16}>
           <Divider />
         </ThemedView>

@@ -12,7 +12,6 @@ import { ThemedView } from "@/components/ThemedView";
 import { router, Stack, useNavigation } from "expo-router";
 import { ThemedText } from "@/components/ThemedText";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
-import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialIconName, Place } from "@/type";
 import { observer } from "mobx-react-lite";
 import { ImageBackground } from "expo-image";
@@ -37,6 +36,7 @@ import weatherUtils from "@/utils/weatherUtils";
 import { Divider } from "react-native-paper";
 import { useQueries } from "@tanstack/react-query";
 import { weatherApi } from "@/api/weatherApi";
+import { useAppTheme } from "@/hooks/useAppTheme";
 
 interface CustomHeaderRightProps {
   icons: MaterialIconName[];
@@ -56,10 +56,8 @@ interface LocationListProps {
 const AllLocation = () => {
   console.log("AllLocation");
   const { weatherStore } = useStores();
-  const iconColor = useThemeColor("tint");
+  const themeColor = useAppTheme();
   const icons: MaterialIconName[] = ["add", "delete-outline"];
-  const radioButtonColor = useThemeColor("tint");
-  const border = useThemeColor("ripple");
   const [multipleDelete, setMultipleDelete] = useState(false);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const progress = useSharedValue(0);
@@ -180,7 +178,7 @@ const AllLocation = () => {
               />
             );
           },
-          headerTintColor: iconColor,
+          headerTintColor: themeColor.icon,
           headerTitleAlign: "left",
           headerShadowVisible: false,
         }}
@@ -195,10 +193,12 @@ const AllLocation = () => {
       <ThemedView flex />
       {multipleDelete && (
         <Animated.View entering={FadeInDown} exiting={FadeOutDown}>
-          <ThemedView style={[styles.footerDelete, { borderTopColor: border }]}>
+          <ThemedView
+            style={[styles.footerDelete, { borderTopColor: themeColor.border }]}
+          >
             <TouchableOpacity onPress={onCancelPress}>
               <ThemedText
-                color={radioButtonColor}
+                color={themeColor.primary}
                 style={{ fontSize: 16 }}
                 type="defaultBold"
               >
@@ -207,7 +207,7 @@ const AllLocation = () => {
             </TouchableOpacity>
             <TouchableOpacity onPress={onDeletePress}>
               <ThemedText
-                color={radioButtonColor}
+                color={themeColor.primary}
                 style={{ fontSize: 16 }}
                 type="defaultBold"
               >
@@ -228,8 +228,7 @@ const CustomHeaderRight = memo(function CustomHeaderRight({
   progress,
   multipleDelete,
 }: CustomHeaderRightProps) {
-  const iconColor = useThemeColor("tint");
-
+  const themeColor = useAppTheme();
   const selectedAnimatedStyle = useAnimatedStyle(() => {
     return {
       opacity: progress.value,
@@ -258,14 +257,14 @@ const CustomHeaderRight = memo(function CustomHeaderRight({
               onPress={() => onHeaderPress(icon)}
               key={"all-location-header" + icon}
             >
-              <MaterialIcons name={icon} size={24} color={iconColor} />
+              <MaterialIcons name={icon} size={24} color={themeColor.primary} />
             </RippleButtonIcon>
           );
         })}
         <MaterialCommunityIcons
           name="dots-vertical"
           size={24}
-          color={iconColor}
+          color={themeColor.primary}
         />
       </Animated.View>
     </ThemedView>
@@ -282,7 +281,8 @@ const CustomHeaderLeft = memo(function CustomHeaderLeft({
   selectedItems,
   progress,
 }: CustomHeaderLeftProps) {
-  const radioButtonColor = useThemeColor("tint");
+  const themeColor = useAppTheme();
+  const radioButtonColor = themeColor.primary;
   const { weatherStore } = useStores();
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -410,8 +410,9 @@ const WeatherItem = function WeatherItem({
   onLocationPress,
   temperature,
 }: WeatherItemProps) {
-  const rippleColor = useThemeColor("ripple");
-  const iconColor = useThemeColor("icon");
+  const themeColor = useAppTheme();
+  const rippleColor = themeColor.ripple;
+  const iconColor = themeColor.icon;
   return (
     <Pressable
       onPress={() => onLocationPress(index, place.place_id)}

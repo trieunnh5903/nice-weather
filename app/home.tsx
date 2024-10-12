@@ -29,7 +29,6 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import RippleButtonIcon from "@/components/RippleButtonIcon";
-import { useThemeColor } from "@/hooks/useThemeColor";
 import { Colors } from "@/constants/Colors";
 import { Daily, Hourly, MaterialIconName } from "@/type";
 import { CommonActions } from "@react-navigation/native";
@@ -46,6 +45,7 @@ import { useSunriseSelected, useWeatherSelected } from "@/hooks/useWeatherData";
 
 import { MenuView } from "@react-native-menu/menu";
 import { useIsFetching, useQueryClient } from "@tanstack/react-query";
+import { useAppTheme } from "@/hooks/useAppTheme";
 interface HeaderIconsProps {
   onHeaderPress: (icon: string) => void;
   headerIcons: MaterialIconName[];
@@ -133,7 +133,9 @@ const HomeScreen: React.FC = () => {
 
 const PlaceNavigation = () => {
   const { weatherStore } = useStores();
-  const iconColor = useThemeColor("icon");
+  const themeColor = useAppTheme();
+  const iconColor = themeColor.icon;
+
   console.log("PlaceNavigation");
 
   const onLeftPress = useCallback(() => {
@@ -185,7 +187,8 @@ const PlaceNavigation = () => {
 
 const ListDaily = observer(() => {
   const weatherItemWidth = 90;
-  const textColor = useThemeColor("text");
+  const themeColor = useAppTheme();
+  const textColor = themeColor.text;
   const daily = useWeatherSelected()?.daily.data;
 
   const { tempMaxData, tempMinData } = useMemo(() => {
@@ -296,7 +299,8 @@ const ListDaily = observer(() => {
 
 const ListHourly = observer(() => {
   const weatherItemWidth = 70;
-  const textColor = useThemeColor("text");
+  const themeColor = useAppTheme();
+  const textColor = themeColor.text;
   const hourly = useWeatherSelected()?.hourly.data;
   const sunrise = useSunriseSelected();
   const { chartData, nextDayIndex, currentTimeIndex } = useMemo(() => {
@@ -455,7 +459,8 @@ const WeatherHourly = ({
 };
 
 const Sunrise = observer(() => {
-  const iconColor = useThemeColor("icon");
+  const themeColor = useAppTheme();
+  const iconColor = themeColor.icon;
   const data = useSunriseSelected();
   if (!data) return null;
   const today = data[0];
@@ -523,8 +528,9 @@ const SunriseChart = ({
   const endX = (width / 4) * 3;
   const p = radius * Math.PI;
   const strokeDashoffset = useSharedValue(p);
-  const bacgroundColor = useThemeColor("placeholder");
-  const textColor = useThemeColor("text");
+  const themeColor = useAppTheme();
+  const bacgroundColor = themeColor.placeholder;
+  const textColor = themeColor.text;
   useEffect(() => {
     if (currentTimeInPercent < 1) {
       strokeDashoffset.value = withTiming(p * (1 - currentTimeInPercent), {
@@ -577,7 +583,8 @@ const HeaderIcons = memo(function Component({
   onHeaderPress,
   headerIcons,
 }: HeaderIconsProps) {
-  const iconColor = useThemeColor("icon");
+  const themeColor = useAppTheme();
+  const iconColor = themeColor.icon;
 
   const queryClient = useQueryClient();
   return (
@@ -625,7 +632,8 @@ const HeaderIcons = memo(function Component({
 const CurrentWeatherInfo: React.FC = observer(() => {
   const { weatherStore } = useStores();
   const data = useWeatherSelected()?.current;
-  const iconColor = useThemeColor("icon");
+  const themeColor = useAppTheme();
+  const iconColor = themeColor.icon;
   const onLeftPress = useCallback(() => {
     weatherStore.updateSelectedPlace("decrease");
   }, [weatherStore]);

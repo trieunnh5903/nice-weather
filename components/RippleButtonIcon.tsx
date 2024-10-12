@@ -1,7 +1,7 @@
 import { GestureResponderEvent, Pressable } from "react-native";
 import React, { PropsWithChildren } from "react";
-import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedView } from "./ThemedView";
+import { useAppTheme } from "@/hooks/useAppTheme";
 
 interface RippleButtonProps extends PropsWithChildren {
   onPress?: ((event: GestureResponderEvent) => void) | null | undefined;
@@ -14,7 +14,8 @@ const RippleButtonIcon = ({
   onPress,
   disabled,
 }: RippleButtonProps) => {
-  const color = useThemeColor("ripple");
+  const themeColor = useAppTheme();
+
   return (
     <ThemedView
       style={{
@@ -25,7 +26,7 @@ const RippleButtonIcon = ({
       <Pressable
         disabled={disabled}
         android_ripple={{
-          color: rippleColor || color,
+          color: rippleColor || themeColor.ripple,
         }}
         style={{ padding: 6 }}
         hitSlop={3}
