@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import { axiosSunriseInstance, axiosWeatherInstance } from "./axiosConfig";
-import { Place, Sunrise, Weather } from "@/type";
+import { Place, Sunrise, TemperatureUnit, Weather } from "@/type";
 
 const apiKey = process.env.EXPO_PUBLIC_WEATHER_API_KEY;
 
@@ -39,13 +39,13 @@ const directGeocoding = async (text: string) => {
   }
 };
 
-const fetchWeather = async (placeId: string) => {
+const fetchWeather = async (placeId: string, unit: TemperatureUnit) => {
   try {
     return await fetchData<Weather>("/api/v1/free/point", {
       place_id: placeId,
       sections: "all",
       language: "en",
-      units: "metric",
+      units: unit,
     });
   } catch (error) {
     console.log("fetchWeather", error);

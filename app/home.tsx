@@ -1,10 +1,4 @@
-import {
-  Alert,
-  StyleSheet,
-  ScrollView,
-  ActivityIndicator,
-  Appearance,
-} from "react-native";
+import { Alert, StyleSheet, ScrollView, Appearance } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import {
@@ -46,6 +40,7 @@ import { useSunriseSelected, useWeatherSelected } from "@/hooks/useWeatherData";
 import { MenuView } from "@react-native-menu/menu";
 import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 import { useAppTheme } from "@/hooks/useAppTheme";
+import { ActivityIndicator } from "react-native-paper";
 interface HeaderIconsProps {
   onHeaderPress: (icon: string) => void;
   headerIcons: MaterialIconName[];
@@ -208,11 +203,11 @@ const ListDaily = observer(() => {
 
       tempMaxData.push({
         value: tempMaxValue,
-        dataPointText: weatherUtils.formatCelciusWithoutUnit(tempMaxValue),
+        dataPointText: weatherUtils.formatTemperatureWithoutUnit(tempMaxValue),
       });
       tempMinData.push({
         value: tempMinValue,
-        dataPointText: weatherUtils.formatCelciusWithoutUnit(tempMinValue),
+        dataPointText: weatherUtils.formatTemperatureWithoutUnit(tempMinValue),
       });
     });
 
@@ -312,7 +307,9 @@ const ListHourly = observer(() => {
       };
     const chartData = hourly.map((item) => ({
       value: Math.round(item.temperature),
-      dataPointText: weatherUtils.formatCelciusWithoutUnit(item.temperature),
+      dataPointText: weatherUtils.formatTemperatureWithoutUnit(
+        item.temperature
+      ),
     }));
 
     const now = new Date(hourly[0].date);
@@ -631,7 +628,7 @@ const HeaderIcons = memo(function Component({
 
 const CurrentWeatherInfo: React.FC = observer(() => {
   const { weatherStore } = useStores();
-  const data = useWeatherSelected()?.current;
+  const weather = useWeatherSelected();
   const themeColor = useAppTheme();
   const iconColor = themeColor.icon;
   const onLeftPress = useCallback(() => {
@@ -654,15 +651,17 @@ const CurrentWeatherInfo: React.FC = observer(() => {
   );
 
   const pan = Gesture.Pan().onEnd(onSwipe).runOnJS(true);
-  if (!data) return;
-  const cloudCover = `Cloud cover ${data.cloud_cover}%`;
+  if (!weather) return;
+  const cloudCover = `Cloud cover ${weather.current.cloud_cover}%`;
   return (
     <GestureDetector gesture={pan}>
       <ThemedView style={styles.current}>
         <ThemedText style={styles.celcius}>
-          {weatherUtils.formatCelcius(data.temperature)}
+          {weather.units === "metric"
+            ? weatherUtils.formatCelcius(weather.current.temperature)
+            : weatherUtils.formatFahrenheit(weather.current.temperature)}
         </ThemedText>
-        <ThemedText color={iconColor}>{data.summary}</ThemedText>
+        <ThemedText color={iconColor}>{weather.current.summary}</ThemedText>
         <ThemedText color={iconColor}>{cloudCover}</ThemedText>
         <DataStatus />
       </ThemedView>

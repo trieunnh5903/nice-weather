@@ -5,22 +5,24 @@ import {
   StyleSheet,
   useColorScheme,
 } from "react-native";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { ThemedView } from "@/components/ThemedView";
-import { router, Stack, useFocusEffect } from "expo-router";
+import { Stack, useFocusEffect, useNavigation } from "expo-router";
 import { ThemedText } from "@/components/ThemedText";
 import { Divider, Modal, Portal, RadioButton } from "react-native-paper";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Size } from "@/constants/Size";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { useStores } from "@/hooks/useStore";
-import { Observer } from "mobx-react-lite";
+import { observer, Observer } from "mobx-react-lite";
 import { useQueryClient } from "@tanstack/react-query";
-
-interface TimeInterval {
-  label: string;
-  value: number;
-}
+import { TemperatureUnit } from "@/type";
 
 interface SectionProps {
   title: string;
@@ -38,32 +40,43 @@ const SettingScreen = () => {
         }}
       />
       <UpdateInterval />
-      <TemperatureUnit />
+      <Unit />
       <Theme />
     </ThemedView>
   );
 };
 
-const TemperatureUnit = () => {
+const Unit = observer(() => {
   const [modalVisible, setModalVisible] = useState(false);
   const { weatherStore } = useStores();
-  const values = useMemo(() => ["Celsius (°C)", "Fahrenheit (°F)"], []);
-  const [checked, setChecked] = React.useState(values[0]);
-
+  const values: { label: string; unit: TemperatureUnit }[] = useMemo(
+    () => [
+      {
+        label: "Celsius (°C)",
+        unit: "metric",
+      },
+      {
+        label: "Fahrenheit (°F)",
+        unit: "us",
+      },
+    ],
+    []
+  );
+  const [checked, setChecked] = React.useState(
+    values.find((item) => item.unit === weatherStore.temperatureUnit) ||
+      values[0]
+  );
+  const queryClient = useQueryClient();
   useEffect(() => {
-    if (weatherStore.temperatureUnit === "metric") {
-      setChecked(values[0]);
-    } else {
-      setChecked(values[1]);
+    if (!modalVisible) {
+      if (checked.unit !== weatherStore.temperatureUnit) {
+        weatherStore.changeTemperatureUnit(checked.unit);
+        queryClient.invalidateQueries({ queryKey: ["weather"] });
+      }
     }
-  }, [values, weatherStore.temperatureUnit]);
-
-  const handleSelectItem = (item: string) => {
-    if (item === values[0]) {
-      weatherStore.changeTemperatureUnit("metric");
-    } else {
-      weatherStore.changeTemperatureUnit("us");
-    }
+  }, [checked.unit, modalVisible, queryClient, weatherStore]);
+  const handleSelectItem = (item: (typeof values)[0]) => {
+    setChecked(item);
   };
   const showModal = () => setModalVisible(true);
   const hideModal = () => setModalVisible(false);
@@ -71,7 +84,7 @@ const TemperatureUnit = () => {
     <ThemedView>
       <Section
         title="Temperature unit"
-        subtitle="Celcius"
+        subtitle={checked.label}
         handleOpenSection={showModal}
       />
       <Portal>
@@ -87,17 +100,16 @@ const TemperatureUnit = () => {
             <ThemedView>
               {values.map((item) => {
                 return (
-                  <ThemedView key={item}>
+                  <ThemedView key={item.label}>
                     <TouchableOpacity
                       onPress={() => handleSelectItem(item)}
-                      key={item}
                       style={styles.rowCentered}
                     >
                       <RadioButton
-                        value={item}
+                        value={item.label}
                         status={checked === item ? "checked" : "unchecked"}
                       />
-                      <ThemedText type="defaultMedium">{item}</ThemedText>
+                      <ThemedText type="defaultMedium">{item.label}</ThemedText>
                     </TouchableOpacity>
                     <ThemedView paddingVertical={6}>
                       <Divider />
@@ -117,7 +129,7 @@ const TemperatureUnit = () => {
       </Portal>
     </ThemedView>
   );
-};
+});
 
 const Theme = () => {
   const [visible, setVisible] = React.useState(false);
@@ -237,15 +249,12 @@ const Theme = () => {
   );
 };
 
-const UpdateInterval = () => {
-  const queryClient = useQueryClient();
-  const [modalVisible, setModalVisible] = useState(false);
-  const [timSeleted, setTimSeleted] = useState<TimeInterval>();
+const UpdateInterval = observer(() => {
   const timeIntervalValue = useMemo(
     () => [
       {
         label: "Manually",
-        value: Infinity,
+        value: -1,
       },
       {
         label: "Every 1 hours",
@@ -266,39 +275,36 @@ const UpdateInterval = () => {
     ],
     []
   );
-  useFocusEffect(
-    useCallback(() => {
-      return () => {
-        if (timSeleted) {
-          queryClient.setDefaultOptions({
-            queries: {
-              staleTime: timSeleted.value * 1000,
-            },
-          });
-        }
-      };
-    }, [queryClient, timSeleted])
+  const queryClient = useQueryClient();
+  const { weatherStore } = useStores();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [timSeleted, setTimSeleted] = useState(
+    timeIntervalValue.find((item) => item.value === weatherStore.stateTime)
   );
 
   useEffect(() => {
-    const staleTime = queryClient.getDefaultOptions().queries?.staleTime;
-    if (staleTime) {
-      const selectedItem = timeIntervalValue.find(
-        (item) => item.value === (staleTime as number) / 1000
-      );
-
-      if (selectedItem) {
-        setTimSeleted(selectedItem);
+    if (!modalVisible && timSeleted) {
+      if (timSeleted.value !== weatherStore.stateTime) {
+        if (timSeleted.value === Infinity) {
+          weatherStore.changeStaleTime(-1);
+          queryClient.setDefaultOptions({ queries: { staleTime: Infinity } });
+        } else {
+          weatherStore.changeStaleTime(timSeleted.value);
+          queryClient.setDefaultOptions({
+            queries: { staleTime: timSeleted.value },
+          });
+        }
       }
     }
-  }, [queryClient, timeIntervalValue]);
+    return () => {};
+  }, [modalVisible, queryClient, timSeleted, weatherStore]);
 
   const showModal = () => setModalVisible(true);
   const hideModal = () => setModalVisible(false);
   return (
     <ThemedView>
       <Section
-        subtitle={timSeleted?.label}
+        subtitle={timSeleted?.value === -1 ? "Manual" : timSeleted?.label}
         title="Update interval"
         handleOpenSection={showModal}
       />
@@ -349,7 +355,7 @@ const UpdateInterval = () => {
       </Portal>
     </ThemedView>
   );
-};
+});
 
 const Section = ({ handleOpenSection, subtitle, title }: SectionProps) => {
   const themeColor = useAppTheme();

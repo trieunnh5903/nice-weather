@@ -22,11 +22,6 @@ import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persi
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 
 SplashScreen.preventAutoHideAsync();
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: { staleTime: 3600 * 1000, gcTime: 2 * 24 * 3600 * 1000 },
-  },
-});
 
 const asyncStoragePersister = createAsyncStoragePersister({
   storage: AsyncStorage,
@@ -37,6 +32,15 @@ export default function Layout() {
   const ref = useNavigationContainerRef();
   const { weatherStore } = useStores();
   const systemTheme = useColorScheme();
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime:
+          weatherStore.stateTime < 0 ? Infinity : weatherStore.stateTime * 1000,
+        gcTime: 2 * 24 * 3600 * 1000,
+      },
+    },
+  });
   const persistTheme = weatherStore.theme;
   const selectTheme = persistTheme ?? systemTheme ?? "light";
   const paperTheme =

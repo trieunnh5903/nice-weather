@@ -348,7 +348,8 @@ const LocationList = observer(
     const allWeather = useQueries({
       queries: weatherStore.places.map((place) => ({
         queryKey: ["weather", place.place_id],
-        queryFn: () => weatherApi.fetchWeather(place.place_id),
+        queryFn: () =>
+          weatherApi.fetchWeather(place.place_id, weatherStore.temperatureUnit),
       })),
     });
 
@@ -375,9 +376,15 @@ const LocationList = observer(
         keyExtractor={(item) => item.place_id}
         ItemSeparatorComponent={() => <Divider />}
         renderItem={({ item, index }) => {
+          const temperature = allWeather[index].data?.current.temperature;
+          const formatTemp = temperature
+            ? allWeather[index].data?.units === "metric"
+              ? weatherUtils.formatCelcius(temperature)
+              : weatherUtils.formatFahrenheit(temperature)
+            : "";
           return (
             <WeatherItem
-              temperature={allWeather[index].data?.current.temperature}
+              temperature={formatTemp}
               animatedStyle={animatedStyle}
               onLocationPress={onLocationPress}
               place={item}
@@ -399,7 +406,7 @@ interface WeatherItemProps {
   selectedItems: string[];
   onLocationPress: (index: number, id: string) => void;
   animatedStyle: StyleProp<AnimatedStyle<StyleProp<ViewStyle>>>;
-  temperature: number | undefined;
+  temperature: string | undefined;
 }
 
 const WeatherItem = function WeatherItem({

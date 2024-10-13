@@ -94,10 +94,12 @@ const SearchScreen = () => {
 };
 
 const CurrentLocationButton = observer(() => {
+  const { weatherStore } = useStores();
   const [isLoading, setIsLoading] = useState(false);
   const [placeId, setPlaceId] = useState<string>("");
-  const { isSuccess } = useQuery(weatherQueryOptions(placeId));
-  const { weatherStore } = useStores();
+  const { isSuccess } = useQuery(
+    weatherQueryOptions(placeId, weatherStore.temperatureUnit)
+  );
   const getCurrentPosition = async () => {
     setIsLoading(true);
     try {
@@ -161,8 +163,10 @@ const CurrentLocationButton = observer(() => {
 
 const SearchResults = ({ results }: { results: Place[] | undefined }) => {
   const [placeId, setPlaceId] = useState<string>("");
-  const { isSuccess } = useQuery(weatherQueryOptions(placeId));
   const { weatherStore } = useStores();
+  const { isSuccess } = useQuery(
+    weatherQueryOptions(placeId, weatherStore.temperatureUnit)
+  );
   const onPlacePress = (place: Place) => {
     weatherStore.addPlace(place);
     setPlaceId(place.place_id);

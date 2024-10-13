@@ -4,15 +4,11 @@ const formatCelcius = (temp: number) => {
   return Math.round(temp) + Units.Celsius;
 };
 
-const formatFahrenheit = (celcius: number) => {
-  return Math.round(celcius * 1.8 + 32) + Units.Fahrenheit;
+const formatFahrenheit = (temp: number) => {
+  return Math.round(temp) + Units.Fahrenheit;
 };
 
-const formatFahrenheitWithoutUnit = (celcius: number) => {
-  return Math.round(celcius * 1.8 + 32) + "°";
-};
-
-const formatCelciusWithoutUnit = (temp: number) => {
+const formatTemperatureWithoutUnit = (temp: number) => {
   return Math.round(temp) + "°";
 };
 
@@ -52,10 +48,9 @@ const getDay = (date: string) => {
 export default {
   formatCelcius,
   formatSunrise,
-  formatCelciusWithoutUnit,
+  formatTemperatureWithoutUnit,
   convertToMinute,
   getDay,
   days,
-  formatFahrenheitWithoutUnit,
   formatFahrenheit,
 };
