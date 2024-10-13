@@ -3,16 +3,18 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { makeAutoObservable } from "mobx";
 import { makePersistable, isHydrated } from "mobx-persist-store";
 import { ColorSchemeName } from "react-native";
+export type TemperatureUnit = "metric" | "us";
 class WeatherStore {
   theme: ColorSchemeName = null;
   places: Place[] = [];
   selectedIndex: number = -1;
+  temperatureUnit: TemperatureUnit = "metric";
   loaded: boolean = false;
   constructor() {
     makeAutoObservable(this);
     makePersistable(this, {
       name: "weatherStore",
-      properties: ["places", "theme", "selectedIndex"],
+      properties: ["places", "temperatureUnit", "theme", "selectedIndex"],
       storage: AsyncStorage,
       stringify: true,
     });
@@ -28,6 +30,10 @@ class WeatherStore {
 
   get selectedPlace() {
     return this.places[this.selectedIndex];
+  }
+
+  changeTemperatureUnit(unit: TemperatureUnit) {
+    this.temperatureUnit = unit;
   }
 
   addPlace(place: Place) {

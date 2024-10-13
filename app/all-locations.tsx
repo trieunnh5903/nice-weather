@@ -450,9 +450,7 @@ const WeatherItem = function WeatherItem({
         </Animated.View>
         {temperature && (
           <ThemedView>
-            <ThemedText fontSize={18}>
-              {weatherUtils.formatCelcius(temperature)}
-            </ThemedText>
+            <ThemedText fontSize={18}>{temperature}</ThemedText>
           </ThemedView>
         )}
       </ImageBackground>
