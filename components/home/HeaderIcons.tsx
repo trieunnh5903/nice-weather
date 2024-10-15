@@ -1,31 +1,31 @@
 import { StyleSheet } from "react-native";
-import React, { memo, useCallback } from "react";
+import React, { memo, useCallback, useState } from "react";
 import { MaterialIconName } from "@/type";
 import RippleButtonIcon from "../RippleButtonIcon";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { MenuView } from "@react-native-menu/menu";
 import ThemedView from "../ThemedView";
 import { useAppTheme } from "@/hooks";
+import { Menu } from "react-native-paper";
+import { router } from "expo-router";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface HeaderIconsProps {
   onHeaderPress: (icon: string) => void;
   headerIcons: MaterialIconName[];
-  onMenuAction: (event: string) => void;
 }
 
 const HeaderIcons: React.FC<HeaderIconsProps> = ({
   onHeaderPress,
   headerIcons,
-  onMenuAction,
 }) => {
+  const queryClient = useQueryClient();
   const themeColor = useAppTheme();
   const iconColor = themeColor.icon;
-  const handleMenuPress = useCallback(
-    ({ nativeEvent }: { nativeEvent: { event: string } }) => {
-      onMenuAction(nativeEvent.event);
-    },
-    [onMenuAction]
-  );
+  const [menuVisible, setMenuVisible] = useState(false);
+  const openMenu = () => setMenuVisible(true);
+  const closeMenu = () => setMenuVisible(false);
+
   return (
     <ThemedView style={styles.header}>
       {headerIcons.map((icon) => (
@@ -36,22 +36,41 @@ const HeaderIcons: React.FC<HeaderIconsProps> = ({
           <MaterialIcons name={icon} size={26} color={iconColor} />
         </RippleButtonIcon>
       ))}
-      <MenuView
-        onPressAction={handleMenuPress}
-        actions={[
-          { id: "update", title: "Update now" },
-          { id: "setting", title: "Setting" },
-        ]}
-        shouldOpenOnLongPress={false}
+      <Menu
+        contentStyle={{
+          backgroundColor: themeColor.background,
+          borderColor: themeColor.border,
+          borderWidth: 1
+        }}
+        anchorPosition="bottom"
+        visible={menuVisible}
+        onDismiss={closeMenu}
+        anchor={
+          <RippleButtonIcon onPress={openMenu}>
+            <MaterialCommunityIcons
+              name={"dots-vertical"}
+              size={26}
+              color={iconColor}
+            />
+          </RippleButtonIcon>
+        }
       >
-        <RippleButtonIcon>
-          <MaterialCommunityIcons
-            name={"dots-vertical"}
-            size={26}
-            color={iconColor}
-          />
-        </RippleButtonIcon>
-      </MenuView>
+        <Menu.Item
+          onPress={() => {
+            queryClient.invalidateQueries();
+          }}
+          title="Update now"
+        />
+        <Menu.Item
+          onPress={() => {
+            closeMenu();
+            setTimeout(() => {
+              router.navigate("/setting");
+            }, 500);
+          }}
+          title="Setting"
+        />
+      </Menu>
     </ThemedView>
   );
 };

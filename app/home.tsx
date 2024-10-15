@@ -10,7 +10,6 @@ import {
 import { useStores } from "@/hooks";
 import { MaterialIconName } from "@/type";
 import { CommonActions } from "@react-navigation/native";
-import { useQueryClient } from "@tanstack/react-query";
 import { router, useNavigation } from "expo-router";
 import { useCallback, useMemo } from "react";
 import { Alert } from "react-native";
@@ -18,7 +17,6 @@ import { ScrollView } from "react-native-gesture-handler";
 
 const HomeScreen: React.FC = () => {
   console.log("home");
-  const queryClient = useQueryClient();
   const headerIcons: MaterialIconName[] = useMemo(
     () => ["menu", "add", "delete-outline"],
     []
@@ -59,25 +57,10 @@ const HomeScreen: React.FC = () => {
     [headerIcons, navigation, weatherStore]
   );
 
-  const onMenuAction = useCallback(
-    (event: string) => {
-      if (event === "update") {
-        queryClient.invalidateQueries();
-      } else if (event === "setting") {
-        router.navigate("/setting");
-      }
-    },
-    [queryClient]
-  );
-
   return (
     <ThemedView flex enableInsetsTop>
       <ThemedView>
-        <HeaderIcons
-          headerIcons={headerIcons}
-          onHeaderPress={onHeaderPress}
-          onMenuAction={onMenuAction}
-        />
+        <HeaderIcons headerIcons={headerIcons} onHeaderPress={onHeaderPress} />
         <PlaceNavigation />
       </ThemedView>
       <ScrollView>

@@ -1,3 +1,4 @@
+import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { MD3DarkTheme, MD3LightTheme } from "react-native-paper";
 
 export const Colors = {
@@ -20,6 +21,21 @@ export const Colors = {
     placeholder: "#AAAAAA",
     ripple: "rgba(255,255,255,0.1)",
     border: "rgba(255,255,255,0.1)",
+  },
+};
+
+export const NavigationTheme = {
+  light: {
+    ...DefaultTheme,
+    colors: {
+      ...DefaultTheme.colors,
+      ...Colors.light,
+    },
+  },
+
+  dark: {
+    ...DarkTheme,
+    colors: { ...DarkTheme.colors, ...Colors.dark },
   },
 };
 

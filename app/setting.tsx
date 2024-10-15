@@ -2,6 +2,7 @@ import { ThemedView } from "@/components";
 import { ThemeSetting, Unit, UpdateInterval } from "@/components/setting";
 import { Stack } from "expo-router";
 import React from "react";
+import { Divider } from "react-native-paper";
 
 const SettingScreen = () => {
   return (
@@ -10,8 +11,10 @@ const SettingScreen = () => {
         options={{
           headerShown: true,
           title: "Setting",
+          headerShadowVisible: false,
         }}
       />
+      <Divider/>
       <UpdateInterval />
       <Unit />
       <ThemeSetting />

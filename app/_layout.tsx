@@ -1,11 +1,7 @@
-import { PaperTheme } from "@/constants/Colors";
+import { NavigationTheme, PaperTheme } from "@/constants/Colors";
 import { MobxStoreProvider, useStores } from "@/hooks/useStore";
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
-import { QueryClient, QueryClientConfig } from "@tanstack/react-query";
+import { ThemeProvider } from "@react-navigation/native";
+import { QueryClient } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
@@ -40,7 +36,8 @@ export default function Layout() {
   const selectTheme = persistTheme ?? systemTheme ?? "light";
   const paperTheme =
     selectTheme === "dark" ? PaperTheme.dark : PaperTheme.light;
-  const navigationTheme = selectTheme === "dark" ? DarkTheme : DefaultTheme;
+  const navigationTheme =
+    selectTheme === "dark" ? NavigationTheme.dark : NavigationTheme.light;
   const [loaded] = useFonts({
     "OpenSans-Regular": require("../assets/fonts/OpenSans-Regular.ttf"),
     "OpenSans-Medium": require("../assets/fonts/OpenSans-Medium.ttf"),
