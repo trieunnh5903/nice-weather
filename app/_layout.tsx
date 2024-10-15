@@ -5,13 +5,9 @@ import {
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
-import {
-  QueryCache,
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
+import { QueryClient, QueryClientConfig } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
-import { SplashScreen, Stack, useNavigationContainerRef } from "expo-router";
+import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
 import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -29,7 +25,6 @@ const asyncStoragePersister = createAsyncStoragePersister({
 
 enableFreeze(true);
 export default function Layout() {
-  const ref = useNavigationContainerRef();
   const { weatherStore } = useStores();
   const systemTheme = useColorScheme();
   const queryClient = new QueryClient({
@@ -37,7 +32,7 @@ export default function Layout() {
       queries: {
         staleTime:
           weatherStore.stateTime < 0 ? Infinity : weatherStore.stateTime * 1000,
-        gcTime: 2 * 24 * 3600 * 1000,
+        gcTime: 24 * 24 * 3600 * 1000,
       },
     },
   });
@@ -65,7 +60,7 @@ export default function Layout() {
       }
     }
     prepare();
-  }, [loaded, ref, weatherStore]);
+  }, [loaded, weatherStore]);
 
   if (!loaded || !weatherStore.isHydrated) {
     console.log("loaded", loaded);
@@ -77,7 +72,10 @@ export default function Layout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <MobxStoreProvider>
         <PersistQueryClientProvider
-          persistOptions={{ persister: asyncStoragePersister }}
+          persistOptions={{
+            persister: asyncStoragePersister,
+            maxAge: 24 * 24 * 3600 * 1000,
+          }}
           client={queryClient}
         >
           <PaperProvider theme={paperTheme}>

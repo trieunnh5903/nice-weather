@@ -20,7 +20,7 @@ export type ThemedTextProps = TextProps & {
     | "link";
 };
 
-export function ThemedText({
+const ThemedText = ({
   style,
   lightColor,
   darkColor,
@@ -30,7 +30,7 @@ export function ThemedText({
   uppercase,
   type = "default",
   ...rest
-}: ThemedTextProps) {
+}: ThemedTextProps) => {
   const themeColor = useAppTheme();
 
   return (
@@ -53,8 +53,9 @@ export function ThemedText({
       {...rest}
     />
   );
-}
+};
 
+export default ThemedText;
 const styles = StyleSheet.create({
   default: {
     fontSize: 14,

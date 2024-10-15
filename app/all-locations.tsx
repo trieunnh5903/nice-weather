@@ -8,14 +8,11 @@ import {
   ViewStyle,
 } from "react-native";
 import React, { memo, useEffect, useState } from "react";
-import { ThemedView } from "@/components/ThemedView";
 import { router, Stack, useNavigation } from "expo-router";
-import { ThemedText } from "@/components/ThemedText";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { MaterialIconName, Place } from "@/type";
 import { observer } from "mobx-react-lite";
 import { ImageBackground } from "expo-image";
-import RippleButtonIcon from "@/components/RippleButtonIcon";
 import Animated, {
   AnimatedStyle,
   Easing,
@@ -27,16 +24,25 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { useStores } from "@/hooks/useStore";
 import { FlatList } from "react-native-gesture-handler";
 import { CommonActions } from "@react-navigation/native";
-import { StatusBar } from "expo-status-bar";
-import provinceUtils from "@/utils/placeUtils";
-import weatherUtils from "@/utils/weatherUtils";
 import { Divider } from "react-native-paper";
 import { useQueries } from "@tanstack/react-query";
 import { weatherApi } from "@/api/weatherApi";
-import { useAppTheme } from "@/hooks/useAppTheme";
+import { useAppTheme, useStores } from "@/hooks";
+import { RippleButtonIcon, ThemedText, ThemedView } from "@/components";
+import { placeUtils, weatherUtils } from "@/utils";
+
+interface FooterOfDeleteModeProps {
+  onDeletePress: () => void;
+  onCancelPress: () => void;
+}
+
+interface CustomHeaderLeftProps {
+  handleSelecteAll: () => void;
+  selectedItems: string[];
+  progress: SharedValue<number>;
+}
 
 interface CustomHeaderRightProps {
   icons: MaterialIconName[];
@@ -44,6 +50,15 @@ interface CustomHeaderRightProps {
   numberOfSelected: number;
   progress: SharedValue<number>;
   multipleDelete: boolean;
+}
+
+interface WeatherItemProps {
+  place: Place;
+  index: number;
+  selectedItems: string[];
+  onLocationPress: (index: number, id: string) => void;
+  animatedStyle: StyleProp<AnimatedStyle<StyleProp<ViewStyle>>>;
+  temperature: string | undefined;
 }
 
 interface LocationListProps {
@@ -54,7 +69,6 @@ interface LocationListProps {
 }
 
 const AllLocation = () => {
-  console.log("AllLocation");
   const { weatherStore } = useStores();
   const themeColor = useAppTheme();
   const icons: MaterialIconName[] = ["add", "delete-outline"];
@@ -192,32 +206,45 @@ const AllLocation = () => {
       />
       <ThemedView flex />
       {multipleDelete && (
-        <Animated.View entering={FadeInDown} exiting={FadeOutDown}>
-          <ThemedView
-            style={[styles.footerDelete, { borderTopColor: themeColor.border }]}
-          >
-            <TouchableOpacity onPress={onCancelPress}>
-              <ThemedText
-                color={themeColor.primary}
-                style={{ fontSize: 16 }}
-                type="defaultBold"
-              >
-                CANCEL
-              </ThemedText>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={onDeletePress}>
-              <ThemedText
-                color={themeColor.primary}
-                style={{ fontSize: 16 }}
-                type="defaultBold"
-              >
-                DELETE
-              </ThemedText>
-            </TouchableOpacity>
-          </ThemedView>
-        </Animated.View>
+        <FooterOfDeleteMode
+          onCancelPress={onCancelPress}
+          onDeletePress={onDeletePress}
+        />
       )}
     </ThemedView>
+  );
+};
+
+const FooterOfDeleteMode = ({
+  onCancelPress,
+  onDeletePress,
+}: FooterOfDeleteModeProps) => {
+  const themeColor = useAppTheme();
+  return (
+    <Animated.View entering={FadeInDown} exiting={FadeOutDown}>
+      <ThemedView
+        style={[styles.footerDelete, { borderTopColor: themeColor.border }]}
+      >
+        <TouchableOpacity onPress={onCancelPress}>
+          <ThemedText
+            color={themeColor.primary}
+            style={{ fontSize: 16 }}
+            type="defaultBold"
+          >
+            CANCEL
+          </ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onDeletePress}>
+          <ThemedText
+            color={themeColor.primary}
+            style={{ fontSize: 16 }}
+            type="defaultBold"
+          >
+            DELETE
+          </ThemedText>
+        </TouchableOpacity>
+      </ThemedView>
+    </Animated.View>
   );
 };
 
@@ -271,11 +298,6 @@ const CustomHeaderRight = memo(function CustomHeaderRight({
   );
 });
 
-interface CustomHeaderLeftProps {
-  handleSelecteAll: () => void;
-  selectedItems: string[];
-  progress: SharedValue<number>;
-}
 const CustomHeaderLeft = memo(function CustomHeaderLeft({
   handleSelecteAll,
   selectedItems,
@@ -398,18 +420,7 @@ const LocationList = observer(
   }
 );
 
-export default AllLocation;
-
-interface WeatherItemProps {
-  place: Place;
-  index: number;
-  selectedItems: string[];
-  onLocationPress: (index: number, id: string) => void;
-  animatedStyle: StyleProp<AnimatedStyle<StyleProp<ViewStyle>>>;
-  temperature: string | undefined;
-}
-
-const WeatherItem = function WeatherItem({
+const WeatherItem = memo(function WeatherItem({
   place,
   index,
   selectedItems,
@@ -451,7 +462,7 @@ const WeatherItem = function WeatherItem({
             </ThemedView>
 
             <ThemedText numberOfLines={1}>
-              {provinceUtils.getAddress(place)}
+              {placeUtils.getAddress(place)}
             </ThemedText>
           </ThemedView>
         </Animated.View>
@@ -463,7 +474,9 @@ const WeatherItem = function WeatherItem({
       </ImageBackground>
     </Pressable>
   );
-};
+});
+
+export default AllLocation;
 
 const styles = StyleSheet.create({
   rowCenter: {

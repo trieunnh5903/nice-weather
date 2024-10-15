@@ -1,7 +1,7 @@
 import { GestureResponderEvent, Pressable } from "react-native";
 import React, { PropsWithChildren } from "react";
-import { ThemedView } from "./ThemedView";
 import { useAppTheme } from "@/hooks/useAppTheme";
+import ThemedView from "./ThemedView";
 
 interface RippleButtonProps extends PropsWithChildren {
   onPress?: ((event: GestureResponderEvent) => void) | null | undefined;

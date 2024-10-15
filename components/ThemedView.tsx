@@ -18,7 +18,7 @@ export type ThemedViewProps = ViewProps & {
   paddingVertical?: number;
 };
 
-export function ThemedView({
+const ThemedView = ({
   style,
   paddingLeft,
   lightColor,
@@ -33,7 +33,7 @@ export function ThemedView({
   paddingBottom,
   flex,
   ...otherProps
-}: ThemedViewProps) {
+}: ThemedViewProps) => {
   const insets = useSafeAreaInsets();
   const themeColor = useAppTheme();
 
@@ -65,4 +65,6 @@ export function ThemedView({
       {...otherProps}
     />
   );
-}
+};
+
+export default ThemedView;
