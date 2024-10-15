@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useRootNavigationState, useRouter } from "expo-router";
 import { useStores } from "@/hooks/useStore";
 
