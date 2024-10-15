@@ -14,7 +14,7 @@ import { router, useNavigation } from "expo-router";
 import { useCallback, useMemo } from "react";
 import { Alert } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-
+import { StatusBar } from "expo-status-bar";
 const HomeScreen: React.FC = () => {
   console.log("home");
   const headerIcons: MaterialIconName[] = useMemo(
@@ -56,9 +56,11 @@ const HomeScreen: React.FC = () => {
     },
     [headerIcons, navigation, weatherStore]
   );
-
+  console.log(weatherStore.theme);
+  
   return (
     <ThemedView flex enableInsetsTop>
+      <StatusBar style={weatherStore.theme === "dark" ? "light" : "dark"} />
       <ThemedView>
         <HeaderIcons headerIcons={headerIcons} onHeaderPress={onHeaderPress} />
         <PlaceNavigation />
