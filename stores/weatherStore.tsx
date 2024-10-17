@@ -66,16 +66,16 @@ class WeatherStore {
     this.theme = newTheme;
   }
 
-  updateSelectedPlace(direction: "increase" | "decrease") {
-    const length = this.places.length;
-    if (direction === "increase") {
-      this.selectedIndex =
-        this.selectedIndex === length - 1 ? 0 : this.selectedIndex + 1;
-    } else {
-      this.selectedIndex =
-        this.selectedIndex === 0 ? length - 1 : this.selectedIndex - 1;
-    }
-  }
+  // updateSelectedPlace(direction: "increase" | "decrease") {
+  //   const length = this.places.length;
+  //   if (direction === "increase") {
+  //     this.selectedIndex =
+  //       this.selectedIndex === length - 1 ? 0 : this.selectedIndex + 1;
+  //   } else {
+  //     this.selectedIndex =
+  //       this.selectedIndex === 0 ? length - 1 : this.selectedIndex - 1;
+  //   }
+  // }
 
   deletePlace(placeId: string) {
     this.places = this.places.filter((i) => i.place_id !== placeId);

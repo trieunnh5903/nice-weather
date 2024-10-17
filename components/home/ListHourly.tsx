@@ -8,7 +8,7 @@ import { LineChart, yAxisSides } from "react-native-gifted-charts";
 import { Hourly } from "@/type";
 import weatherIcon from "@/config/weatherIcon";
 import { Image } from "expo-image";
-import { useAppTheme, useSunriseSelected, useWeatherSelected } from "@/hooks";
+import { useAppTheme } from "@/hooks";
 import { weatherUtils } from "@/utils";
 
 interface WeatherHourlyProps {
@@ -19,12 +19,17 @@ interface WeatherHourlyProps {
   currentTimeIndex: number;
 }
 
-const useHourlyData = () => {
-  const hourly = useWeatherSelected()?.hourly.data;
-  const sunrise = useSunriseSelected();
+interface ListHourlyProps {
+  hourly: Hourly[];
+  timezone: string;
+}
+
+const useHourlyData = ({ hourly, timezone }: ListHourlyProps) => {
+  // const hourly = useWeatherSelected()?.hourly.data;
+  // const sunrise = useSunriseSelected();
 
   return useMemo(() => {
-    if (!hourly || hourly.length === 0 || !sunrise)
+    if (hourly.length === 0)
       return {
         chartData: [],
         nextDayIndex: 0,
@@ -46,7 +51,7 @@ const useHourlyData = () => {
 
     const now = new Date().toLocaleTimeString(undefined, {
       hour: "2-digit",
-      timeZone: sunrise[0].timezone,
+      timeZone: timezone,
       day: "2-digit",
     });
 
@@ -55,7 +60,7 @@ const useHourlyData = () => {
       hourly.findIndex((item) => {
         const date = new Date(item.date).toLocaleTimeString(undefined, {
           hour: "2-digit",
-          timeZone: sunrise[0].timezone,
+          timeZone: timezone,
           day: "2-digit",
         });
         return now === date;
@@ -66,9 +71,8 @@ const useHourlyData = () => {
       chartData,
       nextDayIndex,
       currentTimeIndex,
-      hourly,
     };
-  }, [hourly, sunrise]);
+  }, [hourly, timezone]);
 };
 const WeatherHourly: React.FC<WeatherHourlyProps> = React.memo(
   function WeatherHourly({
@@ -111,14 +115,16 @@ const WeatherHourly: React.FC<WeatherHourlyProps> = React.memo(
   }
 );
 
-const ListHourly = observer(() => {
+const ListHourly = observer(({ hourly, timezone }: ListHourlyProps) => {
   const weatherItemWidth = 70;
   const listRef = useRef<ScrollView>(null);
   const themeColor = useAppTheme();
+  const { chartData, currentTimeIndex, nextDayIndex } = useHourlyData({
+    hourly,
+    timezone,
+  });
   const textColor = themeColor.text;
-  const { chartData, currentTimeIndex, nextDayIndex, hourly } = useHourlyData();
-
-  if (!hourly || hourly.length === 0) return;
+  if (hourly.length === 0) return null;
   return (
     <ThemedView>
       <ThemedView paddingHorizontal={12}>

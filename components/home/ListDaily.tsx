@@ -25,12 +25,15 @@ interface TemperatureChartProps {
   weatherItemWidth: number;
 }
 
-const ListDaily = observer(() => {
-  const daily = useWeatherSelected()?.daily.data;
+interface ListDailyProps {
+  daily: Daily[];
+}
+const ListDaily = observer(({ daily }: ListDailyProps) => {
+  // const daily = useWeatherSelected()?.daily.data;
   const weatherItemWidth = 90;
 
   const { tempMaxData, tempMinData } = useMemo(() => {
-    if (!daily || daily.length === 0) {
+    if (daily.length === 0) {
       return {
         tempMaxData: [],
         tempMinData: [],
@@ -59,7 +62,7 @@ const ListDaily = observer(() => {
       tempMinData,
     };
   }, [daily]);
-  if (!daily || daily.length === 0) return null;
+  if (daily.length === 0) return null;
   return (
     <ThemedView>
       <ThemedView paddingHorizontal={12}>

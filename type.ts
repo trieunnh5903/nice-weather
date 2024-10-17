@@ -24,20 +24,21 @@ export interface Place {
 }
 
 export interface Sunrise {
-  results: {
-    date: string;
-    sunrise: string;
-    sunset: string;
-    first_light: string;
-    last_light: string;
-    dawn: string;
-    dusk: string;
-    solar_noon: string;
-    golden_hour: string;
-    day_length: string;
-    timezone: string;
-    utc_offset: number;
-  }[];
+  date: string;
+  sunrise: string;
+  sunset: string;
+  first_light: string;
+  last_light: string;
+  dawn: string;
+  dusk: string;
+  solar_noon: string;
+  golden_hour: string;
+  day_length: string;
+  timezone: string;
+  utc_offset: number;
+}
+export interface SunriseResponse {
+  results: Sunrise[];
   status: string;
 }
 

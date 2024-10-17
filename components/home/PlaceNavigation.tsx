@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import React, { memo, useCallback } from "react";
+import React, { memo } from "react";
 import ThemedView from "../ThemedView";
 import RippleButtonIcon from "../RippleButtonIcon";
 import { Colors } from "@/constants/Colors";
@@ -8,25 +8,14 @@ import { Observer } from "mobx-react-lite";
 import ThemedText from "../ThemedText";
 import { useAppTheme, useStores } from "@/hooks";
 
-const usePlaceNavigation = () => {
-  const { weatherStore } = useStores();
-
-  const onLeftPress = useCallback(() => {
-    weatherStore.updateSelectedPlace("decrease");
-  }, [weatherStore]);
-
-  const onRightPress = useCallback(() => {
-    weatherStore.updateSelectedPlace("increase");
-  }, [weatherStore]);
-
-  return {
-    onLeftPress,
-    onRightPress,
-  };
-};
-
-const PlaceNavigation = () => {
-  const { onLeftPress, onRightPress } = usePlaceNavigation();
+interface PlaceNavigationProps {
+  onLeftPress: () => void;
+  onRightPress: () => void;
+}
+const PlaceNavigation: React.FC<PlaceNavigationProps> = ({
+  onLeftPress,
+  onRightPress,
+}) => {
   const { weatherStore } = useStores();
   const themeColor = useAppTheme();
   const iconColor = themeColor.icon;

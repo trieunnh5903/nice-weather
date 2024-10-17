@@ -8,31 +8,13 @@ import { Size } from "@/constants/Size";
 import { useIsFetching } from "@tanstack/react-query";
 import { useAppTheme, useStores, useWeatherSelected } from "@/hooks";
 import { weatherUtils } from "@/utils";
+import { CurrentWeather, TemperatureUnit } from "@/type";
 
-const useCurrentWeather = () => {
-  const { weatherStore } = useStores();
-  const weather = useWeatherSelected();
-  const onLeftPress = useCallback(() => {
-    weatherStore.updateSelectedPlace("decrease");
-  }, [weatherStore]);
-
-  const onRightPress = useCallback(() => {
-    weatherStore.updateSelectedPlace("increase");
-  }, [weatherStore]);
-
-  const onSwipe = useCallback(
-    (translationX: number) => {
-      if (translationX < -50) {
-        onRightPress();
-      } else if (translationX > 50) {
-        onLeftPress();
-      }
-    },
-    [onLeftPress, onRightPress]
-  );
-
-  return { weather, onSwipe };
-};
+interface CurrentWeatherInfoProps {
+  currentWeather: CurrentWeather;
+  onSwipe: (translationX: number) => void;
+  units: TemperatureUnit;
+}
 
 const DataStatus = () => {
   const isFetching = useIsFetching();
@@ -54,35 +36,41 @@ const DataStatus = () => {
   return <ThemedText type="label">Updated at {date}</ThemedText>;
 };
 
-const CurrentWeatherInfo: React.FC = observer(() => {
-  const { onSwipe, weather } = useCurrentWeather();
-  const themeColor = useAppTheme();
-  const iconColor = themeColor.icon;
+const CurrentWeatherInfo: React.FC<CurrentWeatherInfoProps> = observer(
+  ({ currentWeather, onSwipe, units }) => {
+    const themeColor = useAppTheme();
+    const iconColor = themeColor.icon;
 
-  const pan = useMemo(
-    () =>
-      Gesture.Pan()
-        .onEnd((e) => onSwipe(e.translationX))
-        .runOnJS(true),
-    [onSwipe]
-  );
-  if (!weather) return null;
-  const temperature =
-    weather.units === "metric"
-      ? weatherUtils.formatCelcius(weather.current.temperature)
-      : weatherUtils.formatFahrenheit(weather.current.temperature);
-  const cloudCover = `Cloud cover ${weather.current.cloud_cover}%`;
-  return (
-    <GestureDetector gesture={pan}>
-      <ThemedView style={styles.current}>
-        <ThemedText style={styles.celcius}>{temperature}</ThemedText>
-        <ThemedText color={iconColor}>{weather.current.summary}</ThemedText>
-        <ThemedText color={iconColor}>{cloudCover}</ThemedText>
-        <DataStatus />
-      </ThemedView>
-    </GestureDetector>
-  );
-});
+    const pan = useMemo(
+      () =>
+        Gesture.Pan()
+          .onEnd((event) => {
+            if (Math.abs(event.translationX) > Math.abs(event.translationY)) {
+              onSwipe(event.translationX);
+            }
+          })
+          .activeOffsetX([-50, 50])
+          .runOnJS(true),
+      [onSwipe]
+    );
+
+    const temperature =
+      units === "metric"
+        ? weatherUtils.formatCelcius(currentWeather.temperature)
+        : weatherUtils.formatFahrenheit(currentWeather.temperature);
+    const cloudCover = `Cloud cover ${currentWeather.cloud_cover}%`;
+    return (
+      <GestureDetector gesture={pan}>
+        <ThemedView style={styles.current}>
+          <ThemedText style={styles.celcius}>{temperature}</ThemedText>
+          <ThemedText color={iconColor}>{currentWeather.summary}</ThemedText>
+          <ThemedText color={iconColor}>{cloudCover}</ThemedText>
+          <DataStatus />
+        </ThemedView>
+      </GestureDetector>
+    );
+  }
+);
 
 export default memo(CurrentWeatherInfo);
 

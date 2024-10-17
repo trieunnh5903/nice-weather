@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import { axiosSunriseInstance, axiosWeatherInstance } from "./axiosConfig";
-import { Place, Sunrise, TemperatureUnit, Weather } from "@/type";
+import { Place, SunriseResponse, TemperatureUnit, Weather } from "@/type";
 
 const apiKey = process.env.EXPO_PUBLIC_WEATHER_API_KEY;
 
@@ -56,7 +56,7 @@ const fetchWeather = async (placeId: string, unit: TemperatureUnit) => {
 const fetchSunrise = async (lat: string, lng: string) => {
   try {
     console.log("fetchSunrise");
-    const response = await axiosSunriseInstance.get<Sunrise>("/json", {
+    const response = await axiosSunriseInstance.get<SunriseResponse>("/json", {
       params: { lat, lng, date_start: "today", date_end: "tomorrow" },
     });
     return response.data;

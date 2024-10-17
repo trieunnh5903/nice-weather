@@ -1,9 +1,8 @@
 import { StyleSheet } from "react-native";
-import React, { memo, useCallback, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { MaterialIconName } from "@/type";
 import RippleButtonIcon from "../RippleButtonIcon";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
-import { MenuView } from "@react-native-menu/menu";
 import ThemedView from "../ThemedView";
 import { useAppTheme } from "@/hooks";
 import { Menu } from "react-native-paper";
@@ -40,7 +39,7 @@ const HeaderIcons: React.FC<HeaderIconsProps> = ({
         contentStyle={{
           backgroundColor: themeColor.background,
           borderColor: themeColor.border,
-          borderWidth: 1
+          borderWidth: 1,
         }}
         anchorPosition="bottom"
         visible={menuVisible}
