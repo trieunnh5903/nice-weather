@@ -4,7 +4,11 @@ const formatCelcius = (temp: number) => {
   return Math.round(temp) + Units.Celsius;
 };
 
-const formatCelciusWithoutUnit = (temp: number) => {
+const formatFahrenheit = (temp: number) => {
+  return Math.round(temp) + Units.Fahrenheit;
+};
+
+const formatTemperatureWithoutUnit = (temp: number) => {
   return Math.round(temp) + "°";
 };
 
@@ -41,18 +45,12 @@ const getDay = (date: string) => {
   return days[dayOfWeek];
 };
 
-const periodOfSunriseAndSunset = (sunrise: string, sunset: string) => {
-  const sunriseMinutes = convertToMinute(sunrise);
-  const sunsetMinutes = convertToMinute(sunset);
-
-  return sunsetMinutes - sunriseMinutes;
-};
 export default {
   formatCelcius,
   formatSunrise,
-  periodOfSunriseAndSunset,
-  formatCelciusWithoutUnit,
+  formatTemperatureWithoutUnit,
   convertToMinute,
   getDay,
   days,
+  formatFahrenheit,
 };

@@ -3,72 +3,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 
 export type WatherIcon = keyof typeof weatherIconMapping;
 
-// export interface Province {
-//   name: string;
-//   local_names: {
-//     [languageCode: string]: string;
-//   };
-//   lat: number;
-//   lon: number;
-//   country: string;
-//   state?: string;
-//   isUserLocation?: boolean;
-// }
-
-// export interface Forecast {
-//   cod: string;
-//   message: number;
-//   cnt: number;
-//   list: {
-//     dt: number;
-//     main: {
-//       temp: number;
-//       feels_like: number;
-//       temp_min: number;
-//       temp_max: number;
-//       pressure: number;
-//       sea_level: number;
-//       grnd_level: number;
-//       humidity: number;
-//       temp_kf: number;
-//     };
-//     weather: {
-//       id: number;
-//       main: string;
-//       description: string;
-//       icon: string;
-//     }[];
-//     clouds: {
-//       all: number;
-//     };
-//     wind: {
-//       speed: number;
-//       deg: number;
-//       gust: number;
-//     };
-//     visibility: number;
-//     pop: number;
-//     sys: {
-//       pod: string;
-//     };
-//     dt_txt: string;
-//   }[];
-//   city: City;
-// }
-
-// export interface City {
-//   id: number;
-//   name: string;
-//   coord: {
-//     lat: number;
-//     lon: number;
-//   };
-//   country: number;
-//   population: number;
-//   timezone: number;
-//   sunrise: number;
-//   sunset: number;
-// }
+export type TemperatureUnit = "metric" | "us";
 
 export type MaterialIconName = React.ComponentProps<
   typeof MaterialIcons
@@ -85,23 +20,25 @@ export interface Place {
   timezone: string;
   type: string;
   isUserLocation?: boolean;
+  temperature?: number;
 }
 
 export interface Sunrise {
-  results: {
-    date: string;
-    sunrise: string;
-    sunset: string;
-    first_light: string;
-    last_light: string;
-    dawn: string;
-    dusk: string;
-    solar_noon: string;
-    golden_hour: string;
-    day_length: string;
-    timezone: string;
-    utc_offset: number;
-  }[];
+  date: string;
+  sunrise: string;
+  sunset: string;
+  first_light: string;
+  last_light: string;
+  dawn: string;
+  dusk: string;
+  solar_noon: string;
+  golden_hour: string;
+  day_length: string;
+  timezone: string;
+  utc_offset: number;
+}
+export interface SunriseResponse {
+  results: Sunrise[];
   status: string;
 }
 
@@ -110,7 +47,7 @@ export interface Weather {
   lon: string;
   elevation: number;
   timezone: string;
-  units: string;
+  units: TemperatureUnit;
   current: CurrentWeather;
   hourly: {
     data: Hourly[];

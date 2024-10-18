@@ -1,27 +1,43 @@
-import { PaperTheme } from "@/constants/Colors";
+import { NavigationTheme, PaperTheme } from "@/constants/Colors";
 import { MobxStoreProvider, useStores } from "@/hooks/useStore";
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
+import { ThemeProvider } from "@react-navigation/native";
+import { QueryClient } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
-import { SplashScreen, Stack, useNavigationContainerRef } from "expo-router";
+import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
 import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PaperProvider } from "react-native-paper";
 import { enableFreeze } from "react-native-screens";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 
 SplashScreen.preventAutoHideAsync();
 
+const asyncStoragePersister = createAsyncStoragePersister({
+  storage: AsyncStorage,
+});
+
 enableFreeze(true);
 export default function Layout() {
-  const ref = useNavigationContainerRef();
   const { weatherStore } = useStores();
-  const colorScheme = useColorScheme();
+  const systemTheme = useColorScheme();
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime:
+          weatherStore.stateTime < 0 ? Infinity : weatherStore.stateTime * 1000,
+        gcTime: 24 * 24 * 3600 * 1000,
+      },
+    },
+  });
+  const persistTheme = weatherStore.theme;
+  const selectTheme = persistTheme ?? systemTheme ?? "light";
   const paperTheme =
-    colorScheme === "dark" ? PaperTheme.dark : PaperTheme.light;
+    selectTheme === "dark" ? PaperTheme.dark : PaperTheme.light;
+  const navigationTheme =
+    selectTheme === "dark" ? NavigationTheme.dark : NavigationTheme.light;
   const [loaded] = useFonts({
     "OpenSans-Regular": require("../assets/fonts/OpenSans-Regular.ttf"),
     "OpenSans-Medium": require("../assets/fonts/OpenSans-Medium.ttf"),
@@ -41,7 +57,7 @@ export default function Layout() {
       }
     }
     prepare();
-  }, [loaded, ref, weatherStore]);
+  }, [loaded, weatherStore]);
 
   if (!loaded || !weatherStore.isHydrated) {
     console.log("loaded", loaded);
@@ -52,18 +68,24 @@ export default function Layout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <MobxStoreProvider>
-        <PaperProvider theme={paperTheme}>
-          <ThemeProvider
-            value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-          >
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                animation: "fade_from_bottom",
-              }}
-            ></Stack>
-          </ThemeProvider>
-        </PaperProvider>
+        <PersistQueryClientProvider
+          persistOptions={{
+            persister: asyncStoragePersister,
+            maxAge: 24 * 24 * 3600 * 1000,
+          }}
+          client={queryClient}
+        >
+          <PaperProvider theme={paperTheme}>
+            <ThemeProvider value={navigationTheme}>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  animation: "fade_from_bottom",
+                }}
+              ></Stack>
+            </ThemeProvider>
+          </PaperProvider>
+        </PersistQueryClientProvider>
       </MobxStoreProvider>
     </GestureHandlerRootView>
   );

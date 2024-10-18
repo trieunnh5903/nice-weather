@@ -1,6 +1,5 @@
+import { useAppTheme } from "@/hooks/useAppTheme";
 import { Text, type TextProps, StyleSheet } from "react-native";
-
-import { useThemeColor } from "@/hooks/useThemeColor";
 
 export type ThemedTextProps = TextProps & {
   lineHeight?: number;
@@ -21,7 +20,7 @@ export type ThemedTextProps = TextProps & {
     | "link";
 };
 
-export function ThemedText({
+const ThemedText = ({
   style,
   lightColor,
   darkColor,
@@ -31,11 +30,8 @@ export function ThemedText({
   uppercase,
   type = "default",
   ...rest
-}: ThemedTextProps) {
-  const themeColor = useThemeColor("text", {
-    light: lightColor,
-    dark: darkColor,
-  });
+}: ThemedTextProps) => {
+  const themeColor = useAppTheme();
 
   return (
     <Text
@@ -51,14 +47,15 @@ export function ThemedText({
         type === "label" ? styles.label : undefined,
         !!fontSize && { fontSize },
         uppercase && { textTransform: "uppercase" },
-        { color: color || themeColor, lineHeight },
+        { color: color || themeColor.text, lineHeight },
         style,
       ]}
       {...rest}
     />
   );
-}
+};
 
+export default ThemedText;
 const styles = StyleSheet.create({
   default: {
     fontSize: 14,
