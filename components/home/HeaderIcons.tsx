@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import React, { memo, useEffect, useState } from "react";
+import React, { memo, useState } from "react";
 import { MaterialIconName } from "@/type";
 import RippleButtonIcon from "../RippleButtonIcon";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
@@ -36,10 +36,14 @@ const HeaderIcons: React.FC<HeaderIconsProps> = ({
         </RippleButtonIcon>
       ))}
       <Menu
+        theme={{ animation: { scale: 0 } }}
+        style={{
+          backgroundColor: "transparent",
+        }}
         contentStyle={{
           backgroundColor: themeColor.background,
           borderColor: themeColor.border,
-          borderWidth: 1,
+          borderWidth: 0.1,
         }}
         anchorPosition="bottom"
         visible={menuVisible}
@@ -57,6 +61,7 @@ const HeaderIcons: React.FC<HeaderIconsProps> = ({
         <Menu.Item
           onPress={() => {
             queryClient.invalidateQueries();
+            closeMenu();
           }}
           title="Update now"
         />
@@ -65,7 +70,7 @@ const HeaderIcons: React.FC<HeaderIconsProps> = ({
             closeMenu();
             setTimeout(() => {
               router.navigate("/setting");
-            }, 500);
+            }, 100);
           }}
           title="Setting"
         />

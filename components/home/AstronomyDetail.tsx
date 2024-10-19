@@ -1,7 +1,6 @@
 import { StyleSheet } from "react-native";
 import React, { useEffect, useMemo } from "react";
-import { observer } from "mobx-react-lite";
-import { useAppTheme, useSunriseSelected } from "@/hooks";
+import { useAppTheme } from "@/hooks";
 import { weatherUtils } from "@/utils";
 import ThemedView from "../ThemedView";
 import ThemedText from "../ThemedText";
@@ -13,16 +12,24 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import Svg, { Path, Text } from "react-native-svg";
+import { Astronomy } from "@/type";
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
-const Sunrise = observer(() => {
-  const themeColor = useAppTheme();
-  const data = useSunriseSelected();
-  const iconColor = themeColor.icon;
+interface AstronomyDetailProps {
+  astronomy: Astronomy[];
+}
 
+interface SunriseChartProps {
+  currentTimeInPercent: number;
+  astronomy: Astronomy;
+}
+
+const AstronomyDetail: React.FC<AstronomyDetailProps> = ({ astronomy }) => {
+  const themeColor = useAppTheme();
+  const iconColor = themeColor.icon;
   const currentTimeInPercent = useMemo(() => {
-    if (!data) return null;
-    const today = data[0];
+    if (!astronomy) return null;
+    const today = astronomy[0];
     const now = new Date().toLocaleString("en-US", {
       timeZone: today.timezone,
       hour: "2-digit",
@@ -35,54 +42,47 @@ const Sunrise = observer(() => {
       (weatherUtils.convertToMinute(today.sunset) -
         weatherUtils.convertToMinute(today.sunrise))
     );
-  }, [data]);
-  if (!data) return null;
-  const tomorrow = data[1];
+  }, [astronomy]);
+  if (!astronomy) return null;
+  const tomorrow = astronomy[1];
 
   return (
-    <ThemedView>
-      <ThemedView paddingHorizontal={12}>
-        <ThemedText uppercase type="subtitle">
-          life
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={[styles.row, { justifyContent: "space-evenly" }]}>
-        {currentTimeInPercent && (
-          <ThemedView style={[styles.centered]}>
-            <SunriseChart currentTimeInPercent={currentTimeInPercent} />
-          </ThemedView>
-        )}
-        <ThemedView
-          style={[
-            styles.centered,
-            styles.gap_6,
-            styles.tomorrow,
-            { borderColor: iconColor },
-          ]}
-        >
-          <ThemedText>Tomorrow</ThemedText>
-          <ThemedView style={[styles.row, styles.centered, styles.gap_6]}>
-            <Feather name="sunrise" size={24} color={iconColor} />
-            <ThemedText>
-              {weatherUtils.formatSunrise(tomorrow.sunrise)}
-            </ThemedText>
-          </ThemedView>
-          <ThemedView style={[styles.row, styles.centered, styles.gap_6]}>
-            <Feather name="sunset" size={24} color={iconColor} />
-            <ThemedText>
-              {weatherUtils.formatSunrise(tomorrow.sunset)}
-            </ThemedText>
-          </ThemedView>
+    <ThemedView style={[styles.row, { justifyContent: "space-evenly" }]}>
+      {currentTimeInPercent && (
+        <ThemedView style={[styles.centered]}>
+          <SunriseChart
+            currentTimeInPercent={currentTimeInPercent}
+            astronomy={astronomy[0]}
+          />
+        </ThemedView>
+      )}
+      <ThemedView
+        style={[
+          styles.centered,
+          styles.gap_6,
+          styles.tomorrow,
+          { borderColor: themeColor.border },
+        ]}
+      >
+        <ThemedText>Tomorrow</ThemedText>
+        <ThemedView style={[styles.row, styles.centered, styles.gap_6]}>
+          <Feather name="sunrise" size={24} color={iconColor} />
+          <ThemedText>
+            {weatherUtils.formatSunrise(tomorrow.sunrise)}
+          </ThemedText>
+        </ThemedView>
+        <ThemedView style={[styles.row, styles.centered, styles.gap_6]}>
+          <Feather name="sunset" size={24} color={iconColor} />
+          <ThemedText>{weatherUtils.formatSunrise(tomorrow.sunset)}</ThemedText>
         </ThemedView>
       </ThemedView>
     </ThemedView>
   );
-});
+};
 
-const SunriseChart = ({
+const SunriseChart: React.FC<SunriseChartProps> = ({
   currentTimeInPercent,
-}: {
-  currentTimeInPercent: number;
+  astronomy,
 }) => {
   const width = (Size.screenWidth - 12 * 2) / 2;
   const height = width / 2;
@@ -111,9 +111,7 @@ const SunriseChart = ({
     strokeDashoffset: strokeDashoffset.value,
   }));
 
-  const data = useSunriseSelected();
-
-  if (!data) {
+  if (!astronomy) {
     return null;
   }
 
@@ -134,16 +132,16 @@ const SunriseChart = ({
         animatedProps={animatedProps}
       />
       <Text x={startX - 20} y={centerY + 20} fontSize="14" fill={textColor}>
-        {weatherUtils.formatSunrise(data[0].sunrise)}
+        {weatherUtils.formatSunrise(astronomy.sunrise)}
       </Text>
       <Text x={endX - 20} y={centerY + 20} fontSize="14" fill={textColor}>
-        {weatherUtils.formatSunrise(data[0].sunset)}
+        {weatherUtils.formatSunrise(astronomy.sunset)}
       </Text>
     </Svg>
   );
 };
 
-export default Sunrise;
+export default AstronomyDetail;
 
 const styles = StyleSheet.create({
   tomorrow: {

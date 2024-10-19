@@ -1,7 +1,7 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
 import React, { useMemo } from "react";
 import { observer } from "mobx-react-lite";
-import { useAppTheme, useWeatherSelected } from "@/hooks";
+import { useAppTheme } from "@/hooks";
 import {
   LineChart,
   lineDataItem,

@@ -1,11 +1,12 @@
-import { ThemedView } from "@/components";
+import { ThemedText, ThemedView } from "@/components";
 import {
+  AstronomyDetail,
   CurrentWeatherInfo,
   HeaderIcons,
+  Life,
   ListDaily,
   ListHourly,
   PlaceNavigation,
-  Sunrise,
 } from "@/components/home";
 import { useStores } from "@/hooks";
 import { MaterialIconName } from "@/type";
@@ -17,10 +18,12 @@ import { ScrollView } from "react-native-gesture-handler";
 import PagerView, {
   PagerViewOnPageSelectedEvent,
 } from "react-native-pager-view";
-import { StatusBar } from "expo-status-bar";
 import { useQueries } from "@tanstack/react-query";
-import { weatherApi } from "@/api/weatherApi";
-const HomeScreen: React.FC = () => {
+import { queryConfig } from "@/config/queryConfig";
+import { observer } from "mobx-react-lite";
+import { Size } from "@/constants/Size";
+
+const HomeScreen: React.FC = observer(() => {
   const pagerRef = useRef<PagerView>(null);
   const { weatherStore } = useStores();
   const navigation = useNavigation();
@@ -29,12 +32,15 @@ const HomeScreen: React.FC = () => {
     () => ["menu", "add", "delete-outline"],
     []
   );
+
   const allWeather = useQueries({
-    queries: weatherStore.places.map((place) => ({
-      queryKey: ["weather", place.place_id],
-      queryFn: () =>
-        weatherApi.fetchWeather(place.place_id, weatherStore.temperatureUnit),
-    })),
+    queries: weatherStore.places.map((place) =>
+      queryConfig.weatherQueryOptions(
+        place.lat,
+        place.lon,
+        weatherStore.temperatureUnit
+      )
+    ),
   });
 
   const onHeaderPress = useCallback(
@@ -116,7 +122,6 @@ const HomeScreen: React.FC = () => {
 
   const onPageSelected = (e: PagerViewOnPageSelectedEvent) => {
     weatherStore.setSelectedIndex(e.nativeEvent.position);
-    console.log(scrollViewRefs);
   };
 
   const handleSwipe = (tranlationX: number) => {
@@ -134,7 +139,6 @@ const HomeScreen: React.FC = () => {
 
   return (
     <ThemedView flex enableInsetsTop>
-      <StatusBar style={weatherStore.theme === "dark" ? "light" : "dark"} />
       <ThemedView>
         <HeaderIcons headerIcons={headerIcons} onHeaderPress={onHeaderPress} />
         <PlaceNavigation
@@ -165,21 +169,23 @@ const HomeScreen: React.FC = () => {
                 >
                   <ThemedView paddingBottom={18}>
                     <CurrentWeatherInfo
-                      units={weather.data.units}
                       onSwipe={handleSwipe}
                       currentWeather={weather.data.current}
                     />
                   </ThemedView>
                   <ThemedView>
                     <ListHourly
-                      hourly={weather.data.hourly.data}
+                      hourly={weather.data.forecast.hourly.data}
                       timezone={weatherStore.places[index].timezone}
                     />
                     <ThemedView paddingTop={12}>
-                      <ListDaily daily={weather.data.daily.data} />
+                      <ListDaily daily={weather.data.forecast.daily.data} />
                     </ThemedView>
-                    <ThemedView paddingTop={12}>
-                      <Sunrise />
+                    <ThemedView paddingHorizontal={12}>
+                      <Life
+                        current={weather.data.current}
+                        astronomy={weather.data.astronomy}
+                      />
                     </ThemedView>
                   </ThemedView>
                 </ScrollView>
@@ -190,12 +196,27 @@ const HomeScreen: React.FC = () => {
       </PagerView>
     </ThemedView>
   );
-};
+});
 
 export default HomeScreen;
 const styles = StyleSheet.create({
+  lifeRow: { flexDirection: "row", flexWrap: "wrap" },
   container: {
     flex: 1,
   },
   page: {},
+  lifeItem: {
+    flex: 1,
+    borderWidth: 0.3,
+    height: Size.screenWidth * 0.2,
+  },
+  centered: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  row: {
+    flexDirection: "row",
+    flex: 1,
+    backgroundColor: "red",
+  },
 });

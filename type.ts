@@ -23,55 +23,62 @@ export interface Place {
   temperature?: number;
 }
 
-export interface Sunrise {
-  date: string;
-  sunrise: string;
-  sunset: string;
-  first_light: string;
-  last_light: string;
-  dawn: string;
-  dusk: string;
-  solar_noon: string;
-  golden_hour: string;
-  day_length: string;
-  timezone: string;
-  utc_offset: number;
-}
-export interface SunriseResponse {
-  results: Sunrise[];
-  status: string;
+interface Condition {
+  text: string;
+  icon: string;
+  code: number;
 }
 
-export interface Weather {
+export interface CurrentWeather {
+  last_updated: string;
+  last_updated_epoch: number;
+  temp_c: number;
+  temp_f: number;
+  feelslike_c: number;
+  feelslike_f: number;
+  windchill_c: number;
+  windchill_f: number;
+  heatindex_c: number;
+  heatindex_f: number;
+  dewpoint_c: number;
+  dewpoint_f: number;
+  condition: Condition;
+  wind_mph: number;
+  wind_kph: number;
+  wind_degree: number;
+  wind_dir: string;
+  pressure_mb: number;
+  pressure_in: number;
+  precip_mm: number;
+  precip_in: number;
+  humidity: number;
+  cloud: number;
+  is_day: 1 | 0;
+  uv: number;
+  gust_mph: number;
+  gust_kph: number;
+  air_quality: {
+    ["us-epa-index"]: number;
+  };
+}
+// 1 means Good
+// 2 means Moderate
+// 3 means Unhealthy for sensitive group
+// 4 means Unhealthy
+// 5 means Very Unhealthy
+// 6 means Hazardous
+export interface Forecast {
   lat: string;
   lon: string;
   elevation: number;
   timezone: string;
   units: TemperatureUnit;
-  current: CurrentWeather;
   hourly: {
     data: Hourly[];
   };
   daily: {
     data: Daily[];
   };
-}
-
-export interface CurrentWeather {
-  icon: string;
-  icon_num: number;
-  summary: string;
-  temperature: number;
-  wind: {
-    speed: number;
-    angle: number;
-    dir: string;
-  };
-  precipitation: {
-    total: number;
-    type: string;
-  };
-  cloud_cover: number;
 }
 
 export interface Hourly {
@@ -121,4 +128,19 @@ export interface Daily {
   morning: null;
   afternoon: null;
   evening: null;
+}
+
+export interface Astronomy {
+  date: string;
+  sunrise: string;
+  sunset: string;
+  first_light: string;
+  last_light: string;
+  dawn: string;
+  dusk: string;
+  solar_noon: string;
+  golden_hour: string;
+  day_length: string;
+  timezone: string;
+  utc_offset: number;
 }

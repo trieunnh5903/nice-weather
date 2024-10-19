@@ -10,7 +10,7 @@ export const Colors = {
     subtitleText: "#687076",
     placeholder: "#CCCCCC",
     ripple: "rgba(0,0,0,0.1)",
-    border: "rgba(0,0,0,0.1)",
+    border: "#687076",
   },
   dark: {
     text: "#ECEDEE",
@@ -20,7 +20,7 @@ export const Colors = {
     subtitleText: "#9BA1A6",
     placeholder: "#AAAAAA",
     ripple: "rgba(255,255,255,0.1)",
-    border: "rgba(255,255,255,0.1)",
+    border: "#9BA1A6",
   },
 };
 

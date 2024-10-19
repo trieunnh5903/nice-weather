@@ -21,4 +21,8 @@ function convertTZ(date: any, tzString: string) {
     })
   );
 }
-export default { getAddress, convertTZ };
+
+function formatCoordinates(value: string) {
+  return value.replace(/[^\d.-]/g, "");
+}
+export default { getAddress, convertTZ, formatCoordinates };

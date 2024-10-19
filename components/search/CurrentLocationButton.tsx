@@ -1,26 +1,26 @@
-import {
-  Alert,
-  Platform,
-  StyleSheet,
-  Text,
-  ToastAndroid,
-  View,
-} from "react-native";
+import { Alert, Platform, StyleSheet, ToastAndroid } from "react-native";
 import React, { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { useStores, weatherQueryOptions } from "@/hooks";
+import { useStores } from "@/hooks";
 import { useQuery } from "@tanstack/react-query";
 import * as ExpoLocation from "expo-location";
 import { weatherApi } from "@/api/weatherApi";
 import { router } from "expo-router";
 import { Button } from "react-native-paper";
+import { Place } from "@/type";
+import { placeUtils } from "@/utils";
+import { queryConfig } from "@/config/queryConfig";
 
 const CurrentLocationButton = observer(() => {
   const { weatherStore } = useStores();
   const [isLoading, setIsLoading] = useState(false);
-  const [placeId, setPlaceId] = useState<string>("");
+  const [place, setPlace] = useState<Place>();
   const { isSuccess } = useQuery(
-    weatherQueryOptions(placeId, weatherStore.temperatureUnit)
+    queryConfig.weatherQueryOptions(
+      place?.lat || "",
+      place?.lon || "",
+      weatherStore.temperatureUnit
+    )
   );
 
   useEffect(() => {
@@ -64,8 +64,14 @@ const CurrentLocationButton = observer(() => {
       );
 
       if (location) {
-        weatherStore.addPlace({ ...location, isUserLocation: true });
-        setPlaceId(location.place_id);
+        const formatedPlace: Place = {
+          ...location,
+          isUserLocation: true,
+          lat: placeUtils.formatCoordinates(location.lat),
+          lon: placeUtils.formatCoordinates(location.lon),
+        };
+        weatherStore.addPlace(formatedPlace);
+        setPlace(formatedPlace);
       }
     } catch (error) {
       console.log("error", error);

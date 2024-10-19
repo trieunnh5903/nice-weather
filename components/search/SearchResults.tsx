@@ -1,23 +1,28 @@
-import { TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
 import { ScrollView } from "react-native-gesture-handler";
 import { placeUtils } from "@/utils";
 import ThemedView from "../ThemedView";
 import ThemedText from "../ThemedText";
 import { Divider } from "react-native-paper";
-import { useAppTheme, useStores, weatherQueryOptions } from "@/hooks";
+import { useAppTheme, useStores } from "@/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { Place } from "@/type";
 import { router } from "expo-router";
+import { queryConfig } from "@/config/queryConfig";
 
 interface SearchResultsProps {
   results: Place[] | undefined;
 }
 const SearchResults = ({ results }: SearchResultsProps) => {
-  const [placeId, setPlaceId] = useState<string>("");
   const { weatherStore } = useStores();
+  const [place, setPlace] = useState<Place>();
   const { isSuccess } = useQuery(
-    weatherQueryOptions(placeId, weatherStore.temperatureUnit)
+    queryConfig.weatherQueryOptions(
+      place?.lat || "",
+      place?.lon || "",
+      weatherStore.temperatureUnit
+    )
   );
   const themeColor = useAppTheme();
 
@@ -33,14 +38,19 @@ const SearchResults = ({ results }: SearchResultsProps) => {
   }, [isSuccess]);
 
   const onPlacePress = (place: Place) => {
-    weatherStore.addPlace(place);
-    setPlaceId(place.place_id);
+    const formatedPlace: Place = {
+      ...place,
+      lat: placeUtils.formatCoordinates(place.lat),
+      lon: placeUtils.formatCoordinates(place.lon),
+    };
+    weatherStore.addPlace(formatedPlace);
+    setPlace(formatedPlace);
   };
 
   if (!results) return null;
   if (results.length === 0) {
     return (
-      <ThemedView style={{ padding: 6, alignItems: "center" }}>
+      <ThemedView style={styles.empty}>
         <ThemedText>No results found</ThemedText>
       </ThemedView>
     );
@@ -74,4 +84,6 @@ const SearchResults = ({ results }: SearchResultsProps) => {
 };
 
 export default SearchResults;
-
+const styles = StyleSheet.create({
+  empty: { padding: 6, alignItems: "center" },
+});

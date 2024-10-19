@@ -1,19 +1,18 @@
 import { ActivityIndicator, StyleSheet } from "react-native";
-import React, { memo, useCallback, useMemo } from "react";
+import React, { memo, useMemo } from "react";
 import { observer } from "mobx-react-lite";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import ThemedView from "../ThemedView";
 import ThemedText from "../ThemedText";
 import { Size } from "@/constants/Size";
 import { useIsFetching } from "@tanstack/react-query";
-import { useAppTheme, useStores, useWeatherSelected } from "@/hooks";
+import { useAppTheme, useStores } from "@/hooks";
 import { weatherUtils } from "@/utils";
-import { CurrentWeather, TemperatureUnit } from "@/type";
+import { CurrentWeather } from "@/type";
 
 interface CurrentWeatherInfoProps {
   currentWeather: CurrentWeather;
   onSwipe: (translationX: number) => void;
-  units: TemperatureUnit;
 }
 
 const DataStatus = () => {
@@ -37,10 +36,10 @@ const DataStatus = () => {
 };
 
 const CurrentWeatherInfo: React.FC<CurrentWeatherInfoProps> = observer(
-  ({ currentWeather, onSwipe, units }) => {
+  ({ currentWeather, onSwipe }) => {
     const themeColor = useAppTheme();
     const iconColor = themeColor.icon;
-
+    const { weatherStore } = useStores();
     const pan = useMemo(
       () =>
         Gesture.Pan()
@@ -54,17 +53,37 @@ const CurrentWeatherInfo: React.FC<CurrentWeatherInfoProps> = observer(
       [onSwipe]
     );
 
-    const temperature =
-      units === "metric"
-        ? weatherUtils.formatCelcius(currentWeather.temperature)
-        : weatherUtils.formatFahrenheit(currentWeather.temperature);
-    const cloudCover = `Cloud cover ${currentWeather.cloud_cover}%`;
+    const temperature = useMemo(
+      () =>
+        weatherStore.temperatureUnit === "metric"
+          ? weatherUtils.formatCelcius(currentWeather.temp_c)
+          : weatherUtils.formatFahrenheit(currentWeather.temp_f),
+      [
+        currentWeather.temp_c,
+        currentWeather.temp_f,
+        weatherStore.temperatureUnit,
+      ]
+    );
+
+    const feelLikeTemp = useMemo(
+      () =>
+        weatherStore.temperatureUnit === "metric"
+          ? weatherUtils.formatCelcius(currentWeather.feelslike_c)
+          : weatherUtils.formatFahrenheit(currentWeather.feelslike_f),
+      [
+        currentWeather.feelslike_c,
+        currentWeather.feelslike_f,
+        weatherStore.temperatureUnit,
+      ]
+    );
+
+    const feelLike = `Feel like ${feelLikeTemp}`;
     return (
       <GestureDetector gesture={pan}>
         <ThemedView style={styles.current}>
           <ThemedText style={styles.celcius}>{temperature}</ThemedText>
-          <ThemedText color={iconColor}>{currentWeather.summary}</ThemedText>
-          <ThemedText color={iconColor}>{cloudCover}</ThemedText>
+          <ThemedText color={iconColor}>{currentWeather.condition.text}</ThemedText>
+          <ThemedText color={iconColor}>{feelLike}</ThemedText>
           <DataStatus />
         </ThemedView>
       </GestureDetector>

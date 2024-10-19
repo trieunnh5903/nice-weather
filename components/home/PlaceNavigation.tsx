@@ -20,8 +20,6 @@ const PlaceNavigation: React.FC<PlaceNavigationProps> = ({
   const themeColor = useAppTheme();
   const iconColor = themeColor.icon;
 
-  console.log("PlaceNavigation");
-
   return (
     <ThemedView style={styles.navigationWrapper}>
       <ThemedView>
