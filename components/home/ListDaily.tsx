@@ -1,12 +1,7 @@
 import { StyleSheet } from "react-native";
 import React, { useMemo } from "react";
 import { observer } from "mobx-react-lite";
-import { useAppTheme } from "@/hooks";
-import {
-  LineChart,
-  lineDataItem,
-  yAxisSides,
-} from "react-native-gifted-charts";
+import { lineDataItem } from "react-native-gifted-charts";
 import { weatherUtils } from "@/utils";
 import ThemedView from "../ThemedView";
 import ThemedText from "../ThemedText";
@@ -14,22 +9,18 @@ import { ScrollView } from "react-native-gesture-handler";
 import weatherIcon from "@/config/weatherIcon";
 import { Image } from "expo-image";
 import { Daily } from "@/type";
+import TemperatureChart from "./TemperatureChart";
 
 interface WeatherDailyProps {
   item: Daily;
   index: number;
   width: number;
 }
-interface TemperatureChartProps {
-  data: lineDataItem[];
-  weatherItemWidth: number;
-}
 
 interface ListDailyProps {
   daily: Daily[];
 }
 const ListDaily = observer(({ daily }: ListDailyProps) => {
-  // const daily = useWeatherSelected()?.daily.data;
   const weatherItemWidth = 90;
 
   const { tempMaxData, tempMinData } = useMemo(() => {
@@ -84,12 +75,14 @@ const ListDaily = observer(({ daily }: ListDailyProps) => {
               );
             })}
           </ThemedView>
+
           <ThemedView paddingTop={13}>
             <TemperatureChart
               data={tempMaxData}
               weatherItemWidth={weatherItemWidth}
             />
           </ThemedView>
+
           <ThemedView paddingTop={13}>
             <TemperatureChart
               data={tempMinData}
@@ -129,35 +122,6 @@ const WeatherDaily: React.FC<WeatherDailyProps> = React.memo(
           </ThemedView>
         </ThemedView>
       </ThemedView>
-    );
-  }
-);
-
-const TemperatureChart: React.FC<TemperatureChartProps> = React.memo(
-  function TemperatureChart({ data, weatherItemWidth }) {
-    const textColor = useAppTheme().text;
-    return (
-      <LineChart
-        yAxisSide={yAxisSides.RIGHT}
-        disableScroll
-        data={data}
-        adjustToWidth
-        textFontSize={13}
-        textShiftY={-6}
-        color={textColor}
-        dataPointsColor={textColor}
-        textShiftX={-6}
-        trimYAxisAtTop
-        initialSpacing={weatherItemWidth / 2}
-        textColor={textColor}
-        spacing={weatherItemWidth}
-        isAnimated
-        hideAxesAndRules
-        xAxisLabelsHeight={0}
-        overflowTop={10}
-        animateOnDataChange
-        height={30}
-      />
     );
   }
 );

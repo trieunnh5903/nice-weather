@@ -10,13 +10,13 @@ import weatherIcon from "@/config/weatherIcon";
 import { Image } from "expo-image";
 import { useAppTheme } from "@/hooks";
 import { weatherUtils } from "@/utils";
+import TemperatureChart from "./TemperatureChart";
 
 interface WeatherHourlyProps {
   item: Hourly;
   index: number;
   width: number;
   nextDayIndex: number;
-  currentTimeIndex: number;
 }
 
 interface ListHourlyProps {
@@ -25,9 +25,6 @@ interface ListHourlyProps {
 }
 
 const useHourlyData = ({ hourly, timezone }: ListHourlyProps) => {
-  // const hourly = useWeatherSelected()?.hourly.data;
-  // const sunrise = useSunriseSelected();
-
   return useMemo(() => {
     if (hourly.length === 0)
       return {
@@ -49,39 +46,14 @@ const useHourlyData = ({ hourly, timezone }: ListHourlyProps) => {
       return firstHour.getHours() > date.getHours();
     });
 
-    const now = new Date().toLocaleTimeString(undefined, {
-      hour: "2-digit",
-      timeZone: timezone,
-      day: "2-digit",
-    });
-
-    const currentTimeIndex = Math.max(
-      0,
-      hourly.findIndex((item) => {
-        const date = new Date(item.date).toLocaleTimeString(undefined, {
-          hour: "2-digit",
-          timeZone: timezone,
-          day: "2-digit",
-        });
-        return now === date;
-      })
-    );
-
     return {
       chartData,
       nextDayIndex,
-      currentTimeIndex,
     };
-  }, [hourly, timezone]);
+  }, [hourly]);
 };
 const WeatherHourly: React.FC<WeatherHourlyProps> = React.memo(
-  function WeatherHourly({
-    item,
-    index,
-    width,
-    nextDayIndex,
-    currentTimeIndex,
-  }) {
+  function WeatherHourly({ item, index, width, nextDayIndex }) {
     const date = new Date(item.date);
     const time = date.toLocaleString("en-ES", {
       hour12: true,
@@ -89,11 +61,7 @@ const WeatherHourly: React.FC<WeatherHourlyProps> = React.memo(
     });
     const icon = item.icon as keyof typeof weatherIcon;
     const tag =
-      index === currentTimeIndex
-        ? "Today"
-        : index === nextDayIndex
-        ? "Tomorrow"
-        : "";
+      index === 0 ? "Today" : index === nextDayIndex ? "Tomorrow" : "";
     return (
       <ThemedView style={styles.centered}>
         <ThemedText type="label">{tag}</ThemedText>
@@ -119,7 +87,7 @@ const ListHourly = observer(({ hourly, timezone }: ListHourlyProps) => {
   const weatherItemWidth = 70;
   const listRef = useRef<ScrollView>(null);
   const themeColor = useAppTheme();
-  const { chartData, currentTimeIndex, nextDayIndex } = useHourlyData({
+  const { chartData, nextDayIndex } = useHourlyData({
     hourly,
     timezone,
   });
@@ -147,14 +115,17 @@ const ListHourly = observer(({ hourly, timezone }: ListHourlyProps) => {
                   index={index}
                   width={weatherItemWidth}
                   nextDayIndex={nextDayIndex}
-                  currentTimeIndex={currentTimeIndex}
                 />
               );
             })}
           </ThemedView>
 
           <ThemedView paddingTop={13}>
-            <LineChart
+            <TemperatureChart
+              data={chartData}
+              weatherItemWidth={weatherItemWidth}
+            />
+            {/* <LineChart
               yAxisSide={yAxisSides.RIGHT}
               disableScroll
               data={chartData}
@@ -174,7 +145,7 @@ const ListHourly = observer(({ hourly, timezone }: ListHourlyProps) => {
               overflowTop={10}
               animateOnDataChange
               height={50}
-            />
+            /> */}
           </ThemedView>
         </ThemedView>
       </ScrollView>

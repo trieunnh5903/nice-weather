@@ -40,8 +40,10 @@ const SearchResults = ({ results }: SearchResultsProps) => {
   const onPlacePress = (place: Place) => {
     const formatedPlace: Place = {
       ...place,
-      lat: placeUtils.formatCoordinates(place.lat),
-      lon: placeUtils.formatCoordinates(place.lon),
+      ...placeUtils.formatCoordinates({
+        latitude: place.lat,
+        longitude: place.lon,
+      }),
     };
     weatherStore.addPlace(formatedPlace);
     setPlace(formatedPlace);

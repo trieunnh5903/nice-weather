@@ -9,6 +9,7 @@ import { useIsFetching } from "@tanstack/react-query";
 import { useAppTheme, useStores } from "@/hooks";
 import { weatherUtils } from "@/utils";
 import { CurrentWeather } from "@/type";
+import { Image } from "expo-image";
 
 interface CurrentWeatherInfoProps {
   currentWeather: CurrentWeather;
@@ -77,13 +78,24 @@ const CurrentWeatherInfo: React.FC<CurrentWeatherInfoProps> = observer(
       ]
     );
 
-    const feelLike = `Feel like ${feelLikeTemp}`;
+    const feelLike = `Feel like ${feelLikeTemp} `;
+
     return (
       <GestureDetector gesture={pan}>
-        <ThemedView style={styles.current}>
+        <ThemedView style={[styles.current]}>
           <ThemedText style={styles.celcius}>{temperature}</ThemedText>
-          <ThemedText color={iconColor}>{currentWeather.condition.text}</ThemedText>
-          <ThemedText color={iconColor}>{feelLike}</ThemedText>
+          <ThemedView style={{ flexDirection: "row", gap: 6 }}>
+            <Image
+              source={"https:" + currentWeather.condition.icon}
+              style={{ width: 32, height: 32 }}
+            />
+            <ThemedView>
+              <ThemedText color={iconColor}>
+                {currentWeather.condition.text}
+              </ThemedText>
+              <ThemedText color={iconColor}>{feelLike}</ThemedText>
+            </ThemedView>
+          </ThemedView>
           <DataStatus />
         </ThemedView>
       </GestureDetector>

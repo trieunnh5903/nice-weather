@@ -67,8 +67,10 @@ const CurrentLocationButton = observer(() => {
         const formatedPlace: Place = {
           ...location,
           isUserLocation: true,
-          lat: placeUtils.formatCoordinates(location.lat),
-          lon: placeUtils.formatCoordinates(location.lon),
+          ...placeUtils.formatCoordinates({
+            latitude: location.lat,
+            longitude: location.lon,
+          }),
         };
         weatherStore.addPlace(formatedPlace);
         setPlace(formatedPlace);

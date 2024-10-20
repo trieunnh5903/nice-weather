@@ -5,3 +5,4 @@ export { default as ListHourly } from "./ListHourly";
 export { default as ListDaily } from "./ListDaily";
 export { default as AstronomyDetail } from "./AstronomyDetail";
 export { default as Life } from "./Life";
+export { default as TemperatureChart } from "./TemperatureChart";
