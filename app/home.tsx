@@ -36,8 +36,8 @@ const HomeScreen: React.FC = observer(() => {
     () => ["menu", "add", "delete-outline"],
     []
   );
+  const scrollViewRefs = useRef<(ScrollView | null)[]>([]);
   const INPUT_MAX_VALUE = 160;
-
   const allWeather = useQueries({
     queries: weatherStore.places.map((place) =>
       queryConfig.weatherQueryOptions(
@@ -84,15 +84,13 @@ const HomeScreen: React.FC = observer(() => {
 
   const goToPageWithoutAnimation = useCallback((pageNumber: number) => {
     if (pagerRef.current) {
-      requestAnimationFrame(() => {
-        pagerRef.current?.setPageWithoutAnimation(pageNumber);
-      });
+      pagerRef.current?.setPageWithoutAnimation(pageNumber);
     }
   }, []);
 
   const scrollListView = useCallback(
     (pageIndex: number, offset: number, isAnimated: boolean) => {
-      scrollViewRefs.current?.[pageIndex]?.scrollTo({
+      scrollViewRefs?.current?.[pageIndex]?.scrollTo({
         y: offset,
         animated: isAnimated,
       });
@@ -107,6 +105,8 @@ const HomeScreen: React.FC = observer(() => {
         : weatherStore.selectedIndex - 1;
     if (offsetY.value >= INPUT_MAX_VALUE) {
       scrollListView(newIndex, INPUT_MAX_VALUE, false);
+    } else {
+      scrollListView(newIndex, 0, false);
     }
     goToPageWithoutAnimation(newIndex);
   }, [
@@ -122,8 +122,11 @@ const HomeScreen: React.FC = observer(() => {
       weatherStore.selectedIndex === weatherStore.places.length - 1
         ? 0
         : weatherStore.selectedIndex + 1;
+
     if (offsetY.value >= INPUT_MAX_VALUE) {
       scrollListView(newIndex, INPUT_MAX_VALUE, false);
+    } else {
+      scrollListView(newIndex, 0, false);
     }
     goToPageWithoutAnimation(newIndex);
   }, [
@@ -134,8 +137,6 @@ const HomeScreen: React.FC = observer(() => {
     weatherStore.selectedIndex,
   ]);
 
-  const scrollViewRefs = useRef<(ScrollView | null)[]>([]);
-
   const onPageSelected = (e: PagerViewOnPageSelectedEvent) => {
     const position = e.nativeEvent.position;
     weatherStore.setSelectedIndex(position);
@@ -143,18 +144,22 @@ const HomeScreen: React.FC = observer(() => {
 
   const handleSwipe = (tranlationX: number) => {
     if (tranlationX < -50) {
-      onLeftNavigationPress();
-    } else {
       onRightNavigationPress();
+    } else {
+      onLeftNavigationPress();
     }
   };
 
   const handleMomentumEnd = (offset: number) => {
-    if (offset > INPUT_MAX_VALUE) return;
+    if (offset > INPUT_MAX_VALUE || offset === 0) return;
     if (offset < INPUT_MAX_VALUE / 2) {
-      scrollListView(weatherStore.selectedIndex, 0, true);
+      runOnJS(scrollListView)(weatherStore.selectedIndex, 0, true);
     } else if (offset > INPUT_MAX_VALUE / 2) {
-      scrollListView(weatherStore.selectedIndex, INPUT_MAX_VALUE, true);
+      runOnJS(scrollListView)(
+        weatherStore.selectedIndex,
+        INPUT_MAX_VALUE,
+        true
+      );
     }
   };
 
@@ -177,6 +182,7 @@ const HomeScreen: React.FC = observer(() => {
           progress={offsetY}
           onLeftPress={onLeftNavigationPress}
           onRightPress={onRightNavigationPress}
+          maxScrollAnimatedOffset={INPUT_MAX_VALUE}
         />
       </ThemedView>
 

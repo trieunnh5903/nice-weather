@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import React, { memo, useMemo, useState } from "react";
+import React, { memo, useMemo } from "react";
 import ThemedView from "../ThemedView";
 import RippleButtonIcon from "../RippleButtonIcon";
 import { Colors } from "@/constants/Colors";
@@ -17,48 +17,29 @@ import Animated, {
   SharedValue,
   useAnimatedStyle,
 } from "react-native-reanimated";
+import { MaterialIconName } from "@/type";
 
 interface PlaceNavigationProps {
   onLeftPress: () => void;
   onRightPress: () => void;
   progress: SharedValue<number>;
+  maxScrollAnimatedOffset: number;
 }
 
 const BUTTON_WIDTH = 44;
-const PlaceNavigation: React.FC<PlaceNavigationProps> = ({
-  onLeftPress,
-  onRightPress,
-  progress,
-}) => {
-  const [placeTitleWidth, setPlaceTitleWidth] = useState(0);
-  const [conditionTextWidth, setConditionTextWidth] = useState(0);
-  const [temperatureWidth, setTemperatureWidth] = useState(0);
-  const { weatherStore } = useStores();
-  const themeColor = useAppTheme();
-  const iconColor = themeColor.icon;
-  const { isSuccess, data } = useQuery(
-    queryConfig.weatherQueryOptions(
-      weatherStore.selectedPlace.lat,
-      weatherStore.selectedPlace.lon,
-      weatherStore.temperatureUnit
-    )
-  );
-  const temperature = useMemo(() => {
-    if (!isSuccess) return;
-    return weatherStore.temperatureUnit === "metric"
-      ? weatherUtils.formatCelcius(data.current.temp_c)
-      : weatherUtils.formatFahrenheit(data.current.temp_f);
-  }, [data, isSuccess, weatherStore.temperatureUnit]);
 
+const usePlaceNavigationAnimations = (
+  progress: SharedValue<number>,
+  maxScrollAnimatedOffset: number
+) => {
   const numOfPlaceAnimatedStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      progress.value,
-      [0, 10],
-      [1, 0],
-      Extrapolation.CLAMP
-    );
     return {
-      opacity,
+      opacity: interpolate(
+        progress.value,
+        [0, 10],
+        [1, 0],
+        Extrapolation.CLAMP
+      ),
     };
   });
 
@@ -92,8 +73,8 @@ const PlaceNavigation: React.FC<PlaceNavigationProps> = ({
 
     const translateX = interpolate(
       progress.value,
-      [0, 160],
-      [0, -(Size.screenWidth - BUTTON_WIDTH * 2 - conditionTextWidth - 16) / 2],
+      [0, maxScrollAnimatedOffset],
+      [0, -(Size.screenWidth / 2 - BUTTON_WIDTH)],
       Extrapolation.CLAMP
     );
 
@@ -113,8 +94,8 @@ const PlaceNavigation: React.FC<PlaceNavigationProps> = ({
 
     const translateX = interpolate(
       progress.value,
-      [0, 160],
-      [0, (Size.screenWidth - BUTTON_WIDTH * 2 - temperatureWidth - 16) / 2],
+      [0, maxScrollAnimatedOffset],
+      [0, Size.screenWidth / 2 - BUTTON_WIDTH],
       Extrapolation.CLAMP
     );
 
@@ -125,47 +106,73 @@ const PlaceNavigation: React.FC<PlaceNavigationProps> = ({
   });
 
   const placeNameAnimatedStyle = useAnimatedStyle(() => {
-    const translateX = interpolate(
+    const flex = interpolate(
       progress.value,
-      [0, 160],
-      [0, -(Size.screenWidth - BUTTON_WIDTH * 2 - placeTitleWidth - 16) / 2],
+      [0, maxScrollAnimatedOffset],
+      [0, 1],
       Extrapolation.CLAMP
     );
     return {
-      transform: [{ translateX: translateX }],
+      flex,
     };
   });
 
+  return {
+    numOfPlaceAnimatedStyle,
+    conditionTextAnimatedStyle,
+    temperatureAnimatedStyle,
+    placeNameAnimatedStyle,
+    locationOnAnimatedStyle,
+  };
+};
+
+const PlaceNavigation: React.FC<PlaceNavigationProps> = ({
+  onLeftPress,
+  onRightPress,
+  progress,
+  maxScrollAnimatedOffset,
+}) => {
+  const {
+    conditionTextAnimatedStyle,
+    locationOnAnimatedStyle,
+    numOfPlaceAnimatedStyle,
+    placeNameAnimatedStyle,
+    temperatureAnimatedStyle,
+  } = usePlaceNavigationAnimations(progress, maxScrollAnimatedOffset);
+  const { weatherStore } = useStores();
+  const themeColor = useAppTheme();
+  const iconColor = themeColor.icon;
+  const { isSuccess, data } = useQuery(
+    queryConfig.weatherQueryOptions(
+      weatherStore.selectedPlace.lat,
+      weatherStore.selectedPlace.lon,
+      weatherStore.temperatureUnit
+    )
+  );
+  const temperature = useMemo(() => {
+    if (!isSuccess || !data) return "";
+    return weatherStore.temperatureUnit === "metric"
+      ? weatherUtils.formatCelcius(data.current.temp_c)
+      : weatherUtils.formatFahrenheit(data.current.temp_f);
+  }, [data, isSuccess, weatherStore.temperatureUnit]);
+
   return (
     <ThemedView style={styles.navigationWrapper}>
-      <ThemedView style={styles.button}>
-        <RippleButtonIcon
-          rippleColor={Colors.dark.ripple}
-          onPress={onLeftPress}
-        >
-          <MaterialIcons name="chevron-left" size={32} color={iconColor} />
-        </RippleButtonIcon>
-      </ThemedView>
-
+      <NavigationButton icon={"chevron-left"} onPress={onLeftPress} />
       <Observer>
         {() => (
-          <ThemedView style={styles.locationWrapper}>
-            <ThemedView style={styles.locationName}>
-              {weatherStore.selectedPlace.isUserLocation && (
-                <Animated.View style={[locationOnAnimatedStyle]}>
-                  <MaterialIcons
-                    name="location-on"
-                    size={16}
-                    color={iconColor}
-                  />
-                </Animated.View>
-              )}
-              <Animated.View
-                onLayout={(event) =>
-                  setPlaceTitleWidth(event.nativeEvent.layout.width)
-                }
-                style={[placeNameAnimatedStyle]}
-              >
+          <ThemedView style={[styles.locationWrapper]}>
+            <ThemedView>
+              <ThemedView style={styles.namePlaceContainer}>
+                {weatherStore.selectedPlace.isUserLocation && (
+                  <Animated.View style={[locationOnAnimatedStyle]}>
+                    <MaterialIcons
+                      name="location-on"
+                      size={16}
+                      color={iconColor}
+                    />
+                  </Animated.View>
+                )}
                 <ThemedText
                   type="defaultMedium"
                   fontSize={17}
@@ -173,14 +180,17 @@ const PlaceNavigation: React.FC<PlaceNavigationProps> = ({
                 >
                   {weatherStore.selectedPlace.name}
                 </ThemedText>
-              </Animated.View>
+              </ThemedView>
             </ThemedView>
+
+            <Animated.View style={placeNameAnimatedStyle} />
             <Animated.View
-              onLayout={(event) =>
-                setConditionTextWidth(event.nativeEvent.layout.width)
-              }
               style={[
-                { position: "absolute", bottom: 2 },
+                {
+                  position: "absolute",
+                  bottom: 0,
+                  left: Size.screenWidth / 2 - BUTTON_WIDTH,
+                },
                 conditionTextAnimatedStyle,
               ]}
             >
@@ -190,17 +200,22 @@ const PlaceNavigation: React.FC<PlaceNavigationProps> = ({
             </Animated.View>
 
             <Animated.View
-              onLayout={(event) =>
-                setTemperatureWidth(event.nativeEvent.layout.width)
-              }
-              style={[{ position: "absolute" }, temperatureAnimatedStyle]}
+              style={[
+                {
+                  position: "absolute",
+                  right: Size.screenWidth / 2 - BUTTON_WIDTH,
+                },
+                temperatureAnimatedStyle,
+              ]}
             >
               <ThemedText fontSize={30} color={iconColor}>
                 {temperature}
               </ThemedText>
             </Animated.View>
 
-            <Animated.View style={numOfPlaceAnimatedStyle}>
+            <Animated.View
+              style={[styles.numOfPlaces, numOfPlaceAnimatedStyle]}
+            >
               <ThemedText color={iconColor}>{`${
                 weatherStore.selectedIndex + 1
               }/${weatherStore.places.length}`}</ThemedText>
@@ -208,22 +223,33 @@ const PlaceNavigation: React.FC<PlaceNavigationProps> = ({
           </ThemedView>
         )}
       </Observer>
-
-      <ThemedView style={styles.button}>
-        <RippleButtonIcon
-          rippleColor={Colors.dark.ripple}
-          onPress={onRightPress}
-        >
-          <MaterialIcons name="chevron-right" size={32} color={iconColor} />
-        </RippleButtonIcon>
-      </ThemedView>
+      <NavigationButton icon={"chevron-right"} onPress={onRightPress} />
     </ThemedView>
   );
 };
 
+interface NavigationButtonProps {
+  onPress: () => void;
+  icon: MaterialIconName;
+}
+const NavigationButton: React.FC<NavigationButtonProps> = ({
+  icon,
+  onPress,
+}) => {
+  const themeColor = useAppTheme();
+  return (
+    <ThemedView style={styles.button}>
+      <RippleButtonIcon rippleColor={Colors.dark.ripple} onPress={onPress}>
+        <MaterialIcons name={icon} size={32} color={themeColor.icon} />
+      </RippleButtonIcon>
+    </ThemedView>
+  );
+};
 export default memo(PlaceNavigation);
 
 const styles = StyleSheet.create({
+  namePlaceContainer: { flexDirection: "row", alignItems: "center" },
+  numOfPlaces: { position: "absolute", top: "50%" },
   locationOn: { position: "absolute", left: -16 },
   button: {
     width: BUTTON_WIDTH,
@@ -231,14 +257,13 @@ const styles = StyleSheet.create({
   navigationWrapper: {
     flexDirection: "row",
     width: "100%",
-    justifyContent: "space-between",
-    alignItems: "center",
     height: 50,
   },
   locationWrapper: {
-    alignItems: "center",
+    justifyContent: "center",
     flex: 1,
     height: "100%",
+    flexDirection: "row",
   },
   locationName: {
     flexDirection: "row",
