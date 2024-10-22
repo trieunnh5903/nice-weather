@@ -7,11 +7,13 @@ import Section from "./Section";
 import { Divider, Modal, Portal, RadioButton } from "react-native-paper";
 import ThemedText from "../ThemedText";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { Size } from "@/constants/Size";
+import { Size } from "@/constants/size";
+import { useTranslation } from "react-i18next";
 
 const ThemeSetting = () => {
   const [visible, setVisible] = React.useState(false);
   const { weatherStore } = useStores();
+  const { t } = useTranslation();
   const handleChangeTheme = (theme: ColorSchemeName) => {
     Appearance.setColorScheme(theme);
     weatherStore.changeTheme(theme);
@@ -23,13 +25,13 @@ const ThemeSetting = () => {
       <Observer>
         {() => (
           <Section
-            title="Theme"
+            title={t("setting.theme")}
             subtitle={
               !weatherStore.theme
                 ? "Default"
                 : weatherStore.theme === "dark"
-                ? "Dark mode"
-                : "Light mode"
+                ? t("setting.dark_mode")
+                : t("setting.light_mode")
             }
             handleOpenSection={showModal}
           />
@@ -43,7 +45,7 @@ const ThemeSetting = () => {
         >
           <ThemedView padding={20} style={styles.modalContainer}>
             <ThemedView paddingBottom={20}>
-              <ThemedText type="title">Theme</ThemedText>
+              <ThemedText type="title">{t("setting.theme")}</ThemedText>
             </ThemedView>
             <ThemedView>
               <Observer>
@@ -61,7 +63,9 @@ const ThemeSetting = () => {
                             : "unchecked"
                         }
                       />
-                      <ThemedText type="defaultMedium">Dark</ThemedText>
+                      <ThemedText type="defaultMedium">
+                        {t("setting.dark")}
+                      </ThemedText>
                     </TouchableOpacity>
                     <ThemedView paddingVertical={6}>
                       <Divider />
@@ -85,7 +89,9 @@ const ThemeSetting = () => {
                             : "unchecked"
                         }
                       />
-                      <ThemedText type="defaultMedium">Light</ThemedText>
+                      <ThemedText type="defaultMedium">
+                        {t("setting.light")}
+                      </ThemedText>
                     </TouchableOpacity>
                     <ThemedView paddingVertical={6}>
                       <Divider />
@@ -105,7 +111,9 @@ const ThemeSetting = () => {
                         value={"item3"}
                         status={!weatherStore.theme ? "checked" : "unchecked"}
                       />
-                      <ThemedText type="defaultMedium">Default</ThemedText>
+                      <ThemedText type="defaultMedium">
+                        {t("setting.default")}
+                      </ThemedText>
                     </TouchableOpacity>
                     <ThemedView paddingVertical={6}>
                       <Divider />
@@ -117,7 +125,7 @@ const ThemeSetting = () => {
             <ThemedView paddingTop={20} style={styles.rowCentered}>
               <ThemedView flex />
               <TouchableOpacity onPress={hideModal}>
-                <ThemedText type="subtitle">CANCEL</ThemedText>
+                <ThemedText type="subtitle">{t("setting.cancel")}</ThemedText>
               </TouchableOpacity>
             </ThemedView>
           </ThemedView>

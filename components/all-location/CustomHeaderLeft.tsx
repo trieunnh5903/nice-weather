@@ -11,6 +11,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import RippleButtonIcon from "../RippleButtonIcon";
 import ThemedText from "../ThemedText";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import { useTranslation } from "react-i18next";
 
 interface CustomHeaderLeftProps {
   handleSelecteAll: () => void;
@@ -23,6 +24,7 @@ const CustomHeaderLeft = memo(function CustomHeaderLeft({
   selectedItems,
   progress,
 }: CustomHeaderLeftProps) {
+  const { t } = useTranslation();
   const themeColor = useAppTheme();
   const radioButtonColor = themeColor.primary;
   const { weatherStore } = useStores();
@@ -52,7 +54,7 @@ const CustomHeaderLeft = memo(function CustomHeaderLeft({
         <RippleButtonIcon onPress={onBackPress}>
           <MaterialIcons name="arrow-back" size={24} color={radioButtonColor} />
         </RippleButtonIcon>
-        <ThemedText type="title">Location</ThemedText>
+        <ThemedText type="title">{t("all_location.location")}</ThemedText>
       </Animated.View>
       <Animated.View style={[{ position: "absolute" }, animatedStyle]}>
         <TouchableOpacity
@@ -70,7 +72,7 @@ const CustomHeaderLeft = memo(function CustomHeaderLeft({
           />
 
           <ThemedText type="defaultBold" color={radioButtonColor}>
-            Selected All
+            {t("all_location.selected_all")}
           </ThemedText>
         </TouchableOpacity>
       </Animated.View>

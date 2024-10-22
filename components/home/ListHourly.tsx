@@ -10,7 +10,7 @@ import { Image } from "expo-image";
 import { weatherUtils } from "@/utils";
 import TemperatureChart from "./TemperatureChart";
 import { useStores } from "@/hooks";
-import { lineDataItem } from "react-native-gifted-charts";
+import { useTranslation } from "react-i18next";
 
 interface WeatherHourlyProps {
   item: Hourly;
@@ -63,6 +63,7 @@ const useHourlyData = ({ hourly }: ListHourlyProps) => {
 
 const WeatherHourly: React.FC<WeatherHourlyProps> = React.memo(
   function WeatherHourly({ item, index, width, nextDayIndex }) {
+    const { t } = useTranslation();
     const date = new Date(item.date);
     const time = date.toLocaleString("en-ES", {
       hour12: true,
@@ -70,7 +71,11 @@ const WeatherHourly: React.FC<WeatherHourlyProps> = React.memo(
     });
     const icon = item.icon as keyof typeof weatherIcon;
     const tag =
-      index === 0 ? "Today" : index === nextDayIndex ? "Tomorrow" : "";
+      index === 0
+        ? t("home.feature.hourly.today")
+        : index === nextDayIndex
+        ? t("home.feature.hourly.tomorrow")
+        : "";
     return (
       <ThemedView style={styles.centered}>
         <ThemedText type="label">{tag}</ThemedText>
@@ -93,6 +98,7 @@ const WeatherHourly: React.FC<WeatherHourlyProps> = React.memo(
 );
 
 const ListHourly = observer(({ hourly }: ListHourlyProps) => {
+  const { t } = useTranslation();
   const weatherItemWidth = 70;
   const listRef = useRef<ScrollView>(null);
   const { chartData, nextDayIndex } = useHourlyData({
@@ -103,7 +109,7 @@ const ListHourly = observer(({ hourly }: ListHourlyProps) => {
     <ThemedView>
       <ThemedView paddingHorizontal={12}>
         <ThemedText uppercase type="subtitle">
-          Hourly
+          {t("home.feature.hourly.title")}
         </ThemedText>
       </ThemedView>
       <ScrollView
@@ -112,7 +118,7 @@ const ListHourly = observer(({ hourly }: ListHourlyProps) => {
         horizontal
       >
         <ThemedView>
-          <ThemedView style={styles.row}>
+          <ThemedView paddingLeft={10} style={styles.row}>
             {hourly.map((item, index) => {
               return (
                 <WeatherHourly

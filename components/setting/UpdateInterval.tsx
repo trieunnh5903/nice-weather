@@ -8,29 +8,31 @@ import Section from "./Section";
 import { Divider, Modal, Portal, RadioButton } from "react-native-paper";
 import ThemedText from "../ThemedText";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { Size } from "@/constants/Size";
+import { Size } from "@/constants/size";
+import { useTranslation } from "react-i18next";
 
 const UpdateInterval = observer(() => {
+  const { t } = useTranslation();
   const timeIntervalValue = useMemo(
     () => [
       {
-        label: "Manually",
+        label: t("setting.manually"),
         value: -1,
       },
       {
-        label: "Every 1 hours",
+        label: t("setting.every_1_hours"),
         value: 3600,
       },
       {
-        label: "Every 3 hours",
+        label: t("setting.every_3_hours"),
         value: 3600 * 3,
       },
       {
-        label: "Every 6 hours",
+        label: t("setting.every_6_hours"),
         value: 3600 * 6,
       },
       {
-        label: "Every 12 hours",
+        label: t("setting.every_12_hours"),
         value: 3600 * 12,
       },
     ],
@@ -65,8 +67,10 @@ const UpdateInterval = observer(() => {
   return (
     <ThemedView>
       <Section
-        subtitle={timSeleted?.value === -1 ? "Manual" : timSeleted?.label}
-        title="Update interval"
+        subtitle={
+          timSeleted?.value === -1 ? t("setting.manually") : timSeleted?.label
+        }
+        title={t("setting.update_interval")}
         handleOpenSection={showModal}
       />
       <Portal>
@@ -77,7 +81,9 @@ const UpdateInterval = observer(() => {
         >
           <ThemedView padding={20} style={styles.modalContainer}>
             <ThemedView paddingBottom={20}>
-              <ThemedText type="title">Update interval</ThemedText>
+              <ThemedText type="title">
+                {t("setting.update_interval")}
+              </ThemedText>
             </ThemedView>
             <ThemedView>
               {timeIntervalValue.map((item) => {
@@ -108,7 +114,7 @@ const UpdateInterval = observer(() => {
             <ThemedView paddingTop={20} style={styles.rowCentered}>
               <ThemedView flex />
               <TouchableOpacity onPress={hideModal}>
-                <ThemedText type="subtitle">CANCEL</ThemedText>
+                <ThemedText type="subtitle">{t("setting.cancel")}</ThemedText>
               </TouchableOpacity>
             </ThemedView>
           </ThemedView>

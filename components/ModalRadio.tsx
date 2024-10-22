@@ -2,7 +2,7 @@ import { StyleSheet } from "react-native";
 import React from "react";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Divider, RadioButton } from "react-native-paper";
-import { Size } from "@/constants/Size";
+import { Size } from "@/constants/size";
 import ThemedView from "./ThemedView";
 import ThemedText from "./ThemedText";
 

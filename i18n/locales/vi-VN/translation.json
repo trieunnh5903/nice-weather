@@ -1,0 +1,71 @@
+{
+  "home": {
+    "menu": {
+      "update": "Cập nhật ngay",
+      "setting": "Cài đặt"
+    },
+    "feature": {
+      "data_status": {
+        "updating": "Đang cập nhật...",
+        "updated_at": "Cập nhật lúc"
+      },
+      "curren_weather": {
+        "feel_like": "Cảm giác như"
+      },
+      "hourly": {
+        "title": "Hàng giờ",
+        "today": "Hôm nay",
+        "tomorrow": "Ngày mai"
+      },
+      "daily": {
+        "title": "Hàng ngày",
+        "today": "Hôm nay",
+        "next_week": "Tuần sau"
+      },
+      "life": {
+        "title": "Cuộc sống",
+        "wind": "Gió",
+        "uv": "UV",
+        "air_quatity": "Chất lượng không khí",
+        "humidity": "Độ ẩm",
+        "tommorrow": "Ngày mai"
+      }
+    }
+  },
+  "unit": {
+    "km/h": "km/giờ",
+    "%": "%"
+  },
+
+  "all_location": {
+    "location": "Vị trí",
+    "selected_all": "Chọn tất cả",
+    "selected": "mục được chọn",
+    "cancel": "HỦY",
+    "delete": "XÓA"
+  },
+  "search": {
+    "find_location": "Tìm vị trí",
+    "no_results": "Không tìm thấy",
+    "use_current_location": "Sử dụng vị trí hiện tại"
+  },
+  "setting": {
+    "setting": "Cài đặt",
+    "language": "Ngôn ngữ",
+    "select_language": "Chọn ngôn ngữ",
+    "theme": "Giao diện",
+    "dark_mode": "Chế độ tối",
+    "light_mode": "Chế độ sáng",
+    "dark": "Tối",
+    "light": "Sáng",
+    "default": "Mặc định",
+    "cancel": "HỦY",
+    "temperature_unit": "Đơn vị nhiệt độ",
+    "manually": "Thủ công",
+    "every_1_hours": "Mỗi 1 giờ",
+    "every_3_hours": "Mỗi 3 giờ",
+    "every_6_hours": "Mỗi 6 giờ",
+    "every_12_hours": "Mỗi 12 giờ",
+    "update_interval": "Khoảng thời gian cập nhật"
+  }
+}

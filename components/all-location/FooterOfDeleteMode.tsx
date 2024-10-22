@@ -5,6 +5,7 @@ import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated";
 import ThemedView from "../ThemedView";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import ThemedText from "../ThemedText";
+import { useTranslation } from "react-i18next";
 
 interface FooterOfDeleteModeProps {
   onDeletePress: () => void;
@@ -16,6 +17,7 @@ const FooterOfDeleteMode = memo(function FooterOfDeleteMode({
   onDeletePress,
 }: FooterOfDeleteModeProps) {
   const themeColor = useAppTheme();
+  const { t } = useTranslation();
   return (
     <Animated.View entering={FadeInDown} exiting={FadeOutDown}>
       <ThemedView
@@ -27,7 +29,7 @@ const FooterOfDeleteMode = memo(function FooterOfDeleteMode({
             style={{ fontSize: 16 }}
             type="defaultBold"
           >
-            CANCEL
+            {t("all_location.cancel")}
           </ThemedText>
         </TouchableOpacity>
         <TouchableOpacity onPress={onDeletePress}>
@@ -36,7 +38,7 @@ const FooterOfDeleteMode = memo(function FooterOfDeleteMode({
             style={{ fontSize: 16 }}
             type="defaultBold"
           >
-            DELETE
+            {t("all_location.delete")}
           </ThemedText>
         </TouchableOpacity>
       </ThemedView>

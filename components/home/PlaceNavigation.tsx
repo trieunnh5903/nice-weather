@@ -2,7 +2,7 @@ import { StyleSheet } from "react-native";
 import React, { memo, useMemo } from "react";
 import ThemedView from "../ThemedView";
 import RippleButtonIcon from "../RippleButtonIcon";
-import { Colors } from "@/constants/Colors";
+import { Colors } from "@/constants/colors";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Observer } from "mobx-react-lite";
 import ThemedText from "../ThemedText";
@@ -10,7 +10,7 @@ import { useAppTheme, useStores } from "@/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { queryConfig } from "@/config/queryConfig";
 import { weatherUtils } from "@/utils";
-import { Size } from "@/constants/Size";
+import { Size } from "@/constants/size";
 import Animated, {
   Extrapolation,
   interpolate,
@@ -36,7 +36,7 @@ const usePlaceNavigationAnimations = (
     return {
       opacity: interpolate(
         progress.value,
-        [0, 10],
+        [0, 50],
         [1, 0],
         Extrapolation.CLAMP
       ),

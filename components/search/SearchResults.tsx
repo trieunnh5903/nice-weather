@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Place } from "@/type";
 import { router } from "expo-router";
 import { queryConfig } from "@/config/queryConfig";
+import { useTranslation } from "react-i18next";
 
 interface SearchResultsProps {
   results: Place[] | undefined;
@@ -21,11 +22,11 @@ const SearchResults = ({ results }: SearchResultsProps) => {
     queryConfig.weatherQueryOptions(
       place?.lat || "",
       place?.lon || "",
-      'metric'
+      "metric"
     )
   );
   const themeColor = useAppTheme();
-
+  const { t } = useTranslation();
   useEffect(() => {
     if (isSuccess) {
       if (router.canGoBack()) {
@@ -53,7 +54,7 @@ const SearchResults = ({ results }: SearchResultsProps) => {
   if (results.length === 0) {
     return (
       <ThemedView style={styles.empty}>
-        <ThemedText>No results found</ThemedText>
+        <ThemedText>{t("search.no_results")}</ThemedText>
       </ThemedView>
     );
   }

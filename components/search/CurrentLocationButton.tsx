@@ -10,10 +10,12 @@ import { Button } from "react-native-paper";
 import { Place } from "@/type";
 import { placeUtils } from "@/utils";
 import { queryConfig } from "@/config/queryConfig";
+import { useTranslation } from "react-i18next";
 
 const CurrentLocationButton = observer(() => {
   const { weatherStore } = useStores();
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useTranslation();
   const [place, setPlace] = useState<Place>();
   const { isSuccess } = useQuery(
     queryConfig.weatherQueryOptions(
@@ -87,7 +89,7 @@ const CurrentLocationButton = observer(() => {
       style={styles.currentLocation}
       onPress={getCurrentPosition}
     >
-      Use current location
+      {t("search.use_current_location")}
     </Button>
   );
 });

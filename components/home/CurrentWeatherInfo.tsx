@@ -4,12 +4,13 @@ import { observer } from "mobx-react-lite";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import ThemedView from "../ThemedView";
 import ThemedText from "../ThemedText";
-import { Size } from "@/constants/Size";
+import { Size } from "@/constants/size";
 import { useIsFetching } from "@tanstack/react-query";
 import { useAppTheme, useStores } from "@/hooks";
 import { weatherUtils } from "@/utils";
 import { CurrentWeather } from "@/type";
 import { Image } from "expo-image";
+import { useTranslation } from "react-i18next";
 
 interface CurrentWeatherInfoProps {
   currentWeather: CurrentWeather;
@@ -17,6 +18,7 @@ interface CurrentWeatherInfoProps {
 }
 
 const DataStatus = () => {
+  const { t } = useTranslation();
   const isFetching = useIsFetching();
   const themeColor = useAppTheme();
   const date = new Date().toLocaleTimeString(undefined, {
@@ -28,17 +30,24 @@ const DataStatus = () => {
       <ThemedView style={styles.row}>
         <ActivityIndicator size={12} color={themeColor.primary} />
         <ThemedView paddingLeft={6}>
-          <ThemedText type="label">Updating...</ThemedText>
+          <ThemedText type="label">
+            {t("home.feature.data_status.updating")}
+          </ThemedText>
         </ThemedView>
       </ThemedView>
     );
 
-  return <ThemedText type="label">Updated at {date}</ThemedText>;
+  return (
+    <ThemedText type="label">
+      {t("home.feature.data_status.updated_at") + " " + date}
+    </ThemedText>
+  );
 };
 
 const CurrentWeatherInfo: React.FC<CurrentWeatherInfoProps> = observer(
   ({ currentWeather, onSwipe }) => {
     const themeColor = useAppTheme();
+    const { t } = useTranslation();
     const iconColor = themeColor.icon;
     const { weatherStore } = useStores();
     const pan = useMemo(
@@ -78,7 +87,8 @@ const CurrentWeatherInfo: React.FC<CurrentWeatherInfoProps> = observer(
       ]
     );
 
-    const feelLike = `Feel like ${feelLikeTemp} `;
+    const feelLike =
+      t("home.feature.curren_weather.feel_like") + " " + feelLikeTemp;
 
     return (
       <GestureDetector gesture={pan}>

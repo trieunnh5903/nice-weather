@@ -5,17 +5,20 @@ import {
   Unit,
   UpdateInterval,
 } from "@/components/setting";
-import { router, Stack } from "expo-router";
+import LanguageSelector from "@/components/setting/LanguageSelector";
+import { Stack } from "expo-router";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Divider } from "react-native-paper";
 
 const SettingScreen = () => {
+  const { t } = useTranslation();
   return (
     <ThemedView flex>
       <Stack.Screen
         options={{
           headerShown: true,
-          title: "Setting",
+          title: t("setting.setting"),
           headerShadowVisible: false,
         }}
       />
@@ -23,7 +26,11 @@ const SettingScreen = () => {
       <UpdateInterval />
       <Unit />
       <ThemeSetting />
-      <Section title="Rearrange locations" handleOpenSection={() => router.navigate('/rearrange-locations')}/>
+      {/* <Section
+        title="Rearrange locations"
+        handleOpenSection={() => router.navigate("/rearrange-locations")}
+      /> */}
+      <LanguageSelector displayType="modal" />
     </ThemedView>
   );
 };

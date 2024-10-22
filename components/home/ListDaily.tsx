@@ -11,6 +11,7 @@ import { Image } from "expo-image";
 import { Daily } from "@/type";
 import TemperatureChart from "./TemperatureChart";
 import { useStores } from "@/hooks";
+import { useTranslation } from "react-i18next";
 
 interface WeatherDailyProps {
   item: Daily;
@@ -23,6 +24,7 @@ interface ListDailyProps {
 }
 const ListDaily = observer(({ daily }: ListDailyProps) => {
   const weatherItemWidth = 90;
+  const { t } = useTranslation();
   const { weatherStore } = useStores();
   const { tempMaxData, tempMinData } = useMemo(() => {
     if (daily.length === 0) {
@@ -83,7 +85,7 @@ const ListDaily = observer(({ daily }: ListDailyProps) => {
     <ThemedView>
       <ThemedView paddingHorizontal={12}>
         <ThemedText uppercase type="subtitle">
-          daily
+          {t("home.feature.daily.title")}
         </ThemedText>
       </ThemedView>
       <ScrollView showsHorizontalScrollIndicator={false} horizontal>
@@ -122,10 +124,15 @@ const ListDaily = observer(({ daily }: ListDailyProps) => {
 
 const WeatherDaily: React.FC<WeatherDailyProps> = React.memo(
   function WeatherDaily({ index, item, width }) {
+    const { t } = useTranslation();
     const icon = item.icon as keyof typeof weatherIcon;
     const day = weatherUtils.getDay(item.day);
     const tag =
-      index === 0 ? "Today" : day === weatherUtils.days[1] ? "Next week" : "";
+      index === 0
+        ? t("home.feature.daily.today")
+        : day === weatherUtils.days[1]
+        ? t("home.feature.daily.next_week")
+        : "";
 
     return (
       <ThemedView style={styles.centered}>
@@ -141,7 +148,7 @@ const WeatherDaily: React.FC<WeatherDailyProps> = React.memo(
             <Image source={weatherIcon[7]} style={{ width: 16, height: 16 }} />
             <ThemedView paddingLeft={2}>
               <ThemedText fontSize={12}>
-                {item.all_day.cloud_cover.total}%
+                {item.all_day.cloud_cover.total + t("unit.%")}
               </ThemedText>
             </ThemedView>
           </ThemedView>

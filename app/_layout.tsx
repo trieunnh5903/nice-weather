@@ -1,4 +1,4 @@
-import { NavigationTheme, PaperTheme } from "@/constants/Colors";
+import { NavigationTheme, PaperTheme } from "@/constants/colors";
 import { MobxStoreProvider, useStores } from "@/hooks/useStore";
 import { ThemeProvider } from "@react-navigation/native";
 import { QueryClient } from "@tanstack/react-query";
@@ -13,6 +13,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import * as StatusBar from "expo-status-bar";
+import * as Localization from "expo-localization";
+import "@/i18n";
+import { LANGUAGE_STORAGE_KEY } from "@/constants/languages";
+import { useLanguage } from "@/hooks";
+import { Languages } from "@/i18n";
+import { useTranslation } from "react-i18next";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -22,6 +28,7 @@ const asyncStoragePersister = createAsyncStoragePersister({
 
 enableFreeze(true);
 export default function Layout() {
+  const { i18n } = useTranslation();
   const { weatherStore } = useStores();
   const systemTheme = useColorScheme();
   const queryClient = new QueryClient({
@@ -33,13 +40,7 @@ export default function Layout() {
       },
     },
   });
-  const persistTheme = weatherStore.theme;
-  const selectTheme = persistTheme ?? systemTheme ?? "light";
-  const paperTheme =
-    selectTheme === "dark" ? PaperTheme.dark : PaperTheme.light;
-  const navigationTheme =
-    selectTheme === "dark" ? NavigationTheme.dark : NavigationTheme.light;
-  StatusBar.setStatusBarStyle(selectTheme === "dark" ? "light" : "dark");
+
   const [loaded] = useFonts({
     "OpenSans-Regular": require("../assets/fonts/OpenSans-Regular.ttf"),
     "OpenSans-Medium": require("../assets/fonts/OpenSans-Medium.ttf"),
@@ -51,6 +52,10 @@ export default function Layout() {
   useEffect(() => {
     async function prepare() {
       try {
+        const savedLanguage = await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY);
+        const language =
+          savedLanguage ?? Localization.getLocales()[0].languageCode ?? "en";
+        i18n.changeLanguage(language);
         if (loaded && weatherStore.isHydrated) {
           await SplashScreen.hideAsync();
         }
@@ -60,6 +65,14 @@ export default function Layout() {
     }
     prepare();
   }, [loaded, weatherStore]);
+
+  const persistTheme = weatherStore.theme;
+  const selectTheme = persistTheme ?? systemTheme ?? "light";
+  const paperTheme =
+    selectTheme === "dark" ? PaperTheme.dark : PaperTheme.light;
+  const navigationTheme =
+    selectTheme === "dark" ? NavigationTheme.dark : NavigationTheme.light;
+  StatusBar.setStatusBarStyle(selectTheme === "dark" ? "light" : "dark");
 
   if (!loaded || !weatherStore.isHydrated) {
     console.log("loaded", loaded);

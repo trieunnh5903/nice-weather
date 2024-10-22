@@ -1,4 +1,4 @@
-import Units from "@/constants/Units";
+import Units from "@/constants/units";
 
 const formatCelcius = (temp: number) => {
   return Math.round(temp) + Units.Celsius;

@@ -8,6 +8,7 @@ import { useAppTheme } from "@/hooks";
 import { Menu } from "react-native-paper";
 import { router } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 
 interface HeaderIconsProps {
   onHeaderPress: (icon: string) => void;
@@ -24,7 +25,7 @@ const HeaderIcons: React.FC<HeaderIconsProps> = ({
   const [menuVisible, setMenuVisible] = useState(false);
   const openMenu = () => setMenuVisible(true);
   const closeMenu = () => setMenuVisible(false);
-
+  const { t } = useTranslation();
   return (
     <ThemedView style={styles.header}>
       {headerIcons.map((icon) => (
@@ -63,7 +64,7 @@ const HeaderIcons: React.FC<HeaderIconsProps> = ({
             queryClient.invalidateQueries();
             closeMenu();
           }}
-          title="Update now"
+          title={t("home.menu.update")}
         />
         <Menu.Item
           onPress={() => {
@@ -72,7 +73,7 @@ const HeaderIcons: React.FC<HeaderIconsProps> = ({
               router.navigate("/setting");
             }, 100);
           }}
-          title="Setting"
+          title={t("home.menu.setting")}
         />
       </Menu>
     </ThemedView>

@@ -9,11 +9,13 @@ import { Divider, Modal, Portal, RadioButton } from "react-native-paper";
 import ThemedText from "../ThemedText";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import Section from "./Section";
-import { Size } from "@/constants/Size";
+import { Size } from "@/constants/size";
+import { useTranslation } from "react-i18next";
 
 const Unit = observer(() => {
   const [modalVisible, setModalVisible] = useState(false);
   const { weatherStore } = useStores();
+  const { t } = useTranslation();
   const values: { label: string; unit: TemperatureUnit }[] = useMemo(
     () => [
       {
@@ -47,7 +49,7 @@ const Unit = observer(() => {
   return (
     <ThemedView>
       <Section
-        title="Temperature unit"
+        title={t("setting.temperature_unit")}
         subtitle={checked.label}
         handleOpenSection={showModal}
       />
@@ -59,7 +61,9 @@ const Unit = observer(() => {
         >
           <ThemedView padding={20} style={styles.modalContainer}>
             <ThemedView paddingBottom={20}>
-              <ThemedText type="title">Temperature Unit</ThemedText>
+              <ThemedText type="title">
+                {t("setting.temperature_unit")}
+              </ThemedText>
             </ThemedView>
             <ThemedView>
               {values.map((item) => {

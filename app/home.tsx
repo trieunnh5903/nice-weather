@@ -20,7 +20,7 @@ import PagerView, {
 import { useQueries } from "@tanstack/react-query";
 import { queryConfig } from "@/config/queryConfig";
 import { observer } from "mobx-react-lite";
-import { Size } from "@/constants/Size";
+import { Size } from "@/constants/size";
 import Animated, {
   runOnJS,
   useAnimatedScrollHandler,
@@ -213,7 +213,7 @@ const HomeScreen: React.FC = observer(() => {
                     <ThemedView paddingTop={12}>
                       <ListDaily daily={weather.data.forecast.daily.data} />
                     </ThemedView>
-                    <ThemedView paddingHorizontal={12}>
+                    <ThemedView paddingTop={12} paddingHorizontal={12}>
                       <Life
                         current={weather.data.current}
                         astronomy={weather.data.astronomy}

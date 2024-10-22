@@ -2,12 +2,13 @@ import { useAppTheme } from "@/hooks";
 import React from "react";
 import {
   LineChart,
+  LineChartPropsType,
   lineDataItem,
   yAxisSides,
 } from "react-native-gifted-charts";
 import ThemedView from "../ThemedView";
 
-interface TemperatureChartProps {
+interface TemperatureChartProps extends LineChartPropsType {
   data: lineDataItem[];
   weatherItemWidth: number;
 }

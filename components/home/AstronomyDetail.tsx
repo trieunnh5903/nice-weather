@@ -5,7 +5,7 @@ import { weatherUtils } from "@/utils";
 import ThemedView from "../ThemedView";
 import ThemedText from "../ThemedText";
 import { Feather } from "@expo/vector-icons";
-import { Size } from "@/constants/Size";
+import { Size } from "@/constants/size";
 import Animated, {
   useAnimatedProps,
   useSharedValue,
@@ -13,6 +13,7 @@ import Animated, {
 } from "react-native-reanimated";
 import Svg, { Path, Text } from "react-native-svg";
 import { Astronomy } from "@/type";
+import { useTranslation } from "react-i18next";
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 interface AstronomyDetailProps {
@@ -27,6 +28,7 @@ interface SunriseChartProps {
 const AstronomyDetail: React.FC<AstronomyDetailProps> = ({ astronomy }) => {
   const themeColor = useAppTheme();
   const iconColor = themeColor.icon;
+  const { t } = useTranslation();
   const currentTimeInPercent = useMemo(() => {
     if (!astronomy) return null;
     const today = astronomy[0];
@@ -64,7 +66,7 @@ const AstronomyDetail: React.FC<AstronomyDetailProps> = ({ astronomy }) => {
           { borderColor: themeColor.border },
         ]}
       >
-        <ThemedText>Tomorrow</ThemedText>
+        <ThemedText>{t("home.feature.hourly.tomorrow")}</ThemedText>
         <ThemedView style={[styles.row, styles.centered, styles.gap_6]}>
           <Feather name="sunrise" size={24} color={iconColor} />
           <ThemedText>
