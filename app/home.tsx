@@ -40,11 +40,7 @@ const HomeScreen: React.FC = observer(() => {
   const INPUT_MAX_VALUE = 160;
   const allWeather = useQueries({
     queries: weatherStore.places.map((place) =>
-      queryConfig.weatherQueryOptions(
-        place.lat,
-        place.lon,
-        weatherStore.temperatureUnit
-      )
+      queryConfig.weatherQueryOptions(place.lat, place.lon, "metric")
     ),
   });
 
@@ -213,10 +209,7 @@ const HomeScreen: React.FC = observer(() => {
                     />
                   </ThemedView>
                   <ThemedView>
-                    <ListHourly
-                      hourly={weather.data.forecast.hourly.data}
-                      timezone={weatherStore.places[index].timezone}
-                    />
+                    <ListHourly hourly={weather.data.forecast.hourly.data} />
                     <ThemedView paddingTop={12}>
                       <ListDaily daily={weather.data.forecast.daily.data} />
                     </ThemedView>

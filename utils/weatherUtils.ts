@@ -20,6 +20,9 @@ function formatSunrise(timeString: string) {
   return `${hours}:${minutes} ${period}`;
 }
 
+const celsiusToFahrenheit = (celsius: number) =>
+  Math.round((celsius * 9) / 5 + 32);
+
 const convertToMinute = (time: string) => {
   let [hours, minutes] = time.split(" ")[0].split(":").map(Number);
   const period = time.split(" ")[1];
@@ -53,4 +56,5 @@ export default {
   getDay,
   days,
   formatFahrenheit,
+  celsiusToFahrenheit,
 };

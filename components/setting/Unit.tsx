@@ -36,7 +36,6 @@ const Unit = observer(() => {
     if (!modalVisible) {
       if (checked.unit !== weatherStore.temperatureUnit) {
         weatherStore.changeTemperatureUnit(checked.unit);
-        queryClient.invalidateQueries({ queryKey: ["weather"] });
       }
     }
   }, [checked.unit, modalVisible, queryClient, weatherStore]);

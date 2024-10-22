@@ -19,7 +19,7 @@ const CurrentLocationButton = observer(() => {
     queryConfig.weatherQueryOptions(
       place?.lat || "",
       place?.lon || "",
-      weatherStore.temperatureUnit
+      "metric"
     )
   );
 

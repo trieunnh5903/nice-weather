@@ -4,13 +4,13 @@ import { observer } from "mobx-react-lite";
 import ThemedView from "../ThemedView";
 import ThemedText from "../ThemedText";
 import { ScrollView } from "react-native-gesture-handler";
-import { LineChart, yAxisSides } from "react-native-gifted-charts";
 import { Hourly } from "@/type";
 import weatherIcon from "@/config/weatherIcon";
 import { Image } from "expo-image";
-import { useAppTheme } from "@/hooks";
 import { weatherUtils } from "@/utils";
 import TemperatureChart from "./TemperatureChart";
+import { useStores } from "@/hooks";
+import { lineDataItem } from "react-native-gifted-charts";
 
 interface WeatherHourlyProps {
   item: Hourly;
@@ -21,10 +21,10 @@ interface WeatherHourlyProps {
 
 interface ListHourlyProps {
   hourly: Hourly[];
-  timezone: string;
 }
 
-const useHourlyData = ({ hourly, timezone }: ListHourlyProps) => {
+const useHourlyData = ({ hourly }: ListHourlyProps) => {
+  const { weatherStore } = useStores();
   return useMemo(() => {
     if (hourly.length === 0)
       return {
@@ -33,12 +33,20 @@ const useHourlyData = ({ hourly, timezone }: ListHourlyProps) => {
         currentTimeIndex: 0,
       };
 
-    const chartData = hourly.map((item) => ({
-      value: Math.round(item.temperature),
-      dataPointText: weatherUtils.formatTemperatureWithoutUnit(
-        item.temperature
-      ),
-    }));
+    const chartData =
+      weatherStore.temperatureUnit === "metric"
+        ? hourly.map((item) => ({
+            value: Math.round(item.temperature),
+            dataPointText: weatherUtils.formatTemperatureWithoutUnit(
+              item.temperature
+            ),
+          }))
+        : hourly.map((item) => ({
+            value: Math.round(item.temperature),
+            dataPointText: weatherUtils.formatTemperatureWithoutUnit(
+              weatherUtils.celsiusToFahrenheit(item.temperature)
+            ),
+          }));
 
     const firstHour = new Date(hourly[0].date);
     const nextDayIndex = hourly.findIndex((item) => {
@@ -50,8 +58,9 @@ const useHourlyData = ({ hourly, timezone }: ListHourlyProps) => {
       chartData,
       nextDayIndex,
     };
-  }, [hourly]);
+  }, [hourly, weatherStore.temperatureUnit]);
 };
+
 const WeatherHourly: React.FC<WeatherHourlyProps> = React.memo(
   function WeatherHourly({ item, index, width, nextDayIndex }) {
     const date = new Date(item.date);
@@ -83,15 +92,12 @@ const WeatherHourly: React.FC<WeatherHourlyProps> = React.memo(
   }
 );
 
-const ListHourly = observer(({ hourly, timezone }: ListHourlyProps) => {
+const ListHourly = observer(({ hourly }: ListHourlyProps) => {
   const weatherItemWidth = 70;
   const listRef = useRef<ScrollView>(null);
-  const themeColor = useAppTheme();
   const { chartData, nextDayIndex } = useHourlyData({
     hourly,
-    timezone,
   });
-  const textColor = themeColor.text;
   if (hourly.length === 0) return null;
   return (
     <ThemedView>
@@ -120,32 +126,11 @@ const ListHourly = observer(({ hourly, timezone }: ListHourlyProps) => {
             })}
           </ThemedView>
 
-          <ThemedView paddingTop={13}>
+          <ThemedView paddingTop={24}>
             <TemperatureChart
               data={chartData}
               weatherItemWidth={weatherItemWidth}
             />
-            {/* <LineChart
-              yAxisSide={yAxisSides.RIGHT}
-              disableScroll
-              data={chartData}
-              adjustToWidth
-              textFontSize={13}
-              textShiftY={-6}
-              textShiftX={-6}
-              color={textColor}
-              dataPointsColor={textColor}
-              trimYAxisAtTop
-              initialSpacing={weatherItemWidth / 2}
-              textColor={textColor}
-              spacing={weatherItemWidth}
-              isAnimated
-              hideAxesAndRules
-              xAxisLabelsHeight={0}
-              overflowTop={10}
-              animateOnDataChange
-              height={50}
-            /> */}
           </ThemedView>
         </ThemedView>
       </ScrollView>

@@ -10,6 +10,7 @@ import weatherIcon from "@/config/weatherIcon";
 import { Image } from "expo-image";
 import { Daily } from "@/type";
 import TemperatureChart from "./TemperatureChart";
+import { useStores } from "@/hooks";
 
 interface WeatherDailyProps {
   item: Daily;
@@ -22,7 +23,7 @@ interface ListDailyProps {
 }
 const ListDaily = observer(({ daily }: ListDailyProps) => {
   const weatherItemWidth = 90;
-
+  const { weatherStore } = useStores();
   const { tempMaxData, tempMinData } = useMemo(() => {
     if (daily.length === 0) {
       return {
@@ -34,25 +35,49 @@ const ListDaily = observer(({ daily }: ListDailyProps) => {
     let tempMaxData: lineDataItem[] = [];
     let tempMinData: lineDataItem[] = [];
 
-    daily.forEach((item) => {
-      const tempMaxValue = Math.round(item.all_day.temperature_max);
-      const tempMinValue = Math.round(item.all_day.temperature_min);
+    if (weatherStore.temperatureUnit === "metric") {
+      daily.forEach((item) => {
+        const tempMaxValue = Math.round(item.all_day.temperature_max);
+        const tempMinValue = Math.round(item.all_day.temperature_min);
 
-      tempMaxData.push({
-        value: tempMaxValue,
-        dataPointText: weatherUtils.formatTemperatureWithoutUnit(tempMaxValue),
+        tempMaxData.push({
+          value: tempMaxValue,
+          dataPointText:
+            weatherUtils.formatTemperatureWithoutUnit(tempMaxValue),
+        });
+        tempMinData.push({
+          value: tempMinValue,
+          dataPointText:
+            weatherUtils.formatTemperatureWithoutUnit(tempMinValue),
+        });
       });
-      tempMinData.push({
-        value: tempMinValue,
-        dataPointText: weatherUtils.formatTemperatureWithoutUnit(tempMinValue),
+    } else {
+      daily.forEach((item) => {
+        const tempMaxValue = weatherUtils.celsiusToFahrenheit(
+          item.all_day.temperature_max
+        );
+        const tempMinValue = weatherUtils.celsiusToFahrenheit(
+          item.all_day.temperature_min
+        );
+
+        tempMaxData.push({
+          value: tempMaxValue,
+          dataPointText:
+            weatherUtils.formatTemperatureWithoutUnit(tempMaxValue),
+        });
+        tempMinData.push({
+          value: tempMinValue,
+          dataPointText:
+            weatherUtils.formatTemperatureWithoutUnit(tempMinValue),
+        });
       });
-    });
+    }
 
     return {
       tempMaxData,
       tempMinData,
     };
-  }, [daily]);
+  }, [daily, weatherStore.temperatureUnit]);
   if (daily.length === 0) return null;
   return (
     <ThemedView>
@@ -76,14 +101,14 @@ const ListDaily = observer(({ daily }: ListDailyProps) => {
             })}
           </ThemedView>
 
-          <ThemedView paddingTop={13}>
+          <ThemedView paddingTop={24}>
             <TemperatureChart
               data={tempMaxData}
               weatherItemWidth={weatherItemWidth}
             />
           </ThemedView>
 
-          <ThemedView paddingTop={13}>
+          <ThemedView paddingTop={24}>
             <TemperatureChart
               data={tempMinData}
               weatherItemWidth={weatherItemWidth}

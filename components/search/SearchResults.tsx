@@ -21,7 +21,7 @@ const SearchResults = ({ results }: SearchResultsProps) => {
     queryConfig.weatherQueryOptions(
       place?.lat || "",
       place?.lon || "",
-      weatherStore.temperatureUnit
+      'metric'
     )
   );
   const themeColor = useAppTheme();

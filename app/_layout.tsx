@@ -12,6 +12,7 @@ import { enableFreeze } from "react-native-screens";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import * as StatusBar from "expo-status-bar";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -38,6 +39,7 @@ export default function Layout() {
     selectTheme === "dark" ? PaperTheme.dark : PaperTheme.light;
   const navigationTheme =
     selectTheme === "dark" ? NavigationTheme.dark : NavigationTheme.light;
+  StatusBar.setStatusBarStyle(selectTheme === "dark" ? "light" : "dark");
   const [loaded] = useFonts({
     "OpenSans-Regular": require("../assets/fonts/OpenSans-Regular.ttf"),
     "OpenSans-Medium": require("../assets/fonts/OpenSans-Medium.ttf"),

@@ -146,7 +146,7 @@ const PlaceNavigation: React.FC<PlaceNavigationProps> = ({
     queryConfig.weatherQueryOptions(
       weatherStore.selectedPlace.lat,
       weatherStore.selectedPlace.lon,
-      weatherStore.temperatureUnit
+      "metric"
     )
   );
   const temperature = useMemo(() => {

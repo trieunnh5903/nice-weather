@@ -1,6 +1,11 @@
 import { ThemedView } from "@/components";
-import { ThemeSetting, Unit, UpdateInterval } from "@/components/setting";
-import { Stack } from "expo-router";
+import {
+  Section,
+  ThemeSetting,
+  Unit,
+  UpdateInterval,
+} from "@/components/setting";
+import { router, Stack } from "expo-router";
 import React from "react";
 import { Divider } from "react-native-paper";
 
@@ -14,10 +19,11 @@ const SettingScreen = () => {
           headerShadowVisible: false,
         }}
       />
-      <Divider/>
+      <Divider />
       <UpdateInterval />
       <Unit />
       <ThemeSetting />
+      <Section title="Rearrange locations" handleOpenSection={() => router.navigate('/rearrange-locations')}/>
     </ThemedView>
   );
 };
