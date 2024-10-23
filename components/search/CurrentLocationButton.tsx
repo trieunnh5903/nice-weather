@@ -1,7 +1,7 @@
 import { Alert, Platform, StyleSheet, ToastAndroid } from "react-native";
 import React, { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { useStores } from "@/hooks";
+import { useLanguage, useStores } from "@/hooks";
 import { useQuery } from "@tanstack/react-query";
 import * as ExpoLocation from "expo-location";
 import { weatherApi } from "@/api/weatherApi";
@@ -17,11 +17,13 @@ const CurrentLocationButton = observer(() => {
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslation();
   const [place, setPlace] = useState<Place>();
+  const { currentLanguage } = useLanguage();
+
   const { isSuccess } = useQuery(
-    queryConfig.weatherQueryOptions(
+    queryConfig.currentWeatherQueryOptions(
       place?.lat || "",
       place?.lon || "",
-      "metric"
+      currentLanguage
     )
   );
 

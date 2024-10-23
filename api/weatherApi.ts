@@ -12,6 +12,7 @@ import {
   axiosMeteoInstance,
   axiosWeatherInstance,
 } from "./axiosConfig";
+import { LanguageCode } from "@/constants/languages";
 interface CurrentWeatherResponse {
   current: CurrentWeather;
 }
@@ -72,8 +73,8 @@ const directGeocoding = async (text: string) => {
 };
 
 const fetchAstronomy = async (lat: string, lon: string) => {
-  console.log('fetchAstronomy');
-  
+  console.log("fetchAstronomy");
+
   try {
     const response = await axiosAstronomyInstance.get<AstronomyResponse>(
       "/json",
@@ -88,36 +89,36 @@ const fetchAstronomy = async (lat: string, lon: string) => {
   }
 };
 
+const fetchCurrentWeather = async (
+  lat: string,
+  lon: string,
+  lang: LanguageCode
+) => {
+  return await fetchDataWeatherApi<CurrentWeatherResponse>("v1/current.json", {
+    q: `${lat},${lon}`,
+    aqi: "yes",
+    lang,
+  });
+};
 
-const fetchWeatherData = async (
+const fetchForecast = async (
   lat: string,
   lon: string,
   units: TemperatureUnit
 ) => {
-  const [current, forecast, astronomy] = await Promise.all([
-    fetchDataWeatherApi<CurrentWeatherResponse>("v1/current.json", {
-      q: `${lat},${lon}`,
-      aqi: "yes",
-    }),
-    fetchDataMeteoApi<Forecast>("/api/v1/free/point", {
-      lat,
-      lon,
-      sections: "all",
-      language: "en",
-      units,
-    }),
-    fetchAstronomy(lat, lon),
-  ]);
-
-  return {
-    current: current.current,
-    forecast: forecast,
-    astronomy: astronomy.results,
-  };
+  return await fetchDataMeteoApi<Forecast>("/api/v1/free/point", {
+    lat,
+    lon,
+    sections: "all",
+    language: "en",
+    units,
+  });
 };
 
 export const weatherApi = {
   reverseGeocoding,
   directGeocoding,
-  fetchWeatherData,
+  fetchAstronomy,
+  fetchCurrentWeather,
+  fetchForecast,
 };

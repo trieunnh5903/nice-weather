@@ -5,7 +5,7 @@ import { placeUtils } from "@/utils";
 import ThemedView from "../ThemedView";
 import ThemedText from "../ThemedText";
 import { Divider } from "react-native-paper";
-import { useAppTheme, useStores } from "@/hooks";
+import { useAppTheme, useLanguage, useStores } from "@/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { Place } from "@/type";
 import { router } from "expo-router";
@@ -18,11 +18,12 @@ interface SearchResultsProps {
 const SearchResults = ({ results }: SearchResultsProps) => {
   const { weatherStore } = useStores();
   const [place, setPlace] = useState<Place>();
+  const { currentLanguage } = useLanguage();
   const { isSuccess } = useQuery(
-    queryConfig.weatherQueryOptions(
+    queryConfig.currentWeatherQueryOptions(
       place?.lat || "",
       place?.lon || "",
-      "metric"
+      currentLanguage
     )
   );
   const themeColor = useAppTheme();

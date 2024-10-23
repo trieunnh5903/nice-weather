@@ -10,7 +10,7 @@ import Animated, {
   useAnimatedStyle,
 } from "react-native-reanimated";
 import { observer } from "mobx-react-lite";
-import { useAppTheme, useStores } from "@/hooks";
+import { useAppTheme, useLanguage, useStores } from "@/hooks";
 import { useQueries } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { placeUtils, weatherUtils } from "@/utils";
@@ -44,9 +44,14 @@ const LocationList = observer(
   }: LocationListProps) => {
     const { weatherStore } = useStores();
     console.log("LocationList");
+    const { currentLanguage } = useLanguage();
     const allWeather = useQueries({
       queries: weatherStore.places.map((place) =>
-        queryConfig.weatherQueryOptions(place.lat, place.lon, "metric")
+        queryConfig.currentWeatherQueryOptions(
+          place.lat,
+          place.lon,
+          currentLanguage
+        )
       ),
     });
 

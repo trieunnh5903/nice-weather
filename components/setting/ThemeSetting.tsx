@@ -28,7 +28,7 @@ const ThemeSetting = () => {
             title={t("setting.theme")}
             subtitle={
               !weatherStore.theme
-                ? "Default"
+                ? t("setting.default")
                 : weatherStore.theme === "dark"
                 ? t("setting.dark_mode")
                 : t("setting.light_mode")

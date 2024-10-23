@@ -6,7 +6,7 @@ import { Colors } from "@/constants/colors";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Observer } from "mobx-react-lite";
 import ThemedText from "../ThemedText";
-import { useAppTheme, useStores } from "@/hooks";
+import { useAppTheme, useLanguage, useStores } from "@/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { queryConfig } from "@/config/queryConfig";
 import { weatherUtils } from "@/utils";
@@ -142,11 +142,12 @@ const PlaceNavigation: React.FC<PlaceNavigationProps> = ({
   const { weatherStore } = useStores();
   const themeColor = useAppTheme();
   const iconColor = themeColor.icon;
+  const { currentLanguage } = useLanguage();
   const { isSuccess, data } = useQuery(
-    queryConfig.weatherQueryOptions(
+    queryConfig.currentWeatherQueryOptions(
       weatherStore.selectedPlace.lat,
       weatherStore.selectedPlace.lon,
-      "metric"
+      currentLanguage
     )
   );
   const temperature = useMemo(() => {

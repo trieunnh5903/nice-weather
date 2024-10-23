@@ -36,31 +36,32 @@ const UpdateInterval = observer(() => {
         value: 3600 * 12,
       },
     ],
-    []
+    [t]
   );
   const queryClient = useQueryClient();
   const { weatherStore } = useStores();
   const [modalVisible, setModalVisible] = useState(false);
   const [timSeleted, setTimSeleted] = useState(
-    timeIntervalValue.find((item) => item.value === weatherStore.stateTime)
+    timeIntervalValue.findIndex((item) => item.value === weatherStore.stateTime)
   );
 
   useEffect(() => {
     if (!modalVisible && timSeleted) {
-      if (timSeleted.value !== weatherStore.stateTime) {
-        if (timSeleted.value === Infinity) {
+      const time = timeIntervalValue[timSeleted];
+      if (time.value !== weatherStore.stateTime) {
+        if (time.value === Infinity) {
           weatherStore.changeStaleTime(-1);
           queryClient.setDefaultOptions({ queries: { staleTime: Infinity } });
         } else {
-          weatherStore.changeStaleTime(timSeleted.value);
+          weatherStore.changeStaleTime(time.value);
           queryClient.setDefaultOptions({
-            queries: { staleTime: timSeleted.value },
+            queries: { staleTime: time.value },
           });
         }
       }
     }
     return () => {};
-  }, [modalVisible, queryClient, timSeleted, weatherStore]);
+  }, [modalVisible, queryClient, timSeleted, timeIntervalValue, weatherStore]);
 
   const showModal = () => setModalVisible(true);
   const hideModal = () => setModalVisible(false);
@@ -68,7 +69,9 @@ const UpdateInterval = observer(() => {
     <ThemedView>
       <Section
         subtitle={
-          timSeleted?.value === -1 ? t("setting.manually") : timSeleted?.label
+          timeIntervalValue[timSeleted].value === -1
+            ? t("setting.manually")
+            : timeIntervalValue[timSeleted].label
         }
         title={t("setting.update_interval")}
         handleOpenSection={showModal}
@@ -86,18 +89,18 @@ const UpdateInterval = observer(() => {
               </ThemedText>
             </ThemedView>
             <ThemedView>
-              {timeIntervalValue.map((item) => {
+              {timeIntervalValue.map((item, index) => {
                 return (
                   <ThemedView key={item.label}>
                     <TouchableOpacity
-                      onPress={() => setTimSeleted(item)}
+                      onPress={() => setTimSeleted(index)}
                       key={item.label}
                       style={styles.rowCentered}
                     >
                       <RadioButton
                         value={item.label}
                         status={
-                          timSeleted?.label === item.label
+                          timeIntervalValue[timSeleted].label === item.label
                             ? "checked"
                             : "unchecked"
                         }

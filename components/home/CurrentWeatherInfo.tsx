@@ -94,18 +94,10 @@ const CurrentWeatherInfo: React.FC<CurrentWeatherInfoProps> = observer(
       <GestureDetector gesture={pan}>
         <ThemedView style={[styles.current]}>
           <ThemedText style={styles.celcius}>{temperature}</ThemedText>
-          <ThemedView style={{ flexDirection: "row", gap: 6 }}>
-            <Image
-              source={"https:" + currentWeather.condition.icon}
-              style={{ width: 32, height: 32 }}
-            />
-            <ThemedView>
-              <ThemedText color={iconColor}>
-                {currentWeather.condition.text}
-              </ThemedText>
-              <ThemedText color={iconColor}>{feelLike}</ThemedText>
-            </ThemedView>
-          </ThemedView>
+          <ThemedText color={iconColor}>
+            {currentWeather.condition.text}
+          </ThemedText>
+          <ThemedText color={iconColor}>{feelLike}</ThemedText>
           <DataStatus />
         </ThemedView>
       </GestureDetector>

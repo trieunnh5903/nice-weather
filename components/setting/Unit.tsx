@@ -89,7 +89,7 @@ const Unit = observer(() => {
             <ThemedView paddingTop={20} style={styles.rowCentered}>
               <ThemedView flex />
               <TouchableOpacity onPress={hideModal}>
-                <ThemedText type="subtitle">CANCEL</ThemedText>
+                <ThemedText type="subtitle"> {t("setting.cancel")}</ThemedText>
               </TouchableOpacity>
             </ThemedView>
           </ThemedView>

@@ -7,7 +7,7 @@ import {
   ListHourly,
   PlaceNavigation,
 } from "@/components/home";
-import { useStores } from "@/hooks";
+import { useLanguage, useStores } from "@/hooks";
 import { MaterialIconName } from "@/type";
 import { CommonActions } from "@react-navigation/native";
 import { router, useNavigation } from "expo-router";
@@ -38,9 +38,26 @@ const HomeScreen: React.FC = observer(() => {
   );
   const scrollViewRefs = useRef<(ScrollView | null)[]>([]);
   const INPUT_MAX_VALUE = 160;
-  const allWeather = useQueries({
+  const { currentLanguage } = useLanguage();
+  const allCurrentWeather = useQueries({
     queries: weatherStore.places.map((place) =>
-      queryConfig.weatherQueryOptions(place.lat, place.lon, "metric")
+      queryConfig.currentWeatherQueryOptions(
+        place.lat,
+        place.lon,
+        currentLanguage
+      )
+    ),
+  });
+
+  const allForecast = useQueries({
+    queries: weatherStore.places.map((place) =>
+      queryConfig.forecastQueryOptions(place.lat, place.lon, "metric")
+    ),
+  });
+
+  const allAstronomy = useQueries({
+    queries: weatherStore.places.map((place) =>
+      queryConfig.astronomyQueryOptions(place.lat, place.lon)
     ),
   });
 
@@ -189,39 +206,45 @@ const HomeScreen: React.FC = observer(() => {
         initialPage={weatherStore.selectedIndex}
         onPageSelected={onPageSelected}
       >
-        {allWeather.map((weather, index) => {
+        {weatherStore.places.map((place, index) => {
+          const forecast = allForecast[index];
+          const current = allCurrentWeather[index];
+          const astronomy = allAstronomy[index];
           return (
-            <ThemedView
-              style={styles.page}
-              key={`page ${weatherStore.places[index].place_id}`}
-            >
-              {weather.data && (
-                <Animated.ScrollView
-                  ref={(el) => {
-                    scrollViewRefs.current[index] = el as ScrollView | null;
-                  }}
-                  onScroll={onScroll}
-                >
+            <ThemedView style={styles.page} key={`page-${place.place_id}`}>
+              <Animated.ScrollView
+                ref={(el) => {
+                  scrollViewRefs.current[index] = el as ScrollView | null;
+                }}
+                onScroll={onScroll}
+              >
+                {current.isSuccess && (
                   <ThemedView paddingBottom={18}>
                     <CurrentWeatherInfo
                       onSwipe={handleSwipe}
-                      currentWeather={weather.data.current}
+                      currentWeather={current.data.current}
                     />
                   </ThemedView>
+                )}
+
+                {forecast.isSuccess && (
                   <ThemedView>
-                    <ListHourly hourly={weather.data.forecast.hourly.data} />
+                    <ListHourly hourly={forecast.data.hourly.data} />
                     <ThemedView paddingTop={12}>
-                      <ListDaily daily={weather.data.forecast.daily.data} />
-                    </ThemedView>
-                    <ThemedView paddingTop={12} paddingHorizontal={12}>
-                      <Life
-                        current={weather.data.current}
-                        astronomy={weather.data.astronomy}
-                      />
+                      <ListDaily daily={forecast.data.daily.data} />
                     </ThemedView>
                   </ThemedView>
-                </Animated.ScrollView>
-              )}
+                )}
+
+                {astronomy.isSuccess && current.isSuccess && (
+                  <ThemedView paddingTop={12} paddingHorizontal={12}>
+                    <Life
+                      current={current.data.current}
+                      astronomy={astronomy.data.results}
+                    />
+                  </ThemedView>
+                )}
+              </Animated.ScrollView>
             </ThemedView>
           );
         })}
