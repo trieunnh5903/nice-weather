@@ -10,7 +10,7 @@ import {
 import { useLanguage, useStores } from "@/hooks";
 import { MaterialIconName } from "@/type";
 import { CommonActions } from "@react-navigation/native";
-import { router, useNavigation } from "expo-router";
+import { router, Stack, useNavigation } from "expo-router";
 import { useCallback, useMemo, useRef } from "react";
 import { Alert, StyleSheet } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
@@ -39,6 +39,7 @@ const HomeScreen: React.FC = observer(() => {
   const scrollViewRefs = useRef<(ScrollView | null)[]>([]);
   const INPUT_MAX_VALUE = 160;
   const { currentLanguage } = useLanguage();
+  console.log("currentLanguage", currentLanguage);
   const allCurrentWeather = useQueries({
     queries: weatherStore.places.map((place) =>
       queryConfig.currentWeatherQueryOptions(
@@ -189,6 +190,7 @@ const HomeScreen: React.FC = observer(() => {
 
   return (
     <ThemedView flex enableInsetsTop>
+      <Stack.Screen options={{freezeOnBlur: true}}/>
       <ThemedView>
         <HeaderIcons headerIcons={headerIcons} onHeaderPress={onHeaderPress} />
         <PlaceNavigation

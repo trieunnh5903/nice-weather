@@ -94,6 +94,7 @@ const fetchCurrentWeather = async (
   lon: string,
   lang: LanguageCode
 ) => {
+  console.log(lang);
   return await fetchDataWeatherApi<CurrentWeatherResponse>("v1/current.json", {
     q: `${lat},${lon}`,
     aqi: "yes",

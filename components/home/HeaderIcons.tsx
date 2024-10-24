@@ -26,6 +26,7 @@ const HeaderIcons: React.FC<HeaderIconsProps> = ({
   const openMenu = () => setMenuVisible(true);
   const closeMenu = () => setMenuVisible(false);
   const { t } = useTranslation();
+
   return (
     <ThemedView style={styles.header}>
       {headerIcons.map((icon) => (
@@ -37,14 +38,10 @@ const HeaderIcons: React.FC<HeaderIconsProps> = ({
         </RippleButtonIcon>
       ))}
       <Menu
-        theme={{ animation: { scale: 0 } }}
-        style={{
-          backgroundColor: "transparent",
-        }}
         contentStyle={{
           backgroundColor: themeColor.background,
           borderColor: themeColor.border,
-          borderWidth: 0.1,
+          borderWidth: 0.5,
         }}
         anchorPosition="bottom"
         visible={menuVisible}
@@ -71,7 +68,7 @@ const HeaderIcons: React.FC<HeaderIconsProps> = ({
             closeMenu();
             setTimeout(() => {
               router.navigate("/setting");
-            }, 100);
+            }, 500);
           }}
           title={t("home.menu.setting")}
         />

@@ -67,5 +67,8 @@
     "every_6_hours": "Mỗi 6 giờ",
     "every_12_hours": "Mỗi 12 giờ",
     "update_interval": "Khoảng thời gian cập nhật"
+  },
+  "arrange_locations": {
+    "screen_title": "Sắp xếp các địa điểm"
   }
 }

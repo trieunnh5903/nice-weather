@@ -8,7 +8,6 @@ import { useEffect } from "react";
 import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PaperProvider } from "react-native-paper";
-import { enableFreeze } from "react-native-screens";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
@@ -16,8 +15,6 @@ import * as StatusBar from "expo-status-bar";
 import * as Localization from "expo-localization";
 import "@/i18n";
 import { LANGUAGE_STORAGE_KEY } from "@/constants/languages";
-import { useLanguage } from "@/hooks";
-import { Languages } from "@/i18n";
 import { useTranslation } from "react-i18next";
 
 SplashScreen.preventAutoHideAsync();
@@ -26,16 +23,19 @@ const asyncStoragePersister = createAsyncStoragePersister({
   storage: AsyncStorage,
 });
 
-enableFreeze(true);
+// enableFreeze(true);
 export default function Layout() {
   const { i18n } = useTranslation();
   const { weatherStore } = useStores();
   const systemTheme = useColorScheme();
+  const staleTime =
+    weatherStore.stateTime < 0 ? Infinity : weatherStore.stateTime * 1000;
+
+  console.log('staleTime',staleTime);
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime:
-          weatherStore.stateTime < 0 ? Infinity : weatherStore.stateTime * 1000,
+        staleTime: staleTime,
         gcTime: 24 * 24 * 3600 * 1000,
       },
     },

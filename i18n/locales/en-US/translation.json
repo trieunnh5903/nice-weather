@@ -67,5 +67,8 @@
     "every_6_hours": "Every 6 hours",
     "every_12_hours": "Every 12 hours",
     "update_interval": "Update interval"
+  },
+  "arrange_locations": {
+    "screen_title": "Arrange the locations"
   }
 }
