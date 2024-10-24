@@ -66,9 +66,7 @@ const HeaderIcons: React.FC<HeaderIconsProps> = ({
         <Menu.Item
           onPress={() => {
             closeMenu();
-            setTimeout(() => {
-              router.navigate("/setting");
-            }, 500);
+            router.navigate("/setting");
           }}
           title={t("home.menu.setting")}
         />

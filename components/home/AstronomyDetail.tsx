@@ -37,6 +37,7 @@ const AstronomyDetail: React.FC<AstronomyDetailProps> = ({ astronomy }) => {
       hour: "2-digit",
       minute: "2-digit",
     });
+    console.log(today.timezone, now);
 
     return (
       (weatherUtils.convertToMinute(now) -
@@ -98,7 +99,7 @@ const SunriseChart: React.FC<SunriseChartProps> = ({
   const bacgroundColor = themeColor.placeholder;
   const textColor = themeColor.text;
   useEffect(() => {
-    if (currentTimeInPercent < 1) {
+    if (currentTimeInPercent < 1 && currentTimeInPercent > 0) {
       strokeDashoffset.value = withTiming(p * (1 - currentTimeInPercent), {
         duration: 1000,
       });

@@ -84,15 +84,12 @@ const AllLocation = () => {
   }, [navigation]);
 
   const handleDeleteSelected = useCallback(() => {
-    const remains = weatherStore.deleteMany(selectedItems);
-    if (remains === 0) {
-      resetNavigation();
-    }
-  }, [resetNavigation, selectedItems, weatherStore]);
+    weatherStore.deleteMany(selectedItems);
+  }, [selectedItems, weatherStore]);
 
   const handleDeleteAll = useCallback(() => {
-    weatherStore.deleteAll();
     resetNavigation();
+    weatherStore.deleteAll();
   }, [resetNavigation, weatherStore]);
 
   const onDeletePress = useCallback(() => {

@@ -190,7 +190,6 @@ const HomeScreen: React.FC = observer(() => {
 
   return (
     <ThemedView flex enableInsetsTop>
-      <Stack.Screen options={{freezeOnBlur: true}}/>
       <ThemedView>
         <HeaderIcons headerIcons={headerIcons} onHeaderPress={onHeaderPress} />
         <PlaceNavigation
@@ -215,6 +214,7 @@ const HomeScreen: React.FC = observer(() => {
           return (
             <ThemedView style={styles.page} key={`page-${place.place_id}`}>
               <Animated.ScrollView
+                showsVerticalScrollIndicator={false}
                 ref={(el) => {
                   scrollViewRefs.current[index] = el as ScrollView | null;
                 }}
