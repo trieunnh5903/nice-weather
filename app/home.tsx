@@ -10,7 +10,7 @@ import {
 import { useLanguage, useStores } from "@/hooks";
 import { MaterialIconName } from "@/type";
 import { CommonActions } from "@react-navigation/native";
-import { router, Stack, useNavigation } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import { useCallback, useMemo, useRef } from "react";
 import { Alert, StyleSheet } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
@@ -214,6 +214,7 @@ const HomeScreen: React.FC = observer(() => {
           return (
             <ThemedView style={styles.page} key={`page-${place.place_id}`}>
               <Animated.ScrollView
+                overScrollMode={'never'}
                 showsVerticalScrollIndicator={false}
                 ref={(el) => {
                   scrollViewRefs.current[index] = el as ScrollView | null;

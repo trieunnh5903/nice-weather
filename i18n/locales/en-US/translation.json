@@ -24,9 +24,44 @@
       },
       "life": {
         "title": "Life",
-        "wind": "Wind",
-        "uv": "UV",
-        "air_quatity": "Air quantity",
+        "wind": {
+          "title": "Wind",
+          "wind_direction": {
+            "N": "North",
+            "NNE": "North-Northeast",
+            "NE": "Northeast",
+            "ENE": "East-Northeast",
+            "E": "East",
+            "ESE": "East-Southeast",
+            "SE": "Southeast",
+            "SSE": "South-Southeast",
+            "S": "South",
+            "SSW": "South-Southwest",
+            "SW": "Southwest",
+            "WSW": "West-Southwest",
+            "W": "West",
+            "WNW": "West-Northwest",
+            "NW": "Northwest",
+            "NNW": "North-Northwest"
+          }
+        },
+        "uv": {
+          "title": "UV",
+          "low": "Low risk",
+          "moderate": "Moderate risk",
+          "high": "High risk",
+          "very_high": "Very high risk",
+          "extreme": "Extreme risk"
+        },
+        "air_quatity": {
+          "title": "Air Quantity",
+          "1": "Good",
+          "2": "Moderate",
+          "3": "Unhealthy for sensitive group",
+          "4": "Unhealthy",
+          "5": "Very Unhealthy",
+          "6": "Hazardous"
+        },
         "humidity": "Humidity",
         "tommorrow": "Tommorrow"
       }

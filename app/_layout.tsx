@@ -31,7 +31,7 @@ export default function Layout() {
   const staleTime =
     weatherStore.stateTime < 0 ? Infinity : weatherStore.stateTime * 1000;
 
-  console.log('staleTime',staleTime);
+  console.log("staleTime", staleTime);
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -75,8 +75,6 @@ export default function Layout() {
   StatusBar.setStatusBarStyle(selectTheme === "dark" ? "light" : "dark");
 
   if (!loaded || !weatherStore.isHydrated) {
-    console.log("loaded", loaded);
-    console.log("weatherStore.isHydrated", weatherStore.isHydrated);
     return null;
   }
 

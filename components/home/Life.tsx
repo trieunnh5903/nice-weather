@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import React from "react";
+import React, { PropsWithChildren } from "react";
 import AstronomyDetail from "./AstronomyDetail";
 import ThemedText from "../ThemedText";
 import ThemedView from "../ThemedView";
@@ -12,9 +12,35 @@ interface LifeProps {
   current: CurrentWeather;
   astronomy: Astronomy[];
 }
+
+const getUVIndexDescription = (uvIndex: number) => {
+  if (uvIndex <= 2) return "low";
+  if (uvIndex <= 5) return "moderate";
+  if (uvIndex <= 7) return "high";
+  if (uvIndex <= 10) return "very_high";
+  return "extreme";
+};
+
+const Title = ({ children }: PropsWithChildren) => {
+  return (
+    <ThemedText fontSize={14} style={{ textAlign: "center" }}>
+      {children}
+    </ThemedText>
+  );
+};
+
+const Subtitle = ({ children }: PropsWithChildren) => {
+  return (
+    <ThemedText fontSize={13} style={{ textAlign: "center" }}>
+      {children}
+    </ThemedText>
+  );
+};
 const Life: React.FC<LifeProps> = ({ astronomy, current }) => {
   const appTheme = useAppTheme();
   const { t } = useTranslation();
+  console.log(current.uv);
+  const uvDescriptionKey = getUVIndexDescription(current.uv);
   return (
     <ThemedView>
       <ThemedText uppercase type="subtitle">
@@ -29,11 +55,15 @@ const Life: React.FC<LifeProps> = ({ astronomy, current }) => {
               { borderLeftWidth: 0, borderColor: appTheme.border },
             ]}
           >
-            <ThemedText> {t("home.feature.life.wind")}</ThemedText>
-            <ThemedText>{current.wind_dir}</ThemedText>
-            <ThemedText>
+            <Title>{t("home.feature.life.wind.title")}</Title>
+            <Subtitle>
+              {t(
+                `home.feature.life.wind.wind_direction.${current.wind_dir}` as any
+              )}
+            </Subtitle>
+            <Subtitle>
               {current.wind_kph} {t("unit.km/h")}
-            </ThemedText>
+            </Subtitle>
           </ThemedView>
           <ThemedView
             style={[
@@ -42,8 +72,8 @@ const Life: React.FC<LifeProps> = ({ astronomy, current }) => {
               { borderRightWidth: 0, borderColor: appTheme.border },
             ]}
           >
-            <ThemedText>{t("home.feature.life.uv")}</ThemedText>
-            <ThemedText>{current.uv}</ThemedText>
+            <Title> {t("home.feature.life.uv.title")}</Title>
+            <Subtitle>{t(`home.feature.life.uv.${uvDescriptionKey}`)}</Subtitle>
           </ThemedView>
         </ThemedView>
 
@@ -55,8 +85,15 @@ const Life: React.FC<LifeProps> = ({ astronomy, current }) => {
               { borderLeftWidth: 0, borderColor: appTheme.border },
             ]}
           >
-            <ThemedText>{t("home.feature.life.air_quatity")}</ThemedText>
-            <ThemedText>{current.air_quality["us-epa-index"]}</ThemedText>
+            <Title>{t("home.feature.life.air_quatity.title")}</Title>
+            <Subtitle>
+              {t(
+                `home.feature.life.air_quatity.${current.air_quality["us-epa-index"]}` as any,
+                {
+                  defaultValue: current.air_quality["us-epa-index"],
+                }
+              )}
+            </Subtitle>
           </ThemedView>
           <ThemedView
             style={[
@@ -65,11 +102,11 @@ const Life: React.FC<LifeProps> = ({ astronomy, current }) => {
               { borderRightWidth: 0, borderColor: appTheme.border },
             ]}
           >
-            <ThemedText>{t("home.feature.life.humidity")}</ThemedText>
-            <ThemedText>
+            <Title>{t("home.feature.life.humidity")}</Title>
+            <Subtitle>
               {current.humidity}
               {t("unit.%")}
-            </ThemedText>
+            </Subtitle>
           </ThemedView>
         </ThemedView>
       </ThemedView>
@@ -85,7 +122,7 @@ const styles = StyleSheet.create({
 
   lifeItem: {
     flex: 1,
-    borderWidth: 0.3,
+    borderWidth: 0.5,
     height: Size.screenWidth * 0.2,
   },
   centered: {

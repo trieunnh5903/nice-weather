@@ -37,7 +37,6 @@ const AstronomyDetail: React.FC<AstronomyDetailProps> = ({ astronomy }) => {
       hour: "2-digit",
       minute: "2-digit",
     });
-    console.log(today.timezone, now);
 
     return (
       (weatherUtils.convertToMinute(now) -
@@ -70,13 +69,15 @@ const AstronomyDetail: React.FC<AstronomyDetailProps> = ({ astronomy }) => {
         <ThemedText>{t("home.feature.hourly.tomorrow")}</ThemedText>
         <ThemedView style={[styles.row, styles.centered, styles.gap_6]}>
           <Feather name="sunrise" size={24} color={iconColor} />
-          <ThemedText>
+          <ThemedText fontSize={13}>
             {weatherUtils.formatSunrise(tomorrow.sunrise)}
           </ThemedText>
         </ThemedView>
         <ThemedView style={[styles.row, styles.centered, styles.gap_6]}>
           <Feather name="sunset" size={24} color={iconColor} />
-          <ThemedText>{weatherUtils.formatSunrise(tomorrow.sunset)}</ThemedText>
+          <ThemedText fontSize={13}>
+            {weatherUtils.formatSunrise(tomorrow.sunset)}
+          </ThemedText>
         </ThemedView>
       </ThemedView>
     </ThemedView>
@@ -134,10 +135,10 @@ const SunriseChart: React.FC<SunriseChartProps> = ({
         strokeDasharray={p}
         animatedProps={animatedProps}
       />
-      <Text x={startX - 20} y={centerY + 20} fontSize="14" fill={textColor}>
+      <Text x={startX - 20} y={centerY + 20} fontSize="13" fill={textColor}>
         {weatherUtils.formatSunrise(astronomy.sunrise)}
       </Text>
-      <Text x={endX - 20} y={centerY + 20} fontSize="14" fill={textColor}>
+      <Text x={endX - 20} y={centerY + 20} fontSize="13" fill={textColor}>
         {weatherUtils.formatSunrise(astronomy.sunset)}
       </Text>
     </Svg>

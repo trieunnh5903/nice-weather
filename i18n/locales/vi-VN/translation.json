@@ -24,9 +24,44 @@
       },
       "life": {
         "title": "Cuộc sống",
-        "wind": "Gió",
-        "uv": "UV",
-        "air_quatity": "Chất lượng không khí",
+        "wind": {
+          "title": "Gió",
+          "wind_direction": {
+            "N": "Bắc",
+            "NNE": "Bắc Đông Bắc",
+            "NE": "Đông Bắc",
+            "ENE": "Đông Đông Bắc",
+            "E": "Đông",
+            "ESE": "Đông Đông Nam",
+            "SE": "Đông Nam",
+            "SSE": "Nam Đông Nam",
+            "S": "Nam",
+            "SSW": "Nam Tây Nam",
+            "SW": "Tây Nam",
+            "WSW": "Tây Tây Nam",
+            "W": "Tây",
+            "WNW": "Tây Tây Bắc",
+            "NW": "Tây Bắc",
+            "NNW": "Bắc Tây Bắc"
+          }
+        },
+        "uv": {
+          "title": "UV",
+          "low": "Nguy cơ thấp",
+          "moderate": "Nguy cơ trung bình",
+          "high": "Nguy cơ cao",
+          "very_high": "Nguy cơ rất cao",
+          "extreme": "Nguy cơ cực kỳ cao"
+        },
+        "air_quatity": {
+          "title": "Chất lượng không khí",
+          "1": "Tốt",
+          "2": "Vừa phải",
+          "3": "Không tốt cho nhóm nhạy cảm",
+          "4": "Không tốt cho sức khỏe",
+          "5": "Rất không tốt cho sức khỏe",
+          "6": "Nguy hiểm"
+        },
         "humidity": "Độ ẩm",
         "tommorrow": "Ngày mai"
       }
