@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { ActivityIndicator, StyleSheet, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
 import { ScrollView } from "react-native-gesture-handler";
 import { placeUtils } from "@/utils";
@@ -19,13 +19,14 @@ const SearchResults = ({ results }: SearchResultsProps) => {
   const { weatherStore } = useStores();
   const [place, setPlace] = useState<Place>();
   const { currentLanguage } = useLanguage();
-  const { isSuccess } = useQuery(
+  const { isSuccess, isFetching } = useQuery(
     queryConfig.currentWeatherQueryOptions(
       place?.lat || "",
       place?.lon || "",
       currentLanguage
     )
   );
+
   const themeColor = useAppTheme();
   const { t } = useTranslation();
   useEffect(() => {
@@ -62,15 +63,21 @@ const SearchResults = ({ results }: SearchResultsProps) => {
 
   return (
     <ScrollView>
-      {results.map((place) => {
-        const address = placeUtils.getAddress(place);
+      {results.map((item) => {
+        const address = placeUtils.getAddress(item);
         return (
           <TouchableOpacity
-            onPress={() => onPlacePress(place)}
-            key={place.place_id}
+            onPress={() => onPlacePress(item)}
+            key={item.place_id}
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              padding: 12,
+              gap: 6,
+            }}
           >
-            <ThemedView style={{ padding: 12 }}>
-              <ThemedText>{place.name}</ThemedText>
+            <ThemedView flex>
+              <ThemedText>{item.name}</ThemedText>
               <ThemedText
                 type="label"
                 darkColor={themeColor.primary}
@@ -79,6 +86,9 @@ const SearchResults = ({ results }: SearchResultsProps) => {
                 {address}
               </ThemedText>
             </ThemedView>
+            {isFetching && item.place_id === place?.place_id && (
+              <ActivityIndicator color={themeColor.primary} size={24} />
+            )}
             <Divider />
           </TouchableOpacity>
         );

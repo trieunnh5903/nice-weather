@@ -17,7 +17,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import PagerView, {
   PagerViewOnPageSelectedEvent,
 } from "react-native-pager-view";
-import { useQueries } from "@tanstack/react-query";
+import { useQueries, useQueryClient } from "@tanstack/react-query";
 import { queryConfig } from "@/config/queryConfig";
 import { observer } from "mobx-react-lite";
 import { Size } from "@/constants/size";
@@ -26,6 +26,8 @@ import Animated, {
   useAnimatedScrollHandler,
   useSharedValue,
 } from "react-native-reanimated";
+import { weatherApi } from "@/api/weatherApi";
+import { QUERY_KEY } from "@/constants/queryKey";
 
 const HomeScreen: React.FC = observer(() => {
   const pagerRef = useRef<PagerView>(null);
@@ -39,15 +41,20 @@ const HomeScreen: React.FC = observer(() => {
   const scrollViewRefs = useRef<(ScrollView | null)[]>([]);
   const INPUT_MAX_VALUE = 160;
   const { currentLanguage } = useLanguage();
-  console.log("currentLanguage", currentLanguage);
   const allCurrentWeather = useQueries({
-    queries: weatherStore.places.map((place) =>
-      queryConfig.currentWeatherQueryOptions(
-        place.lat,
-        place.lon,
-        currentLanguage
-      )
-    ),
+    queries: weatherStore.places.map((place) => {
+      return {
+        queryKey: [
+          QUERY_KEY.CURRENT_WEATHER,
+          place.lat,
+          place.lon,
+          currentLanguage,
+        ],
+        queryFn: () =>
+          weatherApi.fetchCurrentWeather(place.lat, place.lon, currentLanguage),
+        refetchOnMount: false,
+      };
+    }),
   });
 
   const allForecast = useQueries({
@@ -214,7 +221,7 @@ const HomeScreen: React.FC = observer(() => {
           return (
             <ThemedView style={styles.page} key={`page-${place.place_id}`}>
               <Animated.ScrollView
-                overScrollMode={'never'}
+                overScrollMode={"never"}
                 showsVerticalScrollIndicator={false}
                 ref={(el) => {
                   scrollViewRefs.current[index] = el as ScrollView | null;

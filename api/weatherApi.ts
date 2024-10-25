@@ -13,13 +13,13 @@ import {
   axiosWeatherInstance,
 } from "./axiosConfig";
 import { LanguageCode } from "@/constants/languages";
-interface CurrentWeatherResponse {
+export interface CurrentWeatherResponse {
   current: CurrentWeather;
 }
 
-interface AstronomyResponse {
+export interface AstronomyResponse {
   results: Astronomy[];
-  status: "OK";
+  status: string;
 }
 
 async function fetchDataMeteoApi<T>(endpoint: string, params = {}) {

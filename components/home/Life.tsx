@@ -39,7 +39,6 @@ const Subtitle = ({ children }: PropsWithChildren) => {
 const Life: React.FC<LifeProps> = ({ astronomy, current }) => {
   const appTheme = useAppTheme();
   const { t } = useTranslation();
-  console.log(current.uv);
   const uvDescriptionKey = getUVIndexDescription(current.uv);
   return (
     <ThemedView>
