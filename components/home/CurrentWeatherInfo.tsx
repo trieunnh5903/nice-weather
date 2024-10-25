@@ -5,23 +5,23 @@ import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import ThemedView from "../ThemedView";
 import ThemedText from "../ThemedText";
 import { Size } from "@/constants/size";
-import { useIsFetching } from "@tanstack/react-query";
-import { useAppTheme, useStores } from "@/hooks";
+import { useIsFetching, useQueryClient } from "@tanstack/react-query";
+import { useAppTheme, useLanguage, useStores } from "@/hooks";
 import { weatherUtils } from "@/utils";
 import { CurrentWeather } from "@/type";
-import { Image } from "expo-image";
 import { useTranslation } from "react-i18next";
+import { QUERY_KEY } from "@/constants/queryKey";
 
 interface CurrentWeatherInfoProps {
   currentWeather: CurrentWeather;
   onSwipe: (translationX: number) => void;
 }
 
-const DataStatus = () => {
+const DataStatus = ({ dataUpdatedAt }: { dataUpdatedAt: number }) => {
   const { t } = useTranslation();
   const isFetching = useIsFetching();
   const themeColor = useAppTheme();
-  const date = new Date().toLocaleTimeString(undefined, {
+  const date = new Date(dataUpdatedAt).toLocaleTimeString(undefined, {
     hour: "2-digit",
     minute: "2-digit",
   });
@@ -47,6 +47,7 @@ const DataStatus = () => {
 const CurrentWeatherInfo: React.FC<CurrentWeatherInfoProps> = observer(
   ({ currentWeather, onSwipe }) => {
     const themeColor = useAppTheme();
+    const queryClient = useQueryClient();
     const { t } = useTranslation();
     const iconColor = themeColor.icon;
     const { weatherStore } = useStores();
@@ -86,9 +87,16 @@ const CurrentWeatherInfo: React.FC<CurrentWeatherInfoProps> = observer(
         weatherStore.temperatureUnit,
       ]
     );
-
+    const { currentLanguage } = useLanguage();
     const feelLike =
       t("home.feature.curren_weather.feel_like") + " " + feelLikeTemp;
+
+    const queryState = queryClient.getQueryState([
+      QUERY_KEY.CURRENT_WEATHER,
+      weatherStore.places[0].lat,
+      weatherStore.places[0].lon,
+      currentLanguage,
+    ]);
 
     return (
       <GestureDetector gesture={pan}>
@@ -98,7 +106,9 @@ const CurrentWeatherInfo: React.FC<CurrentWeatherInfoProps> = observer(
             {currentWeather.condition.text}
           </ThemedText>
           <ThemedText color={iconColor}>{feelLike}</ThemedText>
-          <DataStatus />
+          {queryState?.dataUpdatedAt && (
+            <DataStatus dataUpdatedAt={queryState?.dataUpdatedAt} />
+          )}
         </ThemedView>
       </GestureDetector>
     );

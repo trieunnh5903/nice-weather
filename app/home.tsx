@@ -52,7 +52,6 @@ const HomeScreen: React.FC = observer(() => {
         ],
         queryFn: () =>
           weatherApi.fetchCurrentWeather(place.lat, place.lon, currentLanguage),
-        refetchOnMount: false,
       };
     }),
   });
