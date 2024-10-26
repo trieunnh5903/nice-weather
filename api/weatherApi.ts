@@ -1,8 +1,8 @@
 import { AxiosResponse } from "axios";
 
 import {
-  Astronomy,
-  CurrentWeather,
+  AstronomyResponse,
+  CurrentWeatherResponse,
   Forecast,
   Place,
   TemperatureUnit,
@@ -13,14 +13,6 @@ import {
   axiosWeatherInstance,
 } from "./axiosConfig";
 import { LanguageCode } from "@/constants/languages";
-export interface CurrentWeatherResponse {
-  current: CurrentWeather;
-}
-
-export interface AstronomyResponse {
-  results: Astronomy[];
-  status: string;
-}
 
 async function fetchDataMeteoApi<T>(endpoint: string, params = {}) {
   try {

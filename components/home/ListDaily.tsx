@@ -1,6 +1,5 @@
 import { StyleSheet } from "react-native";
-import React, { useMemo } from "react";
-import { observer } from "mobx-react-lite";
+import React, { memo, useMemo } from "react";
 import { lineDataItem } from "react-native-gifted-charts";
 import { weatherUtils } from "@/utils";
 import ThemedView from "../ThemedView";
@@ -8,9 +7,8 @@ import ThemedText from "../ThemedText";
 import { ScrollView } from "react-native-gesture-handler";
 import weatherIcon from "@/config/weatherIcon";
 import { Image } from "expo-image";
-import { Daily } from "@/type";
+import { Daily, TemperatureUnit } from "@/type";
 import TemperatureChart from "./TemperatureChart";
-import { useStores } from "@/hooks";
 import { useTranslation } from "react-i18next";
 
 interface WeatherDailyProps {
@@ -21,11 +19,12 @@ interface WeatherDailyProps {
 
 interface ListDailyProps {
   daily: Daily[];
+  temperatureUnit: TemperatureUnit;
 }
-const ListDaily = observer(({ daily }: ListDailyProps) => {
+const ListDaily: React.FC<ListDailyProps> = ({ daily, temperatureUnit }) => {
+  
   const weatherItemWidth = 90;
   const { t } = useTranslation();
-  const { weatherStore } = useStores();
   const { tempMaxData, tempMinData } = useMemo(() => {
     if (daily.length === 0) {
       return {
@@ -37,7 +36,7 @@ const ListDaily = observer(({ daily }: ListDailyProps) => {
     let tempMaxData: lineDataItem[] = [];
     let tempMinData: lineDataItem[] = [];
 
-    if (weatherStore.temperatureUnit === "metric") {
+    if (temperatureUnit === "metric") {
       daily.forEach((item) => {
         const tempMaxValue = Math.round(item.all_day.temperature_max);
         const tempMinValue = Math.round(item.all_day.temperature_min);
@@ -79,7 +78,7 @@ const ListDaily = observer(({ daily }: ListDailyProps) => {
       tempMaxData,
       tempMinData,
     };
-  }, [daily, weatherStore.temperatureUnit]);
+  }, [daily, temperatureUnit]);
   if (daily.length === 0) return null;
   return (
     <ThemedView>
@@ -120,7 +119,7 @@ const ListDaily = observer(({ daily }: ListDailyProps) => {
       </ScrollView>
     </ThemedView>
   );
-});
+};
 
 const WeatherDaily: React.FC<WeatherDailyProps> = React.memo(
   function WeatherDaily({ index, item, width }) {
@@ -158,7 +157,7 @@ const WeatherDaily: React.FC<WeatherDailyProps> = React.memo(
   }
 );
 
-export default ListDaily;
+export default memo(ListDaily);
 
 const styles = StyleSheet.create({
   centered: {

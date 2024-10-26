@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import React, { PropsWithChildren } from "react";
+import React, { memo, PropsWithChildren } from "react";
 import AstronomyDetail from "./AstronomyDetail";
 import ThemedText from "../ThemedText";
 import ThemedView from "../ThemedView";
@@ -114,7 +114,7 @@ const Life: React.FC<LifeProps> = ({ astronomy, current }) => {
   );
 };
 
-export default Life;
+export default memo(Life);
 
 const styles = StyleSheet.create({
   lifeRow: { flexDirection: "row", flexWrap: "wrap" },

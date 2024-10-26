@@ -26,7 +26,6 @@ const SettingScreen = () => {
       <UpdateInterval />
       <Unit />
       <ThemeSetting />
-
       <LanguageSelector displayType="modal" />
       <Section
         title={t("arrange_locations.screen_title")}

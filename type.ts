@@ -9,6 +9,15 @@ export type MaterialIconName = React.ComponentProps<
   typeof MaterialIcons
 >["name"];
 
+export interface CurrentWeatherResponse {
+  current: CurrentWeather;
+}
+
+export interface AstronomyResponse {
+  results: Astronomy[];
+  status: string;
+}
+
 export interface Place {
   name: string;
   place_id: string;

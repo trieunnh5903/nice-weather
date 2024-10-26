@@ -1,15 +1,13 @@
 import { StyleSheet } from "react-native";
-import React, { useMemo, useRef } from "react";
-import { observer } from "mobx-react-lite";
+import React, { memo, useMemo, useRef } from "react";
 import ThemedView from "../ThemedView";
 import ThemedText from "../ThemedText";
 import { ScrollView } from "react-native-gesture-handler";
-import { Hourly } from "@/type";
+import { Hourly, TemperatureUnit } from "@/type";
 import weatherIcon from "@/config/weatherIcon";
 import { Image } from "expo-image";
 import { weatherUtils } from "@/utils";
 import TemperatureChart from "./TemperatureChart";
-import { useStores } from "@/hooks";
 import { useTranslation } from "react-i18next";
 
 interface WeatherHourlyProps {
@@ -21,10 +19,10 @@ interface WeatherHourlyProps {
 
 interface ListHourlyProps {
   hourly: Hourly[];
+  temperatureUnit: TemperatureUnit;
 }
 
-const useHourlyData = ({ hourly }: ListHourlyProps) => {
-  const { weatherStore } = useStores();
+const useHourlyData = ({ hourly, temperatureUnit }: ListHourlyProps) => {
   return useMemo(() => {
     if (hourly.length === 0)
       return {
@@ -34,7 +32,7 @@ const useHourlyData = ({ hourly }: ListHourlyProps) => {
       };
 
     const chartData =
-      weatherStore.temperatureUnit === "metric"
+      temperatureUnit === "metric"
         ? hourly.map((item) => ({
             value: Math.round(item.temperature),
             dataPointText: weatherUtils.formatTemperatureWithoutUnit(
@@ -58,7 +56,7 @@ const useHourlyData = ({ hourly }: ListHourlyProps) => {
       chartData,
       nextDayIndex,
     };
-  }, [hourly, weatherStore.temperatureUnit]);
+  }, [hourly, temperatureUnit]);
 };
 
 const WeatherHourly: React.FC<WeatherHourlyProps> = React.memo(
@@ -97,12 +95,13 @@ const WeatherHourly: React.FC<WeatherHourlyProps> = React.memo(
   }
 );
 
-const ListHourly = observer(({ hourly }: ListHourlyProps) => {
+const ListHourly = ({ hourly, temperatureUnit }: ListHourlyProps) => {
   const { t } = useTranslation();
   const weatherItemWidth = 70;
   const listRef = useRef<ScrollView>(null);
   const { chartData, nextDayIndex } = useHourlyData({
     hourly,
+    temperatureUnit,
   });
   if (hourly.length === 0) return null;
   return (
@@ -142,9 +141,9 @@ const ListHourly = observer(({ hourly }: ListHourlyProps) => {
       </ScrollView>
     </ThemedView>
   );
-});
+};
 
-export default ListHourly;
+export default memo(ListHourly);
 
 const styles = StyleSheet.create({
   centered: {

@@ -132,6 +132,7 @@ const PlaceNavigation: React.FC<PlaceNavigationProps> = ({
   progress,
   maxScrollAnimatedOffset,
 }) => {
+
   const {
     conditionTextAnimatedStyle,
     locationOnAnimatedStyle,
@@ -195,9 +196,7 @@ const PlaceNavigation: React.FC<PlaceNavigationProps> = ({
                 conditionTextAnimatedStyle,
               ]}
             >
-              <ThemedText color={iconColor}>
-                {data?.current.condition.text}
-              </ThemedText>
+              <ThemedText>{data?.current.condition.text}</ThemedText>
             </Animated.View>
 
             <Animated.View
@@ -209,9 +208,7 @@ const PlaceNavigation: React.FC<PlaceNavigationProps> = ({
                 temperatureAnimatedStyle,
               ]}
             >
-              <ThemedText fontSize={30} color={iconColor}>
-                {temperature}
-              </ThemedText>
+              <ThemedText fontSize={30}>{temperature}</ThemedText>
             </Animated.View>
 
             <Animated.View
