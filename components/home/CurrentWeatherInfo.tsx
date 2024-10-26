@@ -15,39 +15,12 @@ import { QUERY_KEY } from "@/constants/queryKey";
 interface CurrentWeatherInfoProps {
   currentWeather: CurrentWeather;
   onSwipe: (translationX: number) => void;
+  updatedAt: number;
 }
 
-const DataStatus = ({ dataUpdatedAt }: { dataUpdatedAt: number }) => {
-  const { t } = useTranslation();
-  const isFetching = useIsFetching();
-  const themeColor = useAppTheme();
-  const date = new Date(dataUpdatedAt).toLocaleTimeString(undefined, {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  if (isFetching)
-    return (
-      <ThemedView style={styles.row}>
-        <ActivityIndicator size={12} color={themeColor.primary} />
-        <ThemedView paddingLeft={6}>
-          <ThemedText type="label">
-            {t("home.feature.data_status.updating")}
-          </ThemedText>
-        </ThemedView>
-      </ThemedView>
-    );
-
-  return (
-    <ThemedText type="label">
-      {t("home.feature.data_status.updated_at") + " " + date}
-    </ThemedText>
-  );
-};
-
 const CurrentWeatherInfo: React.FC<CurrentWeatherInfoProps> = observer(
-  ({ currentWeather, onSwipe }) => {
+  ({ currentWeather, onSwipe, updatedAt }) => {
     const themeColor = useAppTheme();
-    const queryClient = useQueryClient();
     const { t } = useTranslation();
     const iconColor = themeColor.icon;
     const { weatherStore } = useStores();
@@ -87,16 +60,8 @@ const CurrentWeatherInfo: React.FC<CurrentWeatherInfoProps> = observer(
         weatherStore.temperatureUnit,
       ]
     );
-    const { currentLanguage } = useLanguage();
     const feelLike =
       t("home.feature.curren_weather.feel_like") + " " + feelLikeTemp;
-
-    const queryState = queryClient.getQueryState([
-      QUERY_KEY.CURRENT_WEATHER,
-      weatherStore.places[0].lat,
-      weatherStore.places[0].lon,
-      currentLanguage,
-    ]);
 
     return (
       <GestureDetector gesture={pan}>
@@ -106,14 +71,39 @@ const CurrentWeatherInfo: React.FC<CurrentWeatherInfoProps> = observer(
             {currentWeather.condition.text}
           </ThemedText>
           <ThemedText color={iconColor}>{feelLike}</ThemedText>
-          {queryState?.dataUpdatedAt && (
-            <DataStatus dataUpdatedAt={queryState?.dataUpdatedAt} />
-          )}
+          <DataStatus dataUpdatedAt={updatedAt} />
         </ThemedView>
       </GestureDetector>
     );
   }
 );
+
+const DataStatus = ({ dataUpdatedAt }: { dataUpdatedAt: number }) => {
+  const { t } = useTranslation();
+  const isFetching = useIsFetching();
+  const themeColor = useAppTheme();
+  const date = new Date(dataUpdatedAt).toLocaleTimeString(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  if (isFetching)
+    return (
+      <ThemedView style={styles.row}>
+        <ActivityIndicator size={12} color={themeColor.primary} />
+        <ThemedView paddingLeft={6}>
+          <ThemedText type="label">
+            {t("home.feature.data_status.updating")}
+          </ThemedText>
+        </ThemedView>
+      </ThemedView>
+    );
+
+  return (
+    <ThemedText type="label">
+      {t("home.feature.data_status.updated_at") + " " + date}
+    </ThemedText>
+  );
+};
 
 export default memo(CurrentWeatherInfo);
 

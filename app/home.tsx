@@ -232,6 +232,7 @@ const HomeScreen: React.FC = observer(() => {
                     <CurrentWeatherInfo
                       onSwipe={handleSwipe}
                       currentWeather={current.data.current}
+                      updatedAt={current.dataUpdatedAt}
                     />
                   </ThemedView>
                 )}
