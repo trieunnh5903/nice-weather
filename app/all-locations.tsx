@@ -23,6 +23,7 @@ const AllLocation = () => {
   const navigation = useNavigation();
   const [multipleDelete, setMultipleDelete] = useState(false);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  console.log("all-locations");
 
   useEffect(() => {
     progress.value = withTiming(multipleDelete ? 1 : 0, {

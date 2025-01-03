@@ -1,4 +1,4 @@
-import { LANGUAGE_STORAGE_KEY } from "@/constants/languages";
+import { LANGUAGE_STORAGE_KEY } from "@/constants/Languages";
 import { Languages } from "@/i18n";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTranslation } from "react-i18next";

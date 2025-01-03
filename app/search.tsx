@@ -23,6 +23,8 @@ const SearchScreen = () => {
     setQuery(e);
   };
 
+  console.log("search");
+
   const onBackPress = () => {
     if (router.canGoBack()) {
       router.back();

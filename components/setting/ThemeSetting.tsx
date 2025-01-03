@@ -7,7 +7,7 @@ import Section from "./Section";
 import { Divider, Modal, Portal, RadioButton } from "react-native-paper";
 import ThemedText from "../ThemedText";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { Size } from "@/constants/size";
+import { Size } from "@/constants/Size";
 import { useTranslation } from "react-i18next";
 
 const ThemeSetting = () => {

@@ -1,5 +1,5 @@
 import { ThemedText, ThemedView } from "@/components";
-import { LanguageCode, LANGUAGES } from "@/constants/languages";
+import { LanguageCode, LANGUAGES } from "@/constants/Languages";
 import { useAppTheme, useLanguage } from "@/hooks";
 import { Stack } from "expo-router";
 import React from "react";

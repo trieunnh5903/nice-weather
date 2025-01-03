@@ -1,4 +1,4 @@
-import { NavigationTheme, PaperTheme } from "@/constants/colors";
+import { NavigationTheme, PaperTheme } from "@/constants/Colors";
 import { MobxStoreProvider, useStores } from "@/hooks/useStore";
 import { ThemeProvider } from "@react-navigation/native";
 import { QueryClient } from "@tanstack/react-query";
@@ -14,7 +14,7 @@ import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client
 import * as StatusBar from "expo-status-bar";
 import * as Localization from "expo-localization";
 import "@/i18n";
-import { LANGUAGE_STORAGE_KEY } from "@/constants/languages";
+import { LANGUAGE_STORAGE_KEY } from "@/constants/Languages";
 import { useTranslation } from "react-i18next";
 
 SplashScreen.preventAutoHideAsync();
@@ -65,6 +65,8 @@ export default function Layout() {
     }
     prepare();
   }, [i18n, loaded, weatherStore.isHydrated]);
+
+  console.log("layout");
 
   useEffect(() => {
     const selectTheme = weatherStore.theme ?? systemTheme ?? "light";

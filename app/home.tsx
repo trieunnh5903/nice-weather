@@ -9,16 +9,19 @@ import {
 } from "@/hooks";
 import { MaterialIconName } from "@/type";
 import { CommonActions } from "@react-navigation/native";
-import { router, useNavigation } from "expo-router";
+// import { router } from "expo-router";
 import { useCallback, useMemo } from "react";
-import { Alert, StyleSheet } from "react-native";
+import { ActivityIndicator, Alert, StyleSheet } from "react-native";
 import PagerView from "react-native-pager-view";
 import { observer } from "mobx-react-lite";
-import { Size } from "@/constants/size";
+import { Size } from "@/constants/Size";
+import { Colors } from "@/constants/Colors";
+import { useNavigation, useRouter } from "expo-router";
 
 const HomeScreen: React.FC = observer(() => {
   const { weatherStore } = useStores();
   const navigation = useNavigation();
+  const router = useRouter();
   const INPUT_MAX_VALUE = 160;
   const { currentLanguage } = useLanguage();
 
@@ -72,8 +75,18 @@ const HomeScreen: React.FC = observer(() => {
           break;
       }
     },
-    [headerIcons, navigation, weatherStore]
+    [headerIcons, navigation, router, weatherStore]
   );
+
+  if (!isSuccess) {
+    return (
+      <ThemedView flex style={styles.centered}>
+        <ActivityIndicator color={Colors.dark.primary} />
+      </ThemedView>
+    );
+  }
+
+  console.log("home");
 
   return (
     <ThemedView flex enableInsetsTop>
@@ -87,30 +100,28 @@ const HomeScreen: React.FC = observer(() => {
         />
       </ThemedView>
 
-      {isSuccess && (
-        <PagerView
-          ref={pagerRef}
-          scrollEnabled={false}
-          style={styles.container}
-          initialPage={weatherStore.selectedIndex}
-          onPageSelected={onPageSelected}
-        >
-          {weatherStore.places.map((place, index) => {
-            return (
-              <WeatherPage
-                key={`page-${place.place_id}`}
-                index={index}
-                scrollViewRefs={scrollViewRefs}
-                onScroll={onScroll}
-                handleSwipe={handleSwipe}
-                current={allCurrentWeather[index]}
-                forecast={allForecast[index]}
-                astronomy={allAstronomy[index]}
-              />
-            );
-          })}
-        </PagerView>
-      )}
+      <PagerView
+        ref={pagerRef}
+        scrollEnabled={false}
+        style={styles.container}
+        initialPage={weatherStore.selectedIndex}
+        onPageSelected={onPageSelected}
+      >
+        {weatherStore.places.map((place, index) => {
+          return (
+            <WeatherPage
+              key={`page-${place.place_id}`}
+              index={index}
+              scrollViewRefs={scrollViewRefs}
+              onScroll={onScroll}
+              handleSwipe={handleSwipe}
+              current={allCurrentWeather[index]}
+              forecast={allForecast[index]}
+              astronomy={allAstronomy[index]}
+            />
+          );
+        })}
+      </PagerView>
     </ThemedView>
   );
 });

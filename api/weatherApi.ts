@@ -12,7 +12,7 @@ import {
   axiosMeteoInstance,
   axiosWeatherInstance,
 } from "./axiosConfig";
-import { LanguageCode } from "@/constants/languages";
+import { LanguageCode } from "@/constants/Languages";
 
 async function fetchDataMeteoApi<T>(endpoint: string, params = {}) {
   try {

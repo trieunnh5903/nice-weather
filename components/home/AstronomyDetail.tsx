@@ -5,7 +5,7 @@ import { weatherUtils } from "@/utils";
 import ThemedView from "../ThemedView";
 import ThemedText from "../ThemedText";
 import { Feather } from "@expo/vector-icons";
-import { Size } from "@/constants/size";
+import { Size } from "@/constants/Size";
 import Animated, {
   useAnimatedProps,
   useSharedValue,

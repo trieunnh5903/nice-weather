@@ -8,8 +8,8 @@ import Section from "./Section";
 import { Divider, Modal, Portal, RadioButton } from "react-native-paper";
 import ThemedText from "../ThemedText";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { Size } from "@/constants/size";
 import { useTranslation } from "react-i18next";
+import { Size } from "@/constants/Size";
 
 const UpdateInterval = observer(() => {
   const { t } = useTranslation();
