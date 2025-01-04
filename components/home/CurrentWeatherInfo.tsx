@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 
 interface CurrentWeatherInfoProps {
   currentWeather: CurrentWeather;
-  onSwipe: (translationX: number) => void;
+  onSwipe: (velocityX: number) => void;
   updatedAt: number;
   temperatureUnit: TemperatureUnit;
 }
@@ -29,7 +29,7 @@ const CurrentWeatherInfo: React.FC<CurrentWeatherInfoProps> = ({
       Gesture.Pan()
         .onEnd((event) => {
           if (Math.abs(event.translationX) > Math.abs(event.translationY)) {
-            onSwipe(event.translationX);
+            onSwipe(event?.velocityX);
           }
         })
         .activeOffsetX([-50, 50])

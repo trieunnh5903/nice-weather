@@ -12,7 +12,7 @@ interface WeatherPageProps {
   index: number;
   scrollViewRefs: React.MutableRefObject<(ScrollView | null)[]>;
   onScroll: any;
-  handleSwipe: (translationX: number) => void;
+  handleSwipe: (velocityX: number) => void;
   current: UseQueryResult<CurrentWeatherResponse, Error>;
   forecast: UseQueryResult<Forecast, Error>;
   astronomy: UseQueryResult<AstronomyResponse, Error>;
@@ -28,7 +28,6 @@ const WeatherPage: React.FC<WeatherPageProps> = observer(
     onScroll,
     scrollViewRefs,
   }) => {
-    console.log("WeatherPage", astronomy.data?.results[0].timezone);
     const { weatherStore } = useStores();
     return (
       <ThemedView>
@@ -80,4 +79,4 @@ const WeatherPage: React.FC<WeatherPageProps> = observer(
   }
 );
 
-export default memo(WeatherPage);
+export default WeatherPage;

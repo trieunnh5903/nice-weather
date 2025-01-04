@@ -5,7 +5,12 @@ import { placeUtils } from "@/utils";
 import ThemedView from "../ThemedView";
 import ThemedText from "../ThemedText";
 import { Divider } from "react-native-paper";
-import { useAppTheme, useLanguage, useStores } from "@/hooks";
+import {
+  useAppTheme,
+  useLanguage,
+  useStores,
+  useWeatherQueries,
+} from "@/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { Place } from "@/type";
 import { router } from "expo-router";
@@ -19,7 +24,7 @@ const SearchResults = ({ results }: SearchResultsProps) => {
   const { weatherStore } = useStores();
   const [place, setPlace] = useState<Place>();
   const { currentLanguage } = useLanguage();
-  const { isSuccess, isFetching } = useQuery(
+  const { isSuccess: isSuccess1 } = useQuery(
     queryConfig.currentWeatherQueryOptions(
       place?.lat || "",
       place?.lon || "",
@@ -27,6 +32,19 @@ const SearchResults = ({ results }: SearchResultsProps) => {
     )
   );
 
+  const { isSuccess: isSuccess2 } = useQuery(
+    queryConfig.forecastQueryOptions(
+      place?.lat || "",
+      place?.lon || "",
+      "metric"
+    )
+  );
+
+  const { isSuccess: isSuccess3 } = useQuery(
+    queryConfig.astronomyQueryOptions(place?.lat || "", place?.lon || "")
+  );
+
+  const isSuccess = isSuccess1 && isSuccess2 && isSuccess3;
   const themeColor = useAppTheme();
   const { t } = useTranslation();
   useEffect(() => {
@@ -86,7 +104,7 @@ const SearchResults = ({ results }: SearchResultsProps) => {
                 {address}
               </ThemedText>
             </ThemedView>
-            {isFetching && item.place_id === place?.place_id && (
+            {!isSuccess && item.place_id === place?.place_id && (
               <ActivityIndicator color={themeColor.primary} size={24} />
             )}
             <Divider />

@@ -61,6 +61,7 @@ const LocationList = observer(
           handleSelectItem(id);
           return;
         }
+
         weatherStore.setSelectedIndex(index);
         router.back();
       },

@@ -1,5 +1,5 @@
 import WeatherStore from "@/stores/weatherStore";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import PagerView, {
   PagerViewOnPageSelectedEvent,
 } from "react-native-pager-view";
@@ -23,7 +23,7 @@ export const usePagerNavigation = ({
   offsetY,
 }: UsePagerNavigationProps) => {
   const pagerRef = useRef<PagerView>(null);
-
+  const [pageIndex, setPageIndex] = useState(0);
   const goToPageWithoutAnimation = useCallback((pageNumber: number) => {
     pagerRef.current?.setPageWithoutAnimation(pageNumber);
   }, []);
@@ -58,13 +58,14 @@ export const usePagerNavigation = ({
   const onPageSelected = useCallback(
     (e: PagerViewOnPageSelectedEvent) => {
       weatherStore.setSelectedIndex(e.nativeEvent.position);
+      setPageIndex(e.nativeEvent.position);
     },
     [weatherStore]
   );
 
   const handleSwipe = useCallback(
-    (translationX: number) => {
-      handleNavigation(translationX < -50);
+    (velocityX: number) => {
+      handleNavigation(velocityX < -500);
     },
     [handleNavigation]
   );
@@ -75,5 +76,6 @@ export const usePagerNavigation = ({
     onPageSelected,
     handleSwipe,
     goToPageWithoutAnimation,
+    pageIndex,
   };
 };

@@ -9,14 +9,13 @@ import {
 } from "@/hooks";
 import { MaterialIconName } from "@/type";
 import { CommonActions } from "@react-navigation/native";
-// import { router } from "expo-router";
 import { useCallback, useMemo } from "react";
 import { ActivityIndicator, Alert, StyleSheet } from "react-native";
 import PagerView from "react-native-pager-view";
 import { observer } from "mobx-react-lite";
 import { Size } from "@/constants/Size";
 import { Colors } from "@/constants/Colors";
-import { useNavigation, useRouter } from "expo-router";
+import { useFocusEffect, useNavigation, useRouter } from "expo-router";
 
 const HomeScreen: React.FC = observer(() => {
   const { weatherStore } = useStores();
@@ -33,16 +32,29 @@ const HomeScreen: React.FC = observer(() => {
   const { onScroll, scrollListView, offsetY, scrollViewRefs } =
     useScrollBehavior(INPUT_MAX_VALUE, weatherStore.selectedIndex);
 
-  const { handleNavigation, handleSwipe, onPageSelected, pagerRef } =
-    usePagerNavigation({
-      INPUT_MAX_VALUE,
-      offsetY,
-      scrollListView,
-      weatherStore,
-    });
+  const {
+    onPageSelected,
+    handleNavigation,
+    handleSwipe,
+    goToPageWithoutAnimation,
+    pagerRef,
+    pageIndex,
+  } = usePagerNavigation({
+    INPUT_MAX_VALUE,
+    offsetY,
+    scrollListView,
+    weatherStore,
+  });
 
   const { allAstronomy, allCurrentWeather, allForecast, isSuccess } =
     useWeatherQueries(weatherStore.places, currentLanguage);
+
+  useFocusEffect(() => {
+    if (pageIndex !== weatherStore.selectedIndex && isSuccess) {
+      console.log("useFocusEffect");
+      goToPageWithoutAnimation(weatherStore.selectedIndex);
+    }
+  });
 
   const onHeaderPress = useCallback(
     (icon: string) => {
@@ -85,8 +97,6 @@ const HomeScreen: React.FC = observer(() => {
       </ThemedView>
     );
   }
-
-  console.log("home");
 
   return (
     <ThemedView flex enableInsetsTop>
