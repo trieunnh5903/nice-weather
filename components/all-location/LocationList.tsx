@@ -10,14 +10,14 @@ import Animated, {
   useAnimatedStyle,
 } from "react-native-reanimated";
 import { observer } from "mobx-react-lite";
-import { useAppTheme, useStores } from "@/hooks";
+import { useAppTheme, useLanguage, useStores } from "@/hooks";
 import { useQueries } from "@tanstack/react-query";
-import { weatherApi } from "@/api/weatherApi";
 import { router } from "expo-router";
 import { placeUtils, weatherUtils } from "@/utils";
 import ThemedView from "../ThemedView";
 import { MaterialIcons } from "@expo/vector-icons";
 import ThemedText from "../ThemedText";
+import { queryConfig } from "@/config/queryConfig";
 
 interface WeatherItemProps {
   place: Place;
@@ -44,12 +44,15 @@ const LocationList = observer(
   }: LocationListProps) => {
     const { weatherStore } = useStores();
     console.log("LocationList");
+    const { currentLanguage } = useLanguage();
     const allWeather = useQueries({
-      queries: weatherStore.places.map((place) => ({
-        queryKey: ["weather", place.place_id],
-        queryFn: () =>
-          weatherApi.fetchWeather(place.place_id, weatherStore.temperatureUnit),
-      })),
+      queries: weatherStore.places.map((place) =>
+        queryConfig.currentWeatherQueryOptions(
+          place.lat,
+          place.lon,
+          currentLanguage
+        )
+      ),
     });
 
     const onLocationPress = useCallback(
@@ -58,6 +61,7 @@ const LocationList = observer(
           handleSelectItem(id);
           return;
         }
+
         weatherStore.setSelectedIndex(index);
         router.back();
       },
@@ -77,12 +81,12 @@ const LocationList = observer(
         keyExtractor={(item) => item.place_id}
         ItemSeparatorComponent={() => <Divider />}
         renderItem={({ item, index }) => {
-          const temperature = allWeather[index].data?.current.temperature;
-          const formatTemp = temperature
-            ? allWeather[index].data?.units === "metric"
-              ? weatherUtils.formatCelcius(temperature)
-              : weatherUtils.formatFahrenheit(temperature)
-            : "";
+          const current = allWeather[index].data?.current;
+          const formatTemp = current
+            ? weatherStore.temperatureUnit === "metric"
+              ? weatherUtils.formatCelcius(current.temp_c)
+              : weatherUtils.formatFahrenheit(current.temp_f)
+            : undefined;
           return (
             <WeatherItem
               temperature={formatTemp}

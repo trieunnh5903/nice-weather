@@ -1,10 +1,10 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
 import React from "react";
-import { ThemedView } from "./ThemedView";
-import { ThemedText } from "./ThemedText";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Divider, RadioButton } from "react-native-paper";
 import { Size } from "@/constants/Size";
+import ThemedView from "./ThemedView";
+import ThemedText from "./ThemedText";
 
 const ModalRadio = ({ hideModal }: { hideModal: () => void }) => {
   const values = ["Dark", "Light", "Auto"];

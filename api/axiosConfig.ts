@@ -1,13 +1,13 @@
 import axios from "axios";
 
 export const axiosWeatherInstance = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_WEATHER_URL_KEY,
+  baseURL: process.env.EXPO_PUBLIC_WEATHER_API_URL_KEY,
 });
 
-export const axiosSunriseInstance = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_SUNRISE_URL_KEY,
-  // timeout: 5000,
-  // headers: {
-  //   "Content-Type": "application/json",
-  // },
+export const axiosMeteoInstance = axios.create({
+  baseURL: process.env.EXPO_PUBLIC_METEOSOURCE_URL_KEY,
+});
+
+export const axiosAstronomyInstance = axios.create({
+  baseURL: process.env.EXPO_PUBLIC_ASTRONOMY_URL_KEY,
 });

@@ -1,40 +1,59 @@
-import { ThemedView } from "@/components";
+import { ThemedView, WeatherPage } from "@/components";
+import { HeaderIcons, PlaceNavigation } from "@/components/home";
 import {
-  CurrentWeatherInfo,
-  HeaderIcons,
-  ListDaily,
-  ListHourly,
-  PlaceNavigation,
-  Sunrise,
-} from "@/components/home";
-import { useStores } from "@/hooks";
+  useLanguage,
+  usePagerNavigation,
+  useScrollBehavior,
+  useStores,
+  useWeatherQueries,
+} from "@/hooks";
 import { MaterialIconName } from "@/type";
 import { CommonActions } from "@react-navigation/native";
-import { router, useNavigation } from "expo-router";
-import { useCallback, useMemo, useRef } from "react";
-import { Alert, StyleSheet } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
-import PagerView, {
-  PagerViewOnPageSelectedEvent,
-} from "react-native-pager-view";
-import { StatusBar } from "expo-status-bar";
-import { useQueries } from "@tanstack/react-query";
-import { weatherApi } from "@/api/weatherApi";
-const HomeScreen: React.FC = () => {
-  const pagerRef = useRef<PagerView>(null);
+import { useCallback, useMemo } from "react";
+import { ActivityIndicator, Alert, StyleSheet } from "react-native";
+import PagerView from "react-native-pager-view";
+import { observer } from "mobx-react-lite";
+import { Size } from "@/constants/Size";
+import { Colors } from "@/constants/Colors";
+import { useFocusEffect, useNavigation, useRouter } from "expo-router";
+
+const HomeScreen: React.FC = observer(() => {
   const { weatherStore } = useStores();
   const navigation = useNavigation();
-  console.log("home");
+  const router = useRouter();
+  const INPUT_MAX_VALUE = 160;
+  const { currentLanguage } = useLanguage();
+
   const headerIcons: MaterialIconName[] = useMemo(
     () => ["menu", "add", "delete-outline"],
     []
   );
-  const allWeather = useQueries({
-    queries: weatherStore.places.map((place) => ({
-      queryKey: ["weather", place.place_id],
-      queryFn: () =>
-        weatherApi.fetchWeather(place.place_id, weatherStore.temperatureUnit),
-    })),
+
+  const { onScroll, scrollListView, offsetY, scrollViewRefs } =
+    useScrollBehavior(INPUT_MAX_VALUE, weatherStore.selectedIndex);
+
+  const {
+    onPageSelected,
+    handleNavigation,
+    handleSwipe,
+    goToPageWithoutAnimation,
+    pagerRef,
+    pageIndex,
+  } = usePagerNavigation({
+    INPUT_MAX_VALUE,
+    offsetY,
+    scrollListView,
+    weatherStore,
+  });
+
+  const { allAstronomy, allCurrentWeather, allForecast, isSuccess } =
+    useWeatherQueries(weatherStore.places, currentLanguage);
+
+  useFocusEffect(() => {
+    if (pageIndex !== weatherStore.selectedIndex && isSuccess) {
+      console.log("useFocusEffect");
+      goToPageWithoutAnimation(weatherStore.selectedIndex);
+    }
   });
 
   const onHeaderPress = useCallback(
@@ -68,78 +87,26 @@ const HomeScreen: React.FC = () => {
           break;
       }
     },
-    [headerIcons, navigation, weatherStore]
+    [headerIcons, navigation, router, weatherStore]
   );
 
-  const goToPageWithoutAnimation = useCallback((pageNumber: number) => {
-    if (pagerRef.current) {
-      pagerRef.current.setPageWithoutAnimation(pageNumber);
-    }
-  }, []);
-
-  const scrollListView = useCallback((index: number) => {
-    scrollViewRefs.current?.[index]?.scrollTo({
-      y: scrollPosition.current,
-      animated: false,
-    });
-  }, []);
-
-  const onLeftNavigationPress = useCallback(() => {
-    const newIndex =
-      weatherStore.selectedIndex === 0
-        ? weatherStore.places.length - 1
-        : weatherStore.selectedIndex - 1;
-    scrollListView(newIndex);
-    goToPageWithoutAnimation(newIndex);
-  }, [
-    goToPageWithoutAnimation,
-    scrollListView,
-    weatherStore.places.length,
-    weatherStore.selectedIndex,
-  ]);
-
-  const onRightNavigationPress = useCallback(() => {
-    const newIndex =
-      weatherStore.selectedIndex === weatherStore.places.length - 1
-        ? 0
-        : weatherStore.selectedIndex + 1;
-    scrollListView(newIndex);
-    goToPageWithoutAnimation(newIndex);
-  }, [
-    goToPageWithoutAnimation,
-    scrollListView,
-    weatherStore.places.length,
-    weatherStore.selectedIndex,
-  ]);
-
-  const scrollViewRefs = useRef<(ScrollView | null)[]>([]);
-
-  const onPageSelected = (e: PagerViewOnPageSelectedEvent) => {
-    weatherStore.setSelectedIndex(e.nativeEvent.position);
-    console.log(scrollViewRefs);
-  };
-
-  const handleSwipe = (tranlationX: number) => {
-    if (tranlationX < -50) {
-      onLeftNavigationPress();
-    } else {
-      onRightNavigationPress();
-    }
-  };
-
-  const scrollPosition = useRef(0);
-  const handleScroll = (offsetY: number) => {
-    scrollPosition.current = offsetY;
-  };
+  if (!isSuccess) {
+    return (
+      <ThemedView flex style={styles.centered}>
+        <ActivityIndicator color={Colors.dark.primary} />
+      </ThemedView>
+    );
+  }
 
   return (
     <ThemedView flex enableInsetsTop>
-      <StatusBar style={weatherStore.theme === "dark" ? "light" : "dark"} />
       <ThemedView>
         <HeaderIcons headerIcons={headerIcons} onHeaderPress={onHeaderPress} />
         <PlaceNavigation
-          onLeftPress={onLeftNavigationPress}
-          onRightPress={onRightNavigationPress}
+          progress={offsetY}
+          onLeftPress={() => handleNavigation(false)}
+          onRightPress={() => handleNavigation(true)}
+          maxScrollAnimatedOffset={INPUT_MAX_VALUE}
         />
       </ThemedView>
 
@@ -150,52 +117,44 @@ const HomeScreen: React.FC = () => {
         initialPage={weatherStore.selectedIndex}
         onPageSelected={onPageSelected}
       >
-        {allWeather.map((weather, index) => {
+        {weatherStore.places.map((place, index) => {
           return (
-            <ThemedView
-              style={styles.page}
-              key={`page ${weatherStore.places[index].place_id}`}
-            >
-              {weather.data && (
-                <ScrollView
-                  ref={(el) => {
-                    scrollViewRefs.current[index] = el as ScrollView | null;
-                  }}
-                  onScroll={(e) => handleScroll(e.nativeEvent.contentOffset.y)}
-                >
-                  <ThemedView paddingBottom={18}>
-                    <CurrentWeatherInfo
-                      units={weather.data.units}
-                      onSwipe={handleSwipe}
-                      currentWeather={weather.data.current}
-                    />
-                  </ThemedView>
-                  <ThemedView>
-                    <ListHourly
-                      hourly={weather.data.hourly.data}
-                      timezone={weatherStore.places[index].timezone}
-                    />
-                    <ThemedView paddingTop={12}>
-                      <ListDaily daily={weather.data.daily.data} />
-                    </ThemedView>
-                    <ThemedView paddingTop={12}>
-                      <Sunrise />
-                    </ThemedView>
-                  </ThemedView>
-                </ScrollView>
-              )}
-            </ThemedView>
+            <WeatherPage
+              key={`page-${place.place_id}`}
+              index={index}
+              scrollViewRefs={scrollViewRefs}
+              onScroll={onScroll}
+              handleSwipe={handleSwipe}
+              current={allCurrentWeather[index]}
+              forecast={allForecast[index]}
+              astronomy={allAstronomy[index]}
+            />
           );
         })}
       </PagerView>
     </ThemedView>
   );
-};
+});
 
 export default HomeScreen;
 const styles = StyleSheet.create({
+  lifeRow: { flexDirection: "row", flexWrap: "wrap" },
   container: {
     flex: 1,
   },
   page: {},
+  lifeItem: {
+    flex: 1,
+    borderWidth: 0.3,
+    height: Size.screenWidth * 0.2,
+  },
+  centered: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  row: {
+    flexDirection: "row",
+    flex: 1,
+    backgroundColor: "red",
+  },
 });

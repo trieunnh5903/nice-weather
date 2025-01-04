@@ -1,26 +1,30 @@
-import {
-  Alert,
-  Platform,
-  StyleSheet,
-  Text,
-  ToastAndroid,
-  View,
-} from "react-native";
+import { Alert, Platform, StyleSheet, ToastAndroid } from "react-native";
 import React, { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { useStores, weatherQueryOptions } from "@/hooks";
+import { useLanguage, useStores } from "@/hooks";
 import { useQuery } from "@tanstack/react-query";
 import * as ExpoLocation from "expo-location";
 import { weatherApi } from "@/api/weatherApi";
 import { router } from "expo-router";
 import { Button } from "react-native-paper";
+import { Place } from "@/type";
+import { placeUtils } from "@/utils";
+import { queryConfig } from "@/config/queryConfig";
+import { useTranslation } from "react-i18next";
 
 const CurrentLocationButton = observer(() => {
   const { weatherStore } = useStores();
   const [isLoading, setIsLoading] = useState(false);
-  const [placeId, setPlaceId] = useState<string>("");
+  const { t } = useTranslation();
+  const [place, setPlace] = useState<Place>();
+  const { currentLanguage } = useLanguage();
+
   const { isSuccess } = useQuery(
-    weatherQueryOptions(placeId, weatherStore.temperatureUnit)
+    queryConfig.currentWeatherQueryOptions(
+      place?.lat || "",
+      place?.lon || "",
+      currentLanguage
+    )
   );
 
   useEffect(() => {
@@ -64,8 +68,16 @@ const CurrentLocationButton = observer(() => {
       );
 
       if (location) {
-        weatherStore.addPlace({ ...location, isUserLocation: true });
-        setPlaceId(location.place_id);
+        const formatedPlace: Place = {
+          ...location,
+          isUserLocation: true,
+          ...placeUtils.formatCoordinates({
+            latitude: location.lat,
+            longitude: location.lon,
+          }),
+        };
+        weatherStore.addPlace(formatedPlace);
+        setPlace(formatedPlace);
       }
     } catch (error) {
       console.log("error", error);
@@ -79,7 +91,7 @@ const CurrentLocationButton = observer(() => {
       style={styles.currentLocation}
       onPress={getCurrentPosition}
     >
-      Use current location
+      {t("search.use_current_location")}
     </Button>
   );
 });

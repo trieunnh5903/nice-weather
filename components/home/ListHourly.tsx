@@ -1,33 +1,28 @@
 import { StyleSheet } from "react-native";
-import React, { useMemo, useRef } from "react";
-import { observer } from "mobx-react-lite";
+import React, { memo, useMemo, useRef } from "react";
 import ThemedView from "../ThemedView";
 import ThemedText from "../ThemedText";
 import { ScrollView } from "react-native-gesture-handler";
-import { LineChart, yAxisSides } from "react-native-gifted-charts";
-import { Hourly } from "@/type";
+import { Hourly, TemperatureUnit } from "@/type";
 import weatherIcon from "@/config/weatherIcon";
 import { Image } from "expo-image";
-import { useAppTheme } from "@/hooks";
 import { weatherUtils } from "@/utils";
+import TemperatureChart from "./TemperatureChart";
+import { useTranslation } from "react-i18next";
 
 interface WeatherHourlyProps {
   item: Hourly;
   index: number;
   width: number;
   nextDayIndex: number;
-  currentTimeIndex: number;
 }
 
 interface ListHourlyProps {
   hourly: Hourly[];
-  timezone: string;
+  temperatureUnit: TemperatureUnit;
 }
 
-const useHourlyData = ({ hourly, timezone }: ListHourlyProps) => {
-  // const hourly = useWeatherSelected()?.hourly.data;
-  // const sunrise = useSunriseSelected();
-
+const useHourlyData = ({ hourly, temperatureUnit }: ListHourlyProps) => {
   return useMemo(() => {
     if (hourly.length === 0)
       return {
@@ -36,12 +31,20 @@ const useHourlyData = ({ hourly, timezone }: ListHourlyProps) => {
         currentTimeIndex: 0,
       };
 
-    const chartData = hourly.map((item) => ({
-      value: Math.round(item.temperature),
-      dataPointText: weatherUtils.formatTemperatureWithoutUnit(
-        item.temperature
-      ),
-    }));
+    const chartData =
+      temperatureUnit === "metric"
+        ? hourly.map((item) => ({
+            value: Math.round(item.temperature),
+            dataPointText: weatherUtils.formatTemperatureWithoutUnit(
+              item.temperature
+            ),
+          }))
+        : hourly.map((item) => ({
+            value: Math.round(item.temperature),
+            dataPointText: weatherUtils.formatTemperatureWithoutUnit(
+              weatherUtils.celsiusToFahrenheit(item.temperature)
+            ),
+          }));
 
     const firstHour = new Date(hourly[0].date);
     const nextDayIndex = hourly.findIndex((item) => {
@@ -49,39 +52,16 @@ const useHourlyData = ({ hourly, timezone }: ListHourlyProps) => {
       return firstHour.getHours() > date.getHours();
     });
 
-    const now = new Date().toLocaleTimeString(undefined, {
-      hour: "2-digit",
-      timeZone: timezone,
-      day: "2-digit",
-    });
-
-    const currentTimeIndex = Math.max(
-      0,
-      hourly.findIndex((item) => {
-        const date = new Date(item.date).toLocaleTimeString(undefined, {
-          hour: "2-digit",
-          timeZone: timezone,
-          day: "2-digit",
-        });
-        return now === date;
-      })
-    );
-
     return {
       chartData,
       nextDayIndex,
-      currentTimeIndex,
     };
-  }, [hourly, timezone]);
+  }, [hourly, temperatureUnit]);
 };
+
 const WeatherHourly: React.FC<WeatherHourlyProps> = React.memo(
-  function WeatherHourly({
-    item,
-    index,
-    width,
-    nextDayIndex,
-    currentTimeIndex,
-  }) {
+  function WeatherHourly({ item, index, width, nextDayIndex }) {
+    const { t } = useTranslation();
     const date = new Date(item.date);
     const time = date.toLocaleString("en-ES", {
       hour12: true,
@@ -89,10 +69,10 @@ const WeatherHourly: React.FC<WeatherHourlyProps> = React.memo(
     });
     const icon = item.icon as keyof typeof weatherIcon;
     const tag =
-      index === currentTimeIndex
-        ? "Today"
+      index === 0
+        ? t("home.feature.hourly.today")
         : index === nextDayIndex
-        ? "Tomorrow"
+        ? t("home.feature.hourly.tomorrow")
         : "";
     return (
       <ThemedView style={styles.centered}>
@@ -115,21 +95,20 @@ const WeatherHourly: React.FC<WeatherHourlyProps> = React.memo(
   }
 );
 
-const ListHourly = observer(({ hourly, timezone }: ListHourlyProps) => {
+const ListHourly = ({ hourly, temperatureUnit }: ListHourlyProps) => {
+  const { t } = useTranslation();
   const weatherItemWidth = 70;
   const listRef = useRef<ScrollView>(null);
-  const themeColor = useAppTheme();
-  const { chartData, currentTimeIndex, nextDayIndex } = useHourlyData({
+  const { chartData, nextDayIndex } = useHourlyData({
     hourly,
-    timezone,
+    temperatureUnit,
   });
-  const textColor = themeColor.text;
   if (hourly.length === 0) return null;
   return (
     <ThemedView>
       <ThemedView paddingHorizontal={12}>
         <ThemedText uppercase type="subtitle">
-          Hourly
+          {t("home.feature.hourly.title")}
         </ThemedText>
       </ThemedView>
       <ScrollView
@@ -138,7 +117,7 @@ const ListHourly = observer(({ hourly, timezone }: ListHourlyProps) => {
         horizontal
       >
         <ThemedView>
-          <ThemedView style={styles.row}>
+          <ThemedView paddingLeft={10} style={styles.row}>
             {hourly.map((item, index) => {
               return (
                 <WeatherHourly
@@ -147,42 +126,24 @@ const ListHourly = observer(({ hourly, timezone }: ListHourlyProps) => {
                   index={index}
                   width={weatherItemWidth}
                   nextDayIndex={nextDayIndex}
-                  currentTimeIndex={currentTimeIndex}
                 />
               );
             })}
           </ThemedView>
 
-          <ThemedView paddingTop={13}>
-            <LineChart
-              yAxisSide={yAxisSides.RIGHT}
-              disableScroll
+          <ThemedView paddingTop={24}>
+            <TemperatureChart
               data={chartData}
-              adjustToWidth
-              textFontSize={13}
-              textShiftY={-6}
-              textShiftX={-6}
-              color={textColor}
-              dataPointsColor={textColor}
-              trimYAxisAtTop
-              initialSpacing={weatherItemWidth / 2}
-              textColor={textColor}
-              spacing={weatherItemWidth}
-              isAnimated
-              hideAxesAndRules
-              xAxisLabelsHeight={0}
-              overflowTop={10}
-              animateOnDataChange
-              height={50}
+              weatherItemWidth={weatherItemWidth}
             />
           </ThemedView>
         </ThemedView>
       </ScrollView>
     </ThemedView>
   );
-});
+};
 
-export default ListHourly;
+export default memo(ListHourly);
 
 const styles = StyleSheet.create({
   centered: {

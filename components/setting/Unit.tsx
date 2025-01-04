@@ -10,10 +10,12 @@ import ThemedText from "../ThemedText";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import Section from "./Section";
 import { Size } from "@/constants/Size";
+import { useTranslation } from "react-i18next";
 
 const Unit = observer(() => {
   const [modalVisible, setModalVisible] = useState(false);
   const { weatherStore } = useStores();
+  const { t } = useTranslation();
   const values: { label: string; unit: TemperatureUnit }[] = useMemo(
     () => [
       {
@@ -36,7 +38,6 @@ const Unit = observer(() => {
     if (!modalVisible) {
       if (checked.unit !== weatherStore.temperatureUnit) {
         weatherStore.changeTemperatureUnit(checked.unit);
-        queryClient.invalidateQueries({ queryKey: ["weather"] });
       }
     }
   }, [checked.unit, modalVisible, queryClient, weatherStore]);
@@ -48,7 +49,7 @@ const Unit = observer(() => {
   return (
     <ThemedView>
       <Section
-        title="Temperature unit"
+        title={t("setting.temperature_unit")}
         subtitle={checked.label}
         handleOpenSection={showModal}
       />
@@ -60,7 +61,9 @@ const Unit = observer(() => {
         >
           <ThemedView padding={20} style={styles.modalContainer}>
             <ThemedView paddingBottom={20}>
-              <ThemedText type="title">Temperature Unit</ThemedText>
+              <ThemedText type="title">
+                {t("setting.temperature_unit")}
+              </ThemedText>
             </ThemedView>
             <ThemedView>
               {values.map((item) => {
@@ -86,7 +89,7 @@ const Unit = observer(() => {
             <ThemedView paddingTop={20} style={styles.rowCentered}>
               <ThemedView flex />
               <TouchableOpacity onPress={hideModal}>
-                <ThemedText type="subtitle">CANCEL</ThemedText>
+                <ThemedText type="subtitle"> {t("setting.cancel")}</ThemedText>
               </TouchableOpacity>
             </ThemedView>
           </ThemedView>

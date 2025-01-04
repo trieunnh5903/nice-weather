@@ -5,22 +5,24 @@ export const Colors = {
   light: {
     text: "#11181C",
     background: "#fff",
+    onBackground: "#f0f0f0",
     primary: "#0a7ea4",
     icon: "#11181C",
     subtitleText: "#687076",
     placeholder: "#CCCCCC",
     ripple: "rgba(0,0,0,0.1)",
-    border: "rgba(0,0,0,0.1)",
+    border: "#eee",
   },
   dark: {
     text: "#ECEDEE",
     background: "#151718",
+    onBackground: "#303030",
     primary: "#0a7ea4",
     icon: "#ECEDEE",
     subtitleText: "#9BA1A6",
     placeholder: "#AAAAAA",
     ripple: "rgba(255,255,255,0.1)",
-    border: "rgba(255,255,255,0.1)",
+    border: "rgba(255,255,255,0.3)",
   },
 };
 

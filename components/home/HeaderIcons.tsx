@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import React, { memo, useEffect, useState } from "react";
+import React, { memo, useState } from "react";
 import { MaterialIconName } from "@/type";
 import RippleButtonIcon from "../RippleButtonIcon";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
@@ -8,6 +8,7 @@ import { useAppTheme } from "@/hooks";
 import { Menu } from "react-native-paper";
 import { router } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 
 interface HeaderIconsProps {
   onHeaderPress: (icon: string) => void;
@@ -24,6 +25,7 @@ const HeaderIcons: React.FC<HeaderIconsProps> = ({
   const [menuVisible, setMenuVisible] = useState(false);
   const openMenu = () => setMenuVisible(true);
   const closeMenu = () => setMenuVisible(false);
+  const { t } = useTranslation();
 
   return (
     <ThemedView style={styles.header}>
@@ -39,7 +41,7 @@ const HeaderIcons: React.FC<HeaderIconsProps> = ({
         contentStyle={{
           backgroundColor: themeColor.background,
           borderColor: themeColor.border,
-          borderWidth: 1,
+          borderWidth: 0.5,
         }}
         anchorPosition="bottom"
         visible={menuVisible}
@@ -57,17 +59,16 @@ const HeaderIcons: React.FC<HeaderIconsProps> = ({
         <Menu.Item
           onPress={() => {
             queryClient.invalidateQueries();
+            closeMenu();
           }}
-          title="Update now"
+          title={t("home.menu.update")}
         />
         <Menu.Item
           onPress={() => {
             closeMenu();
-            setTimeout(() => {
-              router.navigate("/setting");
-            }, 500);
+            router.navigate("/setting");
           }}
-          title="Setting"
+          title={t("home.menu.setting")}
         />
       </Menu>
     </ThemedView>

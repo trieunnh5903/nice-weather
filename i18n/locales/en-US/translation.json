@@ -1,0 +1,109 @@
+{
+  "home": {
+    "menu": {
+      "update": "Update now",
+      "setting": "Setting"
+    },
+    "feature": {
+      "data_status": {
+        "updating": "Updating...",
+        "updated_at": "Updated at"
+      },
+      "curren_weather": {
+        "feel_like": "Feel like"
+      },
+      "hourly": {
+        "title": "Hourly",
+        "today": "Today",
+        "tomorrow": "Tomorrow"
+      },
+      "daily": {
+        "title": "Daily",
+        "today": "Today",
+        "next_week": "Next Week"
+      },
+      "life": {
+        "title": "Life",
+        "wind": {
+          "title": "Wind",
+          "wind_direction": {
+            "N": "North",
+            "NNE": "North-Northeast",
+            "NE": "Northeast",
+            "ENE": "East-Northeast",
+            "E": "East",
+            "ESE": "East-Southeast",
+            "SE": "Southeast",
+            "SSE": "South-Southeast",
+            "S": "South",
+            "SSW": "South-Southwest",
+            "SW": "Southwest",
+            "WSW": "West-Southwest",
+            "W": "West",
+            "WNW": "West-Northwest",
+            "NW": "Northwest",
+            "NNW": "North-Northwest"
+          }
+        },
+        "uv": {
+          "title": "UV",
+          "low": "Low risk",
+          "moderate": "Moderate risk",
+          "high": "High risk",
+          "very_high": "Very high risk",
+          "extreme": "Extreme risk"
+        },
+        "air_quatity": {
+          "title": "Air Quantity",
+          "1": "Good",
+          "2": "Moderate",
+          "3": "Unhealthy for sensitive group",
+          "4": "Unhealthy",
+          "5": "Very Unhealthy",
+          "6": "Hazardous"
+        },
+        "humidity": "Humidity",
+        "tommorrow": "Tommorrow"
+      }
+    }
+  },
+  "unit": {
+    "km/h": "km/h",
+    "%": "%"
+  },
+
+  "all_location": {
+    "location": "Location",
+    "selected_all": "Selected All",
+    "selected": "selected",
+    "cancel": "CANCEL",
+    "delete": "DELETE"
+  },
+  "search": {
+    "find_location": "Find location",
+    "no_results": "No results found",
+    "use_current_location": "Use current location"
+  },
+  "setting": {
+    "setting": "Setting",
+    "language": "Language",
+    "select_language": "Select Language",
+    "theme": "Theme",
+    "dark_mode": "Dark mode",
+    "light_mode": "Light mode",
+    "dark": "Dark",
+    "light": "Light",
+    "default": "Default",
+    "cancel": "CANCEL",
+    "temperature_unit": "Temperature Unit",
+    "manually": "Manually",
+    "every_1_hours": "Every 1 hours",
+    "every_3_hours": "Every 3 hours",
+    "every_6_hours": "Every 6 hours",
+    "every_12_hours": "Every 12 hours",
+    "update_interval": "Update interval"
+  },
+  "arrange_locations": {
+    "screen_title": "Arrange the locations"
+  }
+}

@@ -11,6 +11,7 @@ import ThemedText from "../ThemedText";
 import { MaterialIconName } from "@/type";
 import RippleButtonIcon from "../RippleButtonIcon";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 
 interface CustomHeaderRightProps {
   icons: MaterialIconName[];
@@ -28,6 +29,7 @@ const CustomHeaderRight = memo(function CustomHeaderRight({
   multipleDelete,
 }: CustomHeaderRightProps) {
   const themeColor = useAppTheme();
+  const { t } = useTranslation();
   const selectedAnimatedStyle = useAnimatedStyle(() => {
     return {
       opacity: progress.value,
@@ -43,7 +45,9 @@ const CustomHeaderRight = memo(function CustomHeaderRight({
   return (
     <ThemedView style={styles.centered}>
       <Animated.View style={selectedAnimatedStyle}>
-        <ThemedText>{numberOfSelected} selected</ThemedText>
+        <ThemedText>
+          {numberOfSelected} {t("all_location.selected")}
+        </ThemedText>
       </Animated.View>
 
       <Animated.View

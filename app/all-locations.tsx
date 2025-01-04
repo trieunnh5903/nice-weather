@@ -14,46 +14,36 @@ import {
   LocationList,
 } from "@/components/all-location";
 
+const HEADER_ICONS: MaterialIconName[] = ["add", "delete-outline"];
+
 const AllLocation = () => {
   const { weatherStore } = useStores();
   const themeColor = useAppTheme();
-  const icons: MaterialIconName[] = useMemo(
-    () => ["add", "delete-outline"],
-    []
-  );
-  const [multipleDelete, setMultipleDelete] = useState(false);
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const progress = useSharedValue(0);
   const navigation = useNavigation();
-  const onHeaderPress = useCallback(
-    (icon: MaterialIconName) => {
-      switch (icon) {
-        case icons[0]:
-          router.navigate("./search");
-          break;
-        case icons[1]:
-          setMultipleDelete(true);
-          break;
-        default:
-          break;
-      }
-    },
-    [icons]
-  );
+  const [multipleDelete, setMultipleDelete] = useState(false);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  console.log("all-locations");
 
   useEffect(() => {
-    if (multipleDelete) {
-      progress.value = withTiming(1, {
-        duration: 1000,
-        easing: Easing.out(Easing.exp),
-      });
-    } else {
-      progress.value = withTiming(0, {
-        duration: 1000,
-        easing: Easing.out(Easing.exp),
-      });
-    }
+    progress.value = withTiming(multipleDelete ? 1 : 0, {
+      duration: 1000,
+      easing: Easing.out(Easing.exp),
+    });
   }, [multipleDelete, progress]);
+
+  const onHeaderPress = useCallback((icon: MaterialIconName) => {
+    switch (icon) {
+      case HEADER_ICONS[0]:
+        router.navigate("./search");
+        break;
+      case HEADER_ICONS[1]:
+        setMultipleDelete(true);
+        break;
+      default:
+        break;
+    }
+  }, []);
 
   const onCancelPress = () => {
     setMultipleDelete(false);
@@ -84,15 +74,12 @@ const AllLocation = () => {
   }, [navigation]);
 
   const handleDeleteSelected = useCallback(() => {
-    const remains = weatherStore.deleteMany(selectedItems);
-    if (remains === 0) {
-      resetNavigation();
-    }
-  }, [resetNavigation, selectedItems, weatherStore]);
+    weatherStore.deleteMany(selectedItems);
+  }, [selectedItems, weatherStore]);
 
   const handleDeleteAll = useCallback(() => {
-    weatherStore.deleteAll();
     resetNavigation();
+    weatherStore.deleteAll();
   }, [resetNavigation, weatherStore]);
 
   const onDeletePress = useCallback(() => {
@@ -119,39 +106,39 @@ const AllLocation = () => {
     weatherStore.places.length,
   ]);
 
+  const screenOptions: React.ComponentProps<typeof Stack.Screen>["options"] = {
+    headerShown: true,
+    title: "",
+    headerRight() {
+      return (
+        <CustomHeaderRight
+          multipleDelete={multipleDelete}
+          icons={HEADER_ICONS}
+          onHeaderPress={onHeaderPress}
+          numberOfSelected={selectedItems.length}
+          progress={progress}
+        />
+      );
+    },
+    headerBackVisible: false,
+    headerLeft: (props) => {
+      return (
+        <CustomHeaderLeft
+          progress={progress}
+          handleSelecteAll={handleSelecteAll}
+          selectedItems={selectedItems}
+          {...props}
+        />
+      );
+    },
+    headerTintColor: themeColor.icon,
+    headerTitleAlign: "left",
+    headerShadowVisible: false,
+  };
+
   return (
     <ThemedView flex>
-      <Stack.Screen
-        options={{
-          headerShown: true,
-          title: "",
-          headerRight() {
-            return (
-              <CustomHeaderRight
-                multipleDelete={multipleDelete}
-                icons={icons}
-                onHeaderPress={onHeaderPress}
-                numberOfSelected={selectedItems.length}
-                progress={progress}
-              />
-            );
-          },
-          headerBackVisible: false,
-          headerLeft: (props) => {
-            return (
-              <CustomHeaderLeft
-                progress={progress}
-                handleSelecteAll={handleSelecteAll}
-                selectedItems={selectedItems}
-                {...props}
-              />
-            );
-          },
-          headerTintColor: themeColor.icon,
-          headerTitleAlign: "left",
-          headerShadowVisible: false,
-        }}
-      />
+      <Stack.Screen options={screenOptions} />
       <Divider />
       <LocationList
         progress={progress}

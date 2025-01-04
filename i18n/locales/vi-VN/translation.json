@@ -1,0 +1,109 @@
+{
+  "home": {
+    "menu": {
+      "update": "Cập nhật ngay",
+      "setting": "Cài đặt"
+    },
+    "feature": {
+      "data_status": {
+        "updating": "Đang cập nhật...",
+        "updated_at": "Cập nhật lúc"
+      },
+      "curren_weather": {
+        "feel_like": "Cảm giác như"
+      },
+      "hourly": {
+        "title": "Hàng giờ",
+        "today": "Hôm nay",
+        "tomorrow": "Ngày mai"
+      },
+      "daily": {
+        "title": "Hàng ngày",
+        "today": "Hôm nay",
+        "next_week": "Tuần sau"
+      },
+      "life": {
+        "title": "Cuộc sống",
+        "wind": {
+          "title": "Gió",
+          "wind_direction": {
+            "N": "Bắc",
+            "NNE": "Bắc Đông Bắc",
+            "NE": "Đông Bắc",
+            "ENE": "Đông Đông Bắc",
+            "E": "Đông",
+            "ESE": "Đông Đông Nam",
+            "SE": "Đông Nam",
+            "SSE": "Nam Đông Nam",
+            "S": "Nam",
+            "SSW": "Nam Tây Nam",
+            "SW": "Tây Nam",
+            "WSW": "Tây Tây Nam",
+            "W": "Tây",
+            "WNW": "Tây Tây Bắc",
+            "NW": "Tây Bắc",
+            "NNW": "Bắc Tây Bắc"
+          }
+        },
+        "uv": {
+          "title": "UV",
+          "low": "Nguy cơ thấp",
+          "moderate": "Nguy cơ trung bình",
+          "high": "Nguy cơ cao",
+          "very_high": "Nguy cơ rất cao",
+          "extreme": "Nguy cơ cực kỳ cao"
+        },
+        "air_quatity": {
+          "title": "Chất lượng không khí",
+          "1": "Tốt",
+          "2": "Vừa phải",
+          "3": "Không tốt cho nhóm nhạy cảm",
+          "4": "Không tốt cho sức khỏe",
+          "5": "Rất không tốt cho sức khỏe",
+          "6": "Nguy hiểm"
+        },
+        "humidity": "Độ ẩm",
+        "tommorrow": "Ngày mai"
+      }
+    }
+  },
+  "unit": {
+    "km/h": "km/giờ",
+    "%": "%"
+  },
+
+  "all_location": {
+    "location": "Vị trí",
+    "selected_all": "Chọn tất cả",
+    "selected": "mục được chọn",
+    "cancel": "HỦY",
+    "delete": "XÓA"
+  },
+  "search": {
+    "find_location": "Tìm vị trí",
+    "no_results": "Không tìm thấy",
+    "use_current_location": "Sử dụng vị trí hiện tại"
+  },
+  "setting": {
+    "setting": "Cài đặt",
+    "language": "Ngôn ngữ",
+    "select_language": "Chọn ngôn ngữ",
+    "theme": "Giao diện",
+    "dark_mode": "Chế độ tối",
+    "light_mode": "Chế độ sáng",
+    "dark": "Tối",
+    "light": "Sáng",
+    "default": "Mặc định",
+    "cancel": "HỦY",
+    "temperature_unit": "Đơn vị nhiệt độ",
+    "manually": "Thủ công",
+    "every_1_hours": "Mỗi 1 giờ",
+    "every_3_hours": "Mỗi 3 giờ",
+    "every_6_hours": "Mỗi 6 giờ",
+    "every_12_hours": "Mỗi 12 giờ",
+    "update_interval": "Khoảng thời gian cập nhật"
+  },
+  "arrange_locations": {
+    "screen_title": "Sắp xếp các địa điểm"
+  }
+}

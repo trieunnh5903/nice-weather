@@ -13,15 +13,20 @@ const formatTemperatureWithoutUnit = (temp: number) => {
 };
 
 function formatSunrise(timeString: string) {
-  let [time, period] = timeString.split(" ");
+  if (!timeString) return "";
+  let [time, period] = timeString?.split(" ");
 
-  let [hours, minutes] = time.split(":");
+  let [hours, minutes] = time?.split(":");
 
   return `${hours}:${minutes} ${period}`;
 }
 
+const celsiusToFahrenheit = (celsius: number) =>
+  Math.round((celsius * 9) / 5 + 32);
+
 const convertToMinute = (time: string) => {
-  let [hours, minutes] = time.split(" ")[0].split(":").map(Number);
+  if (!time) return 0;
+  let [hours, minutes] = time?.split(" ")[0]?.split(":").map(Number);
   const period = time.split(" ")[1];
   if (period === "PM" && hours !== 12) hours += 12;
   if (period === "AM" && hours === 12) hours = 0;
@@ -53,4 +58,5 @@ export default {
   getDay,
   days,
   formatFahrenheit,
+  celsiusToFahrenheit,
 };
