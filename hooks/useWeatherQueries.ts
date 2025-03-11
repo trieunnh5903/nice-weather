@@ -1,5 +1,5 @@
 import { queryConfig } from "@/config/queryConfig";
-import { LanguageCode } from "@/constants/Languages";
+import { LanguageCode } from "@/constants/languages";
 import { Place } from "@/type";
 import { useQueries } from "@tanstack/react-query";
 

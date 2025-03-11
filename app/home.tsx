@@ -13,9 +13,9 @@ import { useCallback, useMemo } from "react";
 import { ActivityIndicator, Alert, StyleSheet } from "react-native";
 import PagerView from "react-native-pager-view";
 import { observer } from "mobx-react-lite";
-import { Size } from "@/constants/Size";
-import { Colors } from "@/constants/Colors";
+import { Size } from "@/constants/size";
 import { useFocusEffect, useNavigation, useRouter } from "expo-router";
+import { AppColors } from "@/constants/colors";
 
 const HomeScreen: React.FC = observer(() => {
   const { weatherStore } = useStores();
@@ -93,7 +93,7 @@ const HomeScreen: React.FC = observer(() => {
   if (!isSuccess) {
     return (
       <ThemedView flex style={styles.centered}>
-        <ActivityIndicator color={Colors.dark.primary} />
+        <ActivityIndicator color={AppColors.dark.primary} />
       </ThemedView>
     );
   }

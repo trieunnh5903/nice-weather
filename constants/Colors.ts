@@ -1,7 +1,7 @@
 import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 import { MD3DarkTheme, MD3LightTheme } from "react-native-paper";
 
-export const Colors = {
+export const AppColors = {
   light: {
     text: "#11181C",
     background: "#fff",
@@ -26,29 +26,29 @@ export const Colors = {
   },
 };
 
-export const NavigationTheme = {
+export const AppNavigationTheme = {
   light: {
     ...DefaultTheme,
     colors: {
       ...DefaultTheme.colors,
-      ...Colors.light,
+      ...AppColors.light,
     },
   },
 
   dark: {
     ...DarkTheme,
-    colors: { ...DarkTheme.colors, ...Colors.dark },
+    colors: { ...DarkTheme.colors, ...AppColors.dark },
   },
 };
 
-export const PaperTheme = {
+export const AppPaperTheme  = {
   light: {
     ...MD3LightTheme,
-    colors: { ...MD3LightTheme.colors, ...Colors.light },
+    colors: { ...MD3LightTheme.colors, ...AppColors.light },
   },
 
   dark: {
     ...MD3DarkTheme,
-    colors: { ...MD3DarkTheme.colors, ...Colors.dark },
+    colors: { ...MD3DarkTheme.colors, ...AppColors.dark },
   },
 };

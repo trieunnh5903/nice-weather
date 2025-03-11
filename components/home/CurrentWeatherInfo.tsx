@@ -3,7 +3,7 @@ import React, { memo, useMemo } from "react";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import ThemedView from "../ThemedView";
 import ThemedText from "../ThemedText";
-import { Size } from "@/constants/Size";
+import { Size } from "@/constants/size";
 import { useIsFetching } from "@tanstack/react-query";
 import { useAppTheme } from "@/hooks";
 import { weatherUtils } from "@/utils";

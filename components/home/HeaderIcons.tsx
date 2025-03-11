@@ -70,6 +70,13 @@ const HeaderIcons: React.FC<HeaderIconsProps> = ({
           }}
           title={t("home.menu.setting")}
         />
+        <Menu.Item
+          onPress={() => {
+            closeMenu();
+            router.navigate("/payment");
+          }}
+          title={"Premium"}
+        />
       </Menu>
     </ThemedView>
   );

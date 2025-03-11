@@ -9,7 +9,6 @@ import {
   useAppTheme,
   useLanguage,
   useStores,
-  useWeatherQueries,
 } from "@/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { Place } from "@/type";

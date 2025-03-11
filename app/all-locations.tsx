@@ -1,5 +1,5 @@
 import { Alert } from "react-native";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { router, Stack, useNavigation } from "expo-router";
 import { MaterialIconName } from "@/type";
 import { Easing, useSharedValue, withTiming } from "react-native-reanimated";

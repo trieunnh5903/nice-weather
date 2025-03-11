@@ -3,7 +3,7 @@ import React, { memo, PropsWithChildren } from "react";
 import AstronomyDetail from "./AstronomyDetail";
 import ThemedText from "../ThemedText";
 import ThemedView from "../ThemedView";
-import { Size } from "@/constants/Size";
+import { Size } from "@/constants/size";
 import { Astronomy, CurrentWeather } from "@/type";
 import { useAppTheme } from "@/hooks";
 import { useTranslation } from "react-i18next";

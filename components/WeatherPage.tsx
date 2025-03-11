@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React from "react";
 import ThemedView from "./ThemedView";
 import Animated from "react-native-reanimated";
 import { CurrentWeatherInfo, Life, ListDaily, ListHourly } from "./home";

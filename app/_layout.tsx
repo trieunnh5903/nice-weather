@@ -1,4 +1,4 @@
-import { NavigationTheme, PaperTheme } from "@/constants/Colors";
+import { AppNavigationTheme,AppPaperTheme} from "@/constants/colors";
 import { MobxStoreProvider, useStores } from "@/hooks/useStore";
 import { ThemeProvider } from "@react-navigation/native";
 import { QueryClient } from "@tanstack/react-query";
@@ -14,8 +14,8 @@ import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client
 import * as StatusBar from "expo-status-bar";
 import * as Localization from "expo-localization";
 import "@/i18n";
-import { LANGUAGE_STORAGE_KEY } from "@/constants/Languages";
 import { useTranslation } from "react-i18next";
+import { LANGUAGE_STORAGE_KEY } from "@/constants/languages";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -79,9 +79,9 @@ export default function Layout() {
     const selectTheme = persistTheme ?? systemTheme ?? "light";
 
     return {
-      paperTheme: selectTheme === "dark" ? PaperTheme.dark : PaperTheme.light,
+      paperTheme: selectTheme === "dark" ? AppPaperTheme.dark : AppPaperTheme.light,
       navigationTheme:
-        selectTheme === "dark" ? NavigationTheme.dark : NavigationTheme.light,
+        selectTheme === "dark" ? AppNavigationTheme.dark : AppNavigationTheme.light,
     };
   }, [weatherStore.theme, systemTheme]);
 
