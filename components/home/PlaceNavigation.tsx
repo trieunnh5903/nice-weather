@@ -154,7 +154,7 @@ const PlaceNavigation: React.FC<PlaceNavigationProps> = ({
   const temperature = useMemo(() => {
     if (!isSuccess || !data) return "";
     return weatherStore.temperatureUnit === "metric"
-      ? weatherUtils.formatCelcius(data.current.temp_c)
+      ? weatherUtils.formatCelsius(data.current.temp_c)
       : weatherUtils.formatFahrenheit(data.current.temp_f);
   }, [data, isSuccess, weatherStore.temperatureUnit]);
 

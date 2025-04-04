@@ -40,7 +40,7 @@ const CurrentWeatherInfo: React.FC<CurrentWeatherInfoProps> = ({
   const temperature = useMemo(
     () =>
       temperatureUnit === "metric"
-        ? weatherUtils.formatCelcius(currentWeather.temp_c)
+        ? weatherUtils.formatCelsius(currentWeather.temp_c)
         : weatherUtils.formatFahrenheit(currentWeather.temp_f),
     [currentWeather.temp_c, currentWeather.temp_f, temperatureUnit]
   );
@@ -48,7 +48,7 @@ const CurrentWeatherInfo: React.FC<CurrentWeatherInfoProps> = ({
   const feelLikeTemp = useMemo(
     () =>
       temperatureUnit === "metric"
-        ? weatherUtils.formatCelcius(currentWeather.feelslike_c)
+        ? weatherUtils.formatCelsius(currentWeather.feelslike_c)
         : weatherUtils.formatFahrenheit(currentWeather.feelslike_f),
     [currentWeather.feelslike_c, currentWeather.feelslike_f, temperatureUnit]
   );
@@ -58,7 +58,7 @@ const CurrentWeatherInfo: React.FC<CurrentWeatherInfoProps> = ({
   return (
     <GestureDetector gesture={pan}>
       <ThemedView style={[styles.current]}>
-        <ThemedText style={styles.celcius}>{temperature}</ThemedText>
+        <ThemedText style={styles.celsius}>{temperature}</ThemedText>
         <ThemedText>{currentWeather.condition.text}</ThemedText>
         <ThemedText>{feelLike}</ThemedText>
         <DataStatus dataUpdatedAt={updatedAt} />
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
     width: Size.screenWidth,
   },
-  celcius: {
+  celsius: {
     fontSize: 70,
   },
   row: {

@@ -1,6 +1,6 @@
 import Units from "@/constants/units";
 
-const formatCelcius = (temp: number) => {
+const formatCelsius = (temp: number) => {
   return Math.round(temp) + Units.Celsius;
 };
 
@@ -51,7 +51,7 @@ const getDay = (date: string) => {
 };
 
 export default {
-  formatCelcius,
+  formatCelsius,
   formatSunrise,
   formatTemperatureWithoutUnit,
   convertToMinute,

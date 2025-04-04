@@ -84,7 +84,7 @@ const LocationList = observer(
           const current = allWeather[index].data?.current;
           const formatTemp = current
             ? weatherStore.temperatureUnit === "metric"
-              ? weatherUtils.formatCelcius(current.temp_c)
+              ? weatherUtils.formatCelsius(current.temp_c)
               : weatherUtils.formatFahrenheit(current.temp_f)
             : undefined;
           return (
