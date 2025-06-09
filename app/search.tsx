@@ -1,6 +1,6 @@
-import { ActivityIndicator, BackHandler, StyleSheet, View } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import React, { useState } from "react";
-import { router, Stack } from "expo-router";
+import { Stack } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Divider } from "react-native-paper";
 import { useSearchLocation } from "@/hooks/useSearchLocation";
@@ -12,6 +12,7 @@ import {
   SearchBar,
   SearchResults,
 } from "@/components/search";
+import { goBackOrExitApp } from "@/utils/navigationUtils";
 
 const SearchScreen = () => {
   const [query, setQuery] = useState("");
@@ -23,15 +24,7 @@ const SearchScreen = () => {
     setQuery(e);
   };
 
-  console.log("search");
-
-  const onBackPress = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      BackHandler.exitApp();
-    }
-  };
+  const onBackPress = () => goBackOrExitApp();
 
   return (
     <ThemedView style={styles.container}>

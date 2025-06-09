@@ -11,6 +11,7 @@ import { Place } from "@/type";
 import { placeUtils } from "@/utils";
 import { queryConfig } from "@/config/queryConfig";
 import { useTranslation } from "react-i18next";
+import { goBackOrReset } from "@/utils/navigationUtils";
 
 const CurrentLocationButton = observer(() => {
   const { weatherStore } = useStores();
@@ -29,11 +30,7 @@ const CurrentLocationButton = observer(() => {
 
   useEffect(() => {
     if (isSuccess) {
-      if (router.canGoBack()) {
-        router.back();
-      } else {
-        router.replace("/");
-      }
+      goBackOrReset();
       setIsLoading(false);
     }
     return () => {};

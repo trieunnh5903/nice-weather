@@ -18,6 +18,7 @@ import ThemedView from "../ThemedView";
 import { MaterialIcons } from "@expo/vector-icons";
 import ThemedText from "../ThemedText";
 import { queryConfig } from "@/config/queryConfig";
+import { goBack } from "@/utils/navigationUtils";
 
 interface WeatherItemProps {
   place: Place;
@@ -63,7 +64,7 @@ const LocationList = observer(
         }
 
         weatherStore.setSelectedIndex(index);
-        router.back();
+        goBack();
       },
       [handleSelectItem, multipleDelete, weatherStore]
     );

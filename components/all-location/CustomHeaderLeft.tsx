@@ -12,6 +12,7 @@ import RippleButtonIcon from "../RippleButtonIcon";
 import ThemedText from "../ThemedText";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
+import { goBack } from "@/utils/navigationUtils";
 
 interface CustomHeaderLeftProps {
   handleSelecteAll: () => void;
@@ -42,11 +43,7 @@ const CustomHeaderLeft = memo(function CustomHeaderLeft({
     };
   });
 
-  const onBackPress = () => {
-    if (router.canGoBack()) {
-      router.back();
-    }
-  };
+  const onBackPress = () => goBack();
 
   return (
     <View style={styles.rowCenter}>

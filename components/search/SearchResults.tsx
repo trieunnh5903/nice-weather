@@ -5,16 +5,13 @@ import { placeUtils } from "@/utils";
 import ThemedView from "../ThemedView";
 import ThemedText from "../ThemedText";
 import { Divider } from "react-native-paper";
-import {
-  useAppTheme,
-  useLanguage,
-  useStores,
-} from "@/hooks";
+import { useAppTheme, useLanguage, useStores } from "@/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { Place } from "@/type";
 import { router } from "expo-router";
 import { queryConfig } from "@/config/queryConfig";
 import { useTranslation } from "react-i18next";
+import { goBackOrReset } from "@/utils/navigationUtils";
 
 interface SearchResultsProps {
   results: Place[] | undefined;
@@ -48,11 +45,7 @@ const SearchResults = ({ results }: SearchResultsProps) => {
   const { t } = useTranslation();
   useEffect(() => {
     if (isSuccess) {
-      if (router.canGoBack()) {
-        router.back();
-      } else {
-        router.replace("/");
-      }
+      goBackOrReset();
     }
     return () => {};
   }, [isSuccess]);
