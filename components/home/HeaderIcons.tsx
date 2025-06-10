@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 import React, { memo, useState } from "react";
-import { MaterialIconName } from "@/type";
+import { MaterialIconName } from "@/types/type";
 import RippleButtonIcon from "../RippleButtonIcon";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import ThemedView from "../ThemedView";

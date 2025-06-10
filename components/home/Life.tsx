@@ -4,7 +4,7 @@ import AstronomyDetail from "./AstronomyDetail";
 import ThemedText from "../ThemedText";
 import ThemedView from "../ThemedView";
 import { Size } from "@/constants/size";
-import { Astronomy, CurrentWeather } from "@/type";
+import { Astronomy, CurrentWeather } from "@/types/type";
 import { useAppTheme } from "@/hooks";
 import { useTranslation } from "react-i18next";
 

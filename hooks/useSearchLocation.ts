@@ -1,5 +1,5 @@
 import { weatherApi } from "@/api/weatherApi";
-import { Place } from "@/type";
+import { Place } from "@/types/type";
 import { useEffect, useState } from "react";
 
 export function useSearchLocation(query: string) {

@@ -7,7 +7,6 @@ import {
   useStores,
   useWeatherQueries,
 } from "@/hooks";
-import { MaterialIconName } from "@/type";
 import { CommonActions } from "@react-navigation/native";
 import { useCallback, useMemo } from "react";
 import { ActivityIndicator, Alert, StyleSheet } from "react-native";
@@ -16,14 +15,15 @@ import { observer } from "mobx-react-lite";
 import { Size } from "@/constants/size";
 import { useFocusEffect, useNavigation, useRouter } from "expo-router";
 import { AppColors } from "@/constants/colors";
+import { MaterialIconName } from "@/types/common/materialIcon";
+
+const INPUT_MAX_VALUE = 160;
 
 const HomeScreen: React.FC = observer(() => {
   const { weatherStore } = useStores();
   const navigation = useNavigation();
   const router = useRouter();
-  const INPUT_MAX_VALUE = 160;
   const { currentLanguage } = useLanguage();
-
   const headerIcons: MaterialIconName[] = useMemo(
     () => ["menu", "add", "delete-outline"],
     []
@@ -51,10 +51,28 @@ const HomeScreen: React.FC = observer(() => {
 
   useFocusEffect(() => {
     if (pageIndex !== weatherStore.selectedIndex && isSuccess) {
-      console.log("useFocusEffect");
       goToPageWithoutAnimation(weatherStore.selectedIndex);
     }
   });
+
+  const deletePlace = useCallback(() => {
+    Alert.alert("", "Delete this location?", [
+      { text: "No" },
+      {
+        text: "Yes",
+        onPress: () => {
+          if (weatherStore.places.length === 1) {
+            navigation.dispatch(
+              CommonActions.reset({
+                routes: [{ name: "index", key: "index" }],
+              })
+            );
+          }
+          weatherStore.deletePlace(weatherStore.selectedPlace.place_id);
+        },
+      },
+    ]);
+  }, [navigation, weatherStore]);
 
   const onHeaderPress = useCallback(
     (icon: string) => {
@@ -66,28 +84,13 @@ const HomeScreen: React.FC = observer(() => {
           router.navigate("/search");
           break;
         case headerIcons[2]:
-          Alert.alert("", "Delete this location?", [
-            { text: "No" },
-            {
-              text: "Yes",
-              onPress: () => {
-                if (weatherStore.places.length === 1) {
-                  navigation.dispatch(
-                    CommonActions.reset({
-                      routes: [{ name: "index", key: "index" }],
-                    })
-                  );
-                }
-                weatherStore.deletePlace(weatherStore.selectedPlace.place_id);
-              },
-            },
-          ]);
+          deletePlace();
           break;
         default:
           break;
       }
     },
-    [headerIcons, navigation, router, weatherStore]
+    [deletePlace, headerIcons, router]
   );
 
   if (!isSuccess) {

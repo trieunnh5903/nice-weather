@@ -7,7 +7,7 @@ import * as ExpoLocation from "expo-location";
 import { weatherApi } from "@/api/weatherApi";
 import { router } from "expo-router";
 import { Button } from "react-native-paper";
-import { Place } from "@/type";
+import { Place } from "@/types/type";
 import { placeUtils } from "@/utils";
 import { queryConfig } from "@/config/queryConfig";
 import { useTranslation } from "react-i18next";

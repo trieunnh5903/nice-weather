@@ -3,12 +3,13 @@ import React, { memo, useMemo, useRef } from "react";
 import ThemedView from "../ThemedView";
 import ThemedText from "../ThemedText";
 import { ScrollView } from "react-native-gesture-handler";
-import { Hourly, TemperatureUnit } from "@/type";
 import weatherIcon from "@/config/weatherIcon";
 import { Image } from "expo-image";
 import { weatherUtils } from "@/utils";
 import TemperatureChart from "./TemperatureChart";
 import { useTranslation } from "react-i18next";
+import { Hourly } from "@/types/weather/forecast";
+import { TemperatureUnit } from "@/types/common/unit";
 
 interface WeatherHourlyProps {
   item: Hourly;

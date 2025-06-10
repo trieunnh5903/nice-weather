@@ -2,7 +2,7 @@ import { StyleSheet } from "react-native";
 import React, { useEffect, useMemo, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useStores } from "@/hooks";
-import { TemperatureUnit } from "@/type";
+import { TemperatureUnit } from "@/types/type";
 import { useQueryClient } from "@tanstack/react-query";
 import ThemedView from "../ThemedView";
 import { Divider, Modal, Portal, RadioButton } from "react-native-paper";

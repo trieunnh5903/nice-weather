@@ -7,8 +7,9 @@ import { Size } from "@/constants/size";
 import { useIsFetching } from "@tanstack/react-query";
 import { useAppTheme } from "@/hooks";
 import { weatherUtils } from "@/utils";
-import { CurrentWeather, TemperatureUnit } from "@/type";
 import { useTranslation } from "react-i18next";
+import { TemperatureUnit } from "@/types/common/unit";
+import { CurrentWeather } from "@/types/weather/currenWeather";
 
 interface CurrentWeatherInfoProps {
   currentWeather: CurrentWeather;
@@ -23,7 +24,7 @@ const CurrentWeatherInfo: React.FC<CurrentWeatherInfoProps> = ({
   updatedAt,
   temperatureUnit,
 }) => {
-  const { t } = useTranslation();
+  // const { t } = useTranslation();
   const pan = useMemo(
     () =>
       Gesture.Pan()
@@ -37,6 +38,48 @@ const CurrentWeatherInfo: React.FC<CurrentWeatherInfoProps> = ({
     [onSwipe]
   );
 
+  // const temperature = useMemo(
+  //   () =>
+  //     temperatureUnit === "metric"
+  //       ? weatherUtils.formatCelsius(currentWeather.temp_c)
+  //       : weatherUtils.formatFahrenheit(currentWeather.temp_f),
+  //   [currentWeather.temp_c, currentWeather.temp_f, temperatureUnit]
+  // );
+
+  // const feelLikeTemp = useMemo(
+  //   () =>
+  //     temperatureUnit === "metric"
+  //       ? weatherUtils.formatCelsius(currentWeather.feelslike_c)
+  //       : weatherUtils.formatFahrenheit(currentWeather.feelslike_f),
+  //   [currentWeather.feelslike_c, currentWeather.feelslike_f, temperatureUnit]
+  // );
+  // const feelLike =
+  //   t("home.feature.curren_weather.feel_like") + " " + feelLikeTemp;
+
+  return (
+    <GestureDetector gesture={pan}>
+      <ThemedView style={[styles.current]}>
+        {/* <ThemedText style={styles.celsius}>{temperature}</ThemedText> */}
+        <Temperature
+          currentWeather={currentWeather}
+          temperatureUnit={temperatureUnit}
+        />
+        {/* <ThemedText>{currentWeather.condition.text}</ThemedText> */}
+        <WeatherCondition currentWeather={currentWeather} />
+        {/* <ThemedText>{feelLike}</ThemedText> */}
+        <RealFeel
+          currentWeather={currentWeather}
+          temperatureUnit={temperatureUnit}
+        />
+        <FetchStatus dataUpdatedAt={updatedAt} />
+      </ThemedView>
+    </GestureDetector>
+  );
+};
+
+const Temperature: React.FC<
+  Pick<CurrentWeatherInfoProps, "temperatureUnit" | "currentWeather">
+> = ({ currentWeather, temperatureUnit }) => {
   const temperature = useMemo(
     () =>
       temperatureUnit === "metric"
@@ -44,7 +87,19 @@ const CurrentWeatherInfo: React.FC<CurrentWeatherInfoProps> = ({
         : weatherUtils.formatFahrenheit(currentWeather.temp_f),
     [currentWeather.temp_c, currentWeather.temp_f, temperatureUnit]
   );
+  return <ThemedText style={styles.celsius}>{temperature}</ThemedText>;
+};
 
+const WeatherCondition: React.FC<
+  Pick<CurrentWeatherInfoProps, "currentWeather">
+> = ({ currentWeather }) => {
+  return <ThemedText>{currentWeather.condition.text}</ThemedText>;
+};
+
+const RealFeel: React.FC<
+  Pick<CurrentWeatherInfoProps, "currentWeather" | "temperatureUnit">
+> = ({ temperatureUnit, currentWeather }) => {
+  const { t } = useTranslation();
   const feelLikeTemp = useMemo(
     () =>
       temperatureUnit === "metric"
@@ -54,20 +109,10 @@ const CurrentWeatherInfo: React.FC<CurrentWeatherInfoProps> = ({
   );
   const feelLike =
     t("home.feature.curren_weather.feel_like") + " " + feelLikeTemp;
-
-  return (
-    <GestureDetector gesture={pan}>
-      <ThemedView style={[styles.current]}>
-        <ThemedText style={styles.celsius}>{temperature}</ThemedText>
-        <ThemedText>{currentWeather.condition.text}</ThemedText>
-        <ThemedText>{feelLike}</ThemedText>
-        <DataStatus dataUpdatedAt={updatedAt} />
-      </ThemedView>
-    </GestureDetector>
-  );
+  return <ThemedText>{feelLike}</ThemedText>;
 };
 
-const DataStatus = ({ dataUpdatedAt }: { dataUpdatedAt: number }) => {
+const FetchStatus = ({ dataUpdatedAt }: { dataUpdatedAt: number }) => {
   const { t } = useTranslation();
   const isFetching = useIsFetching();
   const themeColor = useAppTheme();

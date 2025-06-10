@@ -3,10 +3,12 @@ import ThemedView from "./ThemedView";
 import Animated from "react-native-reanimated";
 import { CurrentWeatherInfo, Life, ListDaily, ListHourly } from "./home";
 import { ScrollView } from "react-native-gesture-handler";
-import { AstronomyResponse, CurrentWeatherResponse, Forecast } from "@/type";
 import { UseQueryResult } from "@tanstack/react-query";
 import { useStores } from "@/hooks";
 import { observer } from "mobx-react-lite";
+import { CurrentWeatherResponse } from "@/types/weather/currenWeather";
+import { Forecast } from "@/types/weather/forecast";
+import { AstronomyResponse } from "@/types/weather/astronomy";
 
 interface WeatherPageProps {
   index: number;

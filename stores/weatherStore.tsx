@@ -1,4 +1,5 @@
-import { Place, TemperatureUnit } from "@/type";
+import { TemperatureUnit } from "@/types/common/unit";
+import { Place } from "@/types/weather/place";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { makeAutoObservable } from "mobx";
 import { makePersistable, isHydrated } from "mobx-persist-store";

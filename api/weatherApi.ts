@@ -1,45 +1,49 @@
-import { AxiosResponse } from "axios";
+import { AxiosInstance, AxiosResponse } from "axios";
 
-import {
-  AstronomyResponse,
-  CurrentWeatherResponse,
-  Forecast,
-  Place,
-  TemperatureUnit,
-} from "@/type";
 import {
   axiosAstronomyInstance,
   axiosMeteoInstance,
   axiosWeatherInstance,
 } from "./axiosConfig";
 import { LanguageCode } from "@/constants/languages";
+import { Place } from "@/types/weather/place";
+import { AstronomyResponse } from "@/types/weather/astronomy";
+import { CurrentWeatherResponse } from "@/types/weather/currenWeather";
+import { TemperatureUnit } from "@/types/common/unit";
+import { Forecast } from "@/types/weather/forecast";
 
-async function fetchDataMeteoApi<T>(endpoint: string, params = {}) {
+const fetchData = async <T>(
+  instance: AxiosInstance,
+  apiKey: string | undefined,
+  endpoint: string,
+  params = {}
+): Promise<T> => {
   try {
     console.log(endpoint);
-    const response: AxiosResponse<T> = await axiosMeteoInstance.get(endpoint, {
-      params: { ...params, key: process.env.EXPO_PUBLIC_METEOSOURCE_API_KEY },
+    const response: AxiosResponse<T> = await instance.get(endpoint, {
+      params: { ...params, key: apiKey },
     });
     return response.data;
   } catch (error) {
     throw error;
   }
-}
+};
 
-async function fetchDataWeatherApi<T>(endpoint: string, params = {}) {
-  try {
-    console.log(endpoint);
-    const response: AxiosResponse<T> = await axiosWeatherInstance.get(
-      endpoint,
-      {
-        params: { ...params, key: process.env.EXPO_PUBLIC_WEATHER_API_API_KEY },
-      }
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-}
+const fetchDataMeteoApi = <T>(endpoint: string, params = {}) =>
+  fetchData<T>(
+    axiosMeteoInstance,
+    process.env.EXPO_PUBLIC_METEOSOURCE_API_KEY,
+    endpoint,
+    params
+  );
+
+const fetchDataWeatherApi = <T>(endpoint: string, params = {}) =>
+  fetchData<T>(
+    axiosWeatherInstance,
+    process.env.EXPO_PUBLIC_WEATHER_API_API_KEY,
+    endpoint,
+    params
+  );
 
 const reverseGeocoding = async (lat: string, lon: string) => {
   try {
@@ -60,7 +64,7 @@ const directGeocoding = async (text: string) => {
     });
   } catch (error) {
     console.log("directGeocoding", error);
-    return;
+    return null;
   }
 };
 

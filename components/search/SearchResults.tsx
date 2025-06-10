@@ -7,7 +7,7 @@ import ThemedText from "../ThemedText";
 import { Divider } from "react-native-paper";
 import { useAppTheme, useLanguage, useStores } from "@/hooks";
 import { useQuery } from "@tanstack/react-query";
-import { Place } from "@/type";
+import { Place } from "@/types/type";
 import { router } from "expo-router";
 import { queryConfig } from "@/config/queryConfig";
 import { useTranslation } from "react-i18next";

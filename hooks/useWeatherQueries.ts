@@ -1,6 +1,6 @@
 import { queryConfig } from "@/config/queryConfig";
 import { LanguageCode } from "@/constants/languages";
-import { Place } from "@/type";
+import { Place } from "@/types/type";
 import { useQueries } from "@tanstack/react-query";
 
 export const useWeatherQueries = (

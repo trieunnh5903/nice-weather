@@ -1,7 +1,6 @@
 import { Alert } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import { router, Stack, useNavigation } from "expo-router";
-import { MaterialIconName } from "@/type";
 import { Easing, useSharedValue, withTiming } from "react-native-reanimated";
 import { CommonActions } from "@react-navigation/native";
 import { Divider } from "react-native-paper";
@@ -13,6 +12,7 @@ import {
   FooterOfDeleteMode,
   LocationList,
 } from "@/components/all-location";
+import { MaterialIconName } from "@/types/common/materialIcon";
 
 const HEADER_ICONS: MaterialIconName[] = ["add", "delete-outline"];
 
@@ -38,7 +38,7 @@ const AllLocation = () => {
         router.navigate("./search");
         break;
       case HEADER_ICONS[1]:
-        setMultipleDelete(true);
+        enableMultipleDelete();
         break;
       default:
         break;
@@ -46,10 +46,13 @@ const AllLocation = () => {
   }, []);
 
   const onCancelPress = () => {
-    setMultipleDelete(false);
+    disableMultipleDelete();
   };
 
-  const handleSelectItem = useCallback((id: string) => {
+  const enableMultipleDelete = () => setMultipleDelete(true);
+  const disableMultipleDelete = () => setMultipleDelete(false);
+
+  const selectLocation = useCallback((id: string) => {
     setSelectedItems((prevSelectedItems) =>
       prevSelectedItems.includes(id)
         ? prevSelectedItems.filter((item) => item !== id)
@@ -57,7 +60,7 @@ const AllLocation = () => {
     );
   }, []);
 
-  const handleSelecteAll = useCallback(() => {
+  const selecteAllLocation = useCallback(() => {
     if (selectedItems.length === weatherStore.places.length) {
       setSelectedItems([]);
     } else {
@@ -73,11 +76,11 @@ const AllLocation = () => {
     );
   }, [navigation]);
 
-  const handleDeleteSelected = useCallback(() => {
+  const deleteSelectedLocations = useCallback(() => {
     weatherStore.deleteMany(selectedItems);
   }, [selectedItems, weatherStore]);
 
-  const handleDeleteAll = useCallback(() => {
+  const deleteAllLocations = useCallback(() => {
     resetNavigation();
     weatherStore.deleteAll();
   }, [resetNavigation, weatherStore]);
@@ -90,9 +93,9 @@ const AllLocation = () => {
         text: "OK",
         onPress: () => {
           if (selectedItems.length === weatherStore.places.length) {
-            handleDeleteAll();
+            deleteAllLocations();
           } else {
-            handleDeleteSelected();
+            deleteSelectedLocations();
             setSelectedItems([]);
             setMultipleDelete(false);
           }
@@ -100,8 +103,8 @@ const AllLocation = () => {
       },
     ]);
   }, [
-    handleDeleteAll,
-    handleDeleteSelected,
+    deleteSelectedLocations,
+    deleteAllLocations,
     selectedItems.length,
     weatherStore.places.length,
   ]);
@@ -125,7 +128,7 @@ const AllLocation = () => {
       return (
         <CustomHeaderLeft
           progress={progress}
-          handleSelecteAll={handleSelecteAll}
+          handleSelecteAll={selecteAllLocation}
           selectedItems={selectedItems}
           {...props}
         />
@@ -144,7 +147,7 @@ const AllLocation = () => {
         progress={progress}
         multipleDelete={multipleDelete}
         selectedItems={selectedItems}
-        handleSelectItem={handleSelectItem}
+        handleSelectItem={selectLocation}
       />
       <ThemedView flex />
       {multipleDelete && (

@@ -12,7 +12,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import Svg, { Path, Text } from "react-native-svg";
-import { Astronomy } from "@/type";
+import { Astronomy } from "@/types/type";
 import { useTranslation } from "react-i18next";
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 

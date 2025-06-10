@@ -1,6 +1,6 @@
 import { ThemedText, ThemedView } from "@/components";
 import { useAppTheme, useStores } from "@/hooks";
-import { Place } from "@/type";
+import { Place } from "@/types/weather/place";
 import { placeUtils } from "@/utils";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Stack } from "expo-router";

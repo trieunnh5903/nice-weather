@@ -2,23 +2,21 @@ import { Pressable, StyleProp, StyleSheet, ViewStyle } from "react-native";
 import React, { memo, useCallback } from "react";
 import { FlatList } from "react-native-gesture-handler";
 import { Divider } from "react-native-paper";
-import { Place } from "@/type";
 import Animated, {
   AnimatedStyle,
   interpolate,
   SharedValue,
   useAnimatedStyle,
 } from "react-native-reanimated";
-import { observer } from "mobx-react-lite";
 import { useAppTheme, useLanguage, useStores } from "@/hooks";
 import { useQueries } from "@tanstack/react-query";
-import { router } from "expo-router";
 import { placeUtils, weatherUtils } from "@/utils";
 import ThemedView from "../ThemedView";
 import { MaterialIcons } from "@expo/vector-icons";
 import ThemedText from "../ThemedText";
 import { queryConfig } from "@/config/queryConfig";
 import { goBack } from "@/utils/navigationUtils";
+import { Place } from "@/types/weather/place";
 
 interface WeatherItemProps {
   place: Place;
@@ -36,7 +34,8 @@ interface LocationListProps {
   progress: SharedValue<number>;
 }
 
-const LocationList = observer(
+const LocationList =
+  // observer(
   ({
     multipleDelete,
     selectedItems,
@@ -101,8 +100,8 @@ const LocationList = observer(
         }}
       />
     );
-  }
-);
+  };
+// );
 
 const WeatherItem = memo(function WeatherItem({
   place,
