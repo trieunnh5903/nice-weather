@@ -12,8 +12,8 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import Svg, { Path, Text } from "react-native-svg";
-import { Astronomy } from "@/types/type";
 import { useTranslation } from "react-i18next";
+import { Astronomy } from "@/types/weather/astronomy";
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 interface AstronomyDetailProps {

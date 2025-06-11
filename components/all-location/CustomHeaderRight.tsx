@@ -8,10 +8,10 @@ import Animated, {
 } from "react-native-reanimated";
 import ThemedView from "../ThemedView";
 import ThemedText from "../ThemedText";
-import { MaterialIconName } from "@/types/type";
 import RippleButtonIcon from "../RippleButtonIcon";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
+import { MaterialIconName } from "@/types/common/materialIcon";
 
 interface CustomHeaderRightProps {
   icons: MaterialIconName[];

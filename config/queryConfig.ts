@@ -1,7 +1,7 @@
 import { weatherApi } from "@/api/weatherApi";
 import { LanguageCode } from "@/constants/languages";
 import { QUERY_KEY } from "@/constants/queryKey";
-import { TemperatureUnit } from "@/types/type";
+import { TemperatureUnit } from "@/types/common/unit";
 import { queryOptions } from "@tanstack/react-query";
 
 function currentWeatherQueryOptions(

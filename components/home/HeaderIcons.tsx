@@ -1,6 +1,5 @@
 import { StyleSheet } from "react-native";
 import React, { memo, useState } from "react";
-import { MaterialIconName } from "@/types/type";
 import RippleButtonIcon from "../RippleButtonIcon";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import ThemedView from "../ThemedView";
@@ -9,6 +8,7 @@ import { Menu } from "react-native-paper";
 import { router } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { MaterialIconName } from "@/types/common/materialIcon";
 
 interface HeaderIconsProps {
   onHeaderPress: (icon: string) => void;

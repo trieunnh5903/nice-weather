@@ -1,9 +1,9 @@
 import { weatherApi } from "@/api/weatherApi";
-import { Place } from "@/types/type";
+import { Place } from "@/types/weather/place";
 import { useEffect, useState } from "react";
 
 export function useSearchLocation(query: string) {
-  const [results, setResults] = useState<Place[]>();
+  const [results, setResults] = useState<Place[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   useEffect(() => {

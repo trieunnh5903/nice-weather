@@ -7,9 +7,10 @@ import ThemedText from "../ThemedText";
 import { ScrollView } from "react-native-gesture-handler";
 import weatherIcon from "@/config/weatherIcon";
 import { Image } from "expo-image";
-import { Daily, TemperatureUnit } from "@/types/type";
 import TemperatureChart from "./TemperatureChart";
 import { useTranslation } from "react-i18next";
+import { Daily } from "@/types/weather/forecast";
+import { TemperatureUnit } from "@/types/common/unit";
 
 interface WeatherDailyProps {
   item: Daily;

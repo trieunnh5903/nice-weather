@@ -2,7 +2,6 @@ import { StyleSheet } from "react-native";
 import React, { useEffect, useMemo, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useStores } from "@/hooks";
-import { TemperatureUnit } from "@/types/type";
 import { useQueryClient } from "@tanstack/react-query";
 import ThemedView from "../ThemedView";
 import { Divider, Modal, Portal, RadioButton } from "react-native-paper";
@@ -11,6 +10,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import Section from "./Section";
 import { Size } from "@/constants/size";
 import { useTranslation } from "react-i18next";
+import { TemperatureUnit } from "@/types/common/unit";
 
 const Unit = observer(() => {
   const [modalVisible, setModalVisible] = useState(false);

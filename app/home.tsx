@@ -19,7 +19,9 @@ import { MaterialIconName } from "@/types/common/materialIcon";
 
 const INPUT_MAX_VALUE = 160;
 
-const HomeScreen: React.FC = observer(() => {
+const HomeScreen: React.FC = 
+observer(
+  () => {
   const { weatherStore } = useStores();
   const navigation = useNavigation();
   const router = useRouter();
@@ -137,7 +139,8 @@ const HomeScreen: React.FC = observer(() => {
       </PagerView>
     </ThemedView>
   );
-});
+}
+);
 
 export default HomeScreen;
 const styles = StyleSheet.create({

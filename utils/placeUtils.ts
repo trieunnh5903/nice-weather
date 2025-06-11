@@ -1,4 +1,4 @@
-import { Place } from "@/types/type";
+import { Place } from "@/types/weather/place";
 
 const getAddress = (place: Place) => {
   const subtitleParts: string[] = [];
