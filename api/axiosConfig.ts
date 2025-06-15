@@ -1,3 +1,4 @@
+import { showError } from "@/utils/errorHandler";
 import axios from "axios";
 
 export const axiosWeatherInstance = axios.create({
@@ -11,3 +12,28 @@ export const axiosMeteoInstance = axios.create({
 export const axiosAstronomyInstance = axios.create({
   baseURL: process.env.EXPO_PUBLIC_ASTRONOMY_URL_KEY,
 });
+
+axiosWeatherInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    showError(error);
+    return Promise.reject(error);
+  }
+);
+
+axiosMeteoInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    showError(error);
+    return Promise.reject(error);
+  }
+);
+
+axiosAstronomyInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    showError(error);
+    return Promise.reject(error);
+  }
+);
+
