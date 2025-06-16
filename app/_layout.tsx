@@ -18,8 +18,11 @@ import { LANGUAGE_STORAGE_KEY } from "@/constants/languages";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { createQueryClient } from "@/libs/react-query";
 import { Fonts } from "@/constants/fonts";
+import { setupOnlineManager } from "@/libs/networkManager";
 
 SplashScreen.preventAutoHideAsync();
+
+setupOnlineManager();
 
 const asyncStoragePersister = createAsyncStoragePersister({
   storage: AsyncStorage,
