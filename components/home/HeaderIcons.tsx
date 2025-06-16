@@ -3,12 +3,13 @@ import React, { memo, useState } from "react";
 import RippleButtonIcon from "../RippleButtonIcon";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import ThemedView from "../ThemedView";
-import { useAppTheme } from "@/hooks";
+import { useAppTheme, useNetworkState } from "@/hooks";
 import { Menu } from "react-native-paper";
 import { router } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { MaterialIconName } from "@/types/common/materialIcon";
+import { showError } from "@/utils/errorHandler";
 
 interface HeaderIconsProps {
   onHeaderPress: (icon: string) => void;
@@ -26,7 +27,15 @@ const HeaderIcons: React.FC<HeaderIconsProps> = ({
   const openMenu = () => setMenuVisible(true);
   const closeMenu = () => setMenuVisible(false);
   const { t } = useTranslation();
-
+  const net = useNetworkState();
+  const handleUpdateData = async () => {
+    if (!net?.isInternetReachable) {
+      showError(false);
+    } else {
+      queryClient.invalidateQueries();
+    }
+    closeMenu();
+  };
   return (
     <ThemedView style={styles.header}>
       {headerIcons.map((icon) => (
@@ -57,10 +66,7 @@ const HeaderIcons: React.FC<HeaderIconsProps> = ({
         }
       >
         <Menu.Item
-          onPress={() => {
-            queryClient.invalidateQueries();
-            closeMenu();
-          }}
+          onPress={() => handleUpdateData()}
           title={t("home.menu.update")}
         />
         <Menu.Item
