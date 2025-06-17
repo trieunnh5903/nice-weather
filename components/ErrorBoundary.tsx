@@ -22,12 +22,8 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: any) {
-    // Ghi log lỗi ra console
     console.error("ErrorBoundary caught an error", error, errorInfo);
     this.setState({ errorInfo });
-
-    // Ở đây bạn có thể gửi lỗi lên hệ thống logging của mình như Sentry, Bugsnag, v.v.
-    // sendErrorToServer(error, errorInfo);
   }
 
   handleReload = () => {
@@ -38,9 +34,9 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         <View style={styles.container}>
-          <Text style={styles.title}>Đã xảy ra lỗi!</Text>
+          <Text style={styles.title}>An error occurred!</Text>
           <Text style={styles.error}>{this.state.error?.message}</Text>
-          <Button title="Thử lại" onPress={this.handleReload} />
+          <Button title="Retry" onPress={this.handleReload} />
         </View>
       );
     }
