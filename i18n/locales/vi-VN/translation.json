@@ -1,5 +1,9 @@
 {
   "home": {
+    "location": {
+      "permission_denied_message": "Quyền bị từ chối. Vui lòng cho phép truy cập vị trí trong cài đặt của bạn.",
+       "permission_denied_title": "Quyền truy cập vị trí bị từ chối"
+    },
     "menu": {
       "update": "Cập nhật ngay",
       "setting": "Cài đặt"

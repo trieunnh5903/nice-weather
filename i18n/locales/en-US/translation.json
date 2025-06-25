@@ -1,4 +1,8 @@
 {
+  "location": {
+    "permission_denied_message": "Permission denied. Please allow location access in your settings.",
+    "permission_denied_title": "Location Permission Denied"
+  },
   "home": {
     "menu": {
       "update": "Update now",

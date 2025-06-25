@@ -37,5 +37,3 @@ export const LANGUAGES = {
   //   flag: "🇮🇩",
   // },
 } as const;
-
-export type LanguageCode = keyof typeof LANGUAGES;
