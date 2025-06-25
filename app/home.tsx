@@ -5,7 +5,7 @@ import {
   usePagerNavigation,
   useScrollBehavior,
   useStores,
-  useWeatherQueries,
+  useFullWeatherData,
 } from "@/hooks";
 import { CommonActions } from "@react-navigation/native";
 import { useCallback, useMemo } from "react";
@@ -19,9 +19,7 @@ import { MaterialIconName } from "@/types/common/materialIcon";
 
 const INPUT_MAX_VALUE = 160;
 
-const HomeScreen: React.FC = 
-observer(
-  () => {
+const HomeScreen: React.FC = observer(() => {
   const { weatherStore } = useStores();
   const navigation = useNavigation();
   const router = useRouter();
@@ -49,7 +47,7 @@ observer(
   });
 
   const { allAstronomy, allCurrentWeather, allForecast, isSuccess } =
-    useWeatherQueries(weatherStore.places, currentLanguage);
+    useFullWeatherData(weatherStore.places, currentLanguage);
 
   useFocusEffect(() => {
     if (pageIndex !== weatherStore.selectedIndex && isSuccess) {
@@ -139,8 +137,7 @@ observer(
       </PagerView>
     </ThemedView>
   );
-}
-);
+});
 
 export default HomeScreen;
 const styles = StyleSheet.create({
