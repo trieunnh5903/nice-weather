@@ -10,7 +10,7 @@ export const axiosMeteoInstance = axios.create({
 });
 
 export const axiosAstronomyInstance = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_ASTRONOMY_URL_KEY,
+  baseURL: process.env.EXPO_PUBLIC_SUNRISESUNSET_URL_KEY,
 });
 
 axiosWeatherInstance.interceptors.response.use(

@@ -5,12 +5,12 @@ import {
   axiosMeteoInstance,
   axiosWeatherInstance,
 } from "./axiosConfig";
-import { LanguageCode } from "@/constants/languages";
 import { Place } from "@/types/weather/place";
 import { AstronomyResponse } from "@/types/weather/astronomy";
 import { CurrentWeatherResponse } from "@/types/weather/currenWeather";
 import { TemperatureUnit } from "@/types/common/unit";
 import { Forecast } from "@/types/weather/forecast";
+import { LanguageCode } from "@/types/common/language";
 
 const fetchData = async <T>(
   instance: AxiosInstance,
@@ -45,7 +45,7 @@ const fetchDataWeatherApi = <T>(endpoint: string, params = {}) =>
     params
   );
 
-const reverseGeocoding = async (lat: string, lon: string) => {
+export const reverseGeocoding = async (lat: string, lon: string) => {
   try {
     return await fetchDataMeteoApi<Place>("/api/v1/free/nearest_place", {
       lat,
@@ -57,7 +57,7 @@ const reverseGeocoding = async (lat: string, lon: string) => {
   }
 };
 
-const directGeocoding = async (text: string) => {
+export const directGeocoding = async (text: string) => {
   try {
     return await fetchDataMeteoApi<Place[]>("/api/v1/free/find_places_prefix", {
       text,
@@ -68,7 +68,7 @@ const directGeocoding = async (text: string) => {
   }
 };
 
-const fetchAstronomy = async (lat: string, lon: string) => {
+export const fetchAstronomy = async (lat: string, lon: string) => {
   console.log("fetchAstronomy");
 
   try {
@@ -85,7 +85,7 @@ const fetchAstronomy = async (lat: string, lon: string) => {
   }
 };
 
-const fetchCurrentWeather = async (
+export const fetchCurrentWeather = async (
   lat: string,
   lon: string,
   lang: LanguageCode
@@ -97,7 +97,7 @@ const fetchCurrentWeather = async (
   });
 };
 
-const fetchForecast = async (
+export const fetchForecast = async (
   lat: string,
   lon: string,
   units: TemperatureUnit
@@ -109,12 +109,4 @@ const fetchForecast = async (
     language: "en",
     units,
   });
-};
-
-export const weatherApi = {
-  reverseGeocoding,
-  directGeocoding,
-  fetchAstronomy,
-  fetchCurrentWeather,
-  fetchForecast,
 };
