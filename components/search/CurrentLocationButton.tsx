@@ -1,71 +1,70 @@
 import { Alert, Platform, StyleSheet, ToastAndroid } from "react-native";
 import React, { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { useLanguage, useStores } from "@/hooks";
-import { useQuery } from "@tanstack/react-query";
+import { useStores, useWeatherQueries } from "@/hooks";
 import * as ExpoLocation from "expo-location";
-import { weatherApi } from "@/api/weatherApi";
-import { router } from "expo-router";
 import { Button } from "react-native-paper";
 import { placeUtils } from "@/utils";
-import { queryConfig } from "@/config/queryConfig";
 import { useTranslation } from "react-i18next";
 import { goBackOrReset } from "@/utils/navigationUtils";
 import { Place } from "@/types/weather/place";
+import { reverseGeocoding } from "@/api/weatherApi";
 
 const CurrentLocationButton = observer(() => {
   const { weatherStore } = useStores();
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslation();
   const [place, setPlace] = useState<Place>();
-  const { currentLanguage } = useLanguage();
 
-  const { isSuccess } = useQuery(
-    queryConfig.currentWeatherQueryOptions(
-      place?.lat || "",
-      place?.lon || "",
-      currentLanguage
-    )
-  );
+  const { isSuccess } = useWeatherQueries({
+    unit: weatherStore.temperatureUnit,
+    lat: place?.lat,
+    lon: place?.lon,
+  });
 
   useEffect(() => {
     if (isSuccess) {
       goBackOrReset();
       setIsLoading(false);
     }
-    return () => {};
   }, [isSuccess]);
 
-  const getCurrentPosition = async () => {
+  const requestLocationPermission = async () => {
+    const { status } = await ExpoLocation.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      const message = t("location.permission_denied_message");
+      if (Platform.OS === "android") {
+        ToastAndroid.show(message, 3000);
+      } else {
+        Alert.alert(t("location.permission_denied_title"), message);
+      }
+      return false;
+    }
+    return true;
+  };
+
+  const getCurrentLocation = async () => {
+    const permissionGranted = await requestLocationPermission();
+    if (!permissionGranted) return;
+    const {
+      coords: { latitude, longitude },
+    } = await ExpoLocation.getCurrentPositionAsync({});
+    return { latitude, longitude };
+  };
+
+  const handleGetCurrentPosition = async () => {
     setIsLoading(true);
     try {
-      let { status } = await ExpoLocation.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        if (Platform.OS === "android") {
-          ToastAndroid.show(
-            "Permission to access location was denied. Please enable it.",
-            3000
-          );
-        } else {
-          Alert.alert(
-            "Permission Denied",
-            "Permission to access location was denied. Please enable it in the settings."
-          );
-        }
-        return;
-      }
+      const coords = await getCurrentLocation();
+      if (!coords) return;
 
-      let {
-        coords: { latitude, longitude },
-      } = await ExpoLocation.getCurrentPositionAsync({});
-
-      const location = await weatherApi.reverseGeocoding(
-        latitude.toString(),
-        longitude.toString()
+      const location = await reverseGeocoding(
+        coords.latitude.toString(),
+        coords.longitude.toString()
       );
 
       if (location) {
-        const formatedPlace: Place = {
+        const formattedPlace = {
           ...location,
           isUserLocation: true,
           ...placeUtils.formatCoordinates({
@@ -73,20 +72,23 @@ const CurrentLocationButton = observer(() => {
             longitude: location.lon,
           }),
         };
-        weatherStore.addPlace(formatedPlace);
-        setPlace(formatedPlace);
+        weatherStore.addPlace(formattedPlace);
+        setPlace(formattedPlace);
       }
     } catch (error) {
       console.log("error", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <Button
-      loading={isLoading ? true : false}
+      testID="use_current_location"
+      loading={isLoading}
       mode="outlined"
       style={styles.currentLocation}
-      onPress={getCurrentPosition}
+      onPress={handleGetCurrentPosition}
     >
       {t("search.use_current_location")}
     </Button>

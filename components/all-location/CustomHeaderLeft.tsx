@@ -6,7 +6,6 @@ import Animated, {
   useAnimatedStyle,
 } from "react-native-reanimated";
 import { useAppTheme, useStores } from "@/hooks";
-import { router } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import RippleButtonIcon from "../RippleButtonIcon";
 import ThemedText from "../ThemedText";
