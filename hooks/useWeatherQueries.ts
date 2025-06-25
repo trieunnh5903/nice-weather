@@ -1,43 +1,19 @@
-import { queryConfig } from "@/config/queryConfig";
-import { LanguageCode } from "@/constants/languages";
+import { useCurrentWeather } from "./useCurrentWeather";
 import { Place } from "@/types/weather/place";
-import { useQueries } from "@tanstack/react-query";
+import { useForecast } from "./useForecast";
+import { useSunriseSunset } from "./useSunriseSunset";
+import { TemperatureUnit } from "@/types/common/unit";
 
 export const useWeatherQueries = (
-  places: Place[],
-  currentLanguage: LanguageCode
+  params: Partial<Pick<Place, "lat" | "lon">> & {
+    unit: TemperatureUnit;
+  }
 ) => {
-  const allCurrentWeather = useQueries({
-    queries: places.map((place) =>
-      queryConfig.currentWeatherQueryOptions(
-        place.lat,
-        place.lon,
-        currentLanguage
-      )
-    ),
-  });
-
-  const allForecast = useQueries({
-    queries: places.map((place) =>
-      queryConfig.forecastQueryOptions(place.lat, place.lon, "metric")
-    ),
-  });
-
-  const allAstronomy = useQueries({
-    queries: places.map((place) =>
-      queryConfig.astronomyQueryOptions(place.lat, place.lon)
-    ),
-  });
-
-  const isSuccess =
-    allCurrentWeather.some((q) => q.isSuccess) ||
-    allForecast.some((q) => q.isSuccess) ||
-    allAstronomy.some((q) => q.isSuccess);
-
-  const isError =
-    allCurrentWeather.some((q) => q.isError) ||
-    allForecast.some((q) => q.isError) ||
-    allAstronomy.some((q) => q.isError);
-
-  return { allCurrentWeather, allForecast, allAstronomy, isSuccess, isError };
+  const q1 = useCurrentWeather(params.lat, params.lon);
+  const q2 = useForecast(params.lat, params.lon, params.unit);
+  const q3 = useSunriseSunset(params.lat, params.lon);
+  return {
+    isSuccess: q1.isSuccess && q2.isSuccess && q3.isSuccess,
+    isLoading: q1.isLoading || q2.isLoading || q3.isLoading,
+  };
 };
