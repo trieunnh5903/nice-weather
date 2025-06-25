@@ -3,8 +3,6 @@ import { Text, type TextProps, StyleSheet } from "react-native";
 
 export type ThemedTextProps = TextProps & {
   lineHeight?: number;
-  lightColor?: string;
-  darkColor?: string;
   color?: string;
   uppercase?: boolean;
   fontSize?: number | undefined;
@@ -22,8 +20,6 @@ export type ThemedTextProps = TextProps & {
 
 const ThemedText = ({
   style,
-  lightColor,
-  darkColor,
   lineHeight,
   fontSize,
   color,
@@ -32,19 +28,33 @@ const ThemedText = ({
   ...rest
 }: ThemedTextProps) => {
   const themeColor = useAppTheme();
-
+  const getTypeStyle = (type: ThemedTextProps["type"]) => {
+    switch (type) {
+      case "defaultLight":
+        return styles.defaultLight;
+      case "defaultMedium":
+        return styles.defaultMedium;
+      case "defaultSemiBold":
+        return styles.defaultSemiBold;
+      case "defaultBold":
+        return styles.defaultBold;
+      case "title":
+        return styles.title;
+      case "subtitle":
+        return styles.subtitle;
+      case "label":
+        return styles.label;
+      case "link":
+        return styles.link;
+      case "default":
+      default:
+        return styles.default;
+    }
+  };
   return (
     <Text
       style={[
-        type === "default" ? styles.default : undefined,
-        type === "title" ? styles.title : undefined,
-        type === "defaultMedium" ? styles.defaultMedium : undefined,
-        type === "defaultSemiBold" ? styles.defaultSemiBold : undefined,
-        type === "defaultBold" ? styles.defaultBold : undefined,
-        type === "defaultLight" ? styles.defaultLight : undefined,
-        type === "subtitle" ? styles.subtitle : undefined,
-        type === "link" ? styles.link : undefined,
-        type === "label" ? styles.label : undefined,
+        getTypeStyle(type),
         !!fontSize && { fontSize },
         uppercase && { textTransform: "uppercase" },
         { color: color || themeColor.text, lineHeight },

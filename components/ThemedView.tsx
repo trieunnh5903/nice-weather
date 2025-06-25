@@ -20,51 +20,47 @@ export type ThemedViewProps = ViewProps & {
 
 const ThemedView = ({
   style,
-  paddingLeft,
   lightColor,
   darkColor,
   enableInsets,
-  paddingVertical,
   enableInsetsHorizontal,
   enableInsetsTop,
   padding,
   paddingHorizontal,
+  paddingLeft,
   paddingTop,
   paddingBottom,
+  paddingVertical,
   flex,
   ...otherProps
 }: ThemedViewProps) => {
   const insets = useSafeAreaInsets();
   const themeColor = useAppTheme();
 
-  return (
-    <View
-      style={[
-        {
-          backgroundColor: themeColor.background,
-          padding,
-          paddingHorizontal,
-          paddingVertical,
-          paddingLeft,
-          paddingTop,
-          paddingBottom,
-        },
-        flex && { flex: 1 },
-        enableInsets && {
-          paddingTop: insets.top * 1.5,
-          paddingHorizontal: 16,
-        },
-        enableInsetsHorizontal && {
-          paddingHorizontal: 16,
-        },
-        enableInsetsTop && {
-          paddingTop: insets.top,
-        },
-        style,
-      ]}
-      {...otherProps}
-    />
-  );
+  const resolvedPaddingTop =
+    paddingTop ??
+    (enableInsetsTop
+      ? insets.top
+      : enableInsets
+      ? insets.top * 1.5
+      : undefined);
+
+  const resolvedPaddingHorizontal =
+    paddingHorizontal ??
+    (enableInsets || enableInsetsHorizontal ? 16 : undefined);
+
+  const containerStyle = {
+    backgroundColor: themeColor.background,
+    padding,
+    paddingLeft,
+    paddingBottom,
+    paddingVertical,
+    paddingTop: resolvedPaddingTop,
+    paddingHorizontal: resolvedPaddingHorizontal,
+    ...(flex && { flex: 1 }),
+  };
+
+  return <View style={[containerStyle, style]} {...otherProps} />;
 };
 
 export default ThemedView;
