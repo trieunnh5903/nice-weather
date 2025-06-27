@@ -1,4 +1,4 @@
-import weatherIcon from "@/config/weatherIcon";
+import weatherIcon from "@/constants/weatherIcon";
 import { Hourly } from "@/types/weather/forecast";
 import React from "react";
 import { useTranslation } from "react-i18next";

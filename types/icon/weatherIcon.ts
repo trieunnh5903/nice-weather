@@ -1,3 +1,3 @@
-import weatherIconMapping from "@/config/weatherIcon";
+import weatherIconMapping from "@/constants/weatherIcon";
 
 export type WeatherIcon = keyof typeof weatherIconMapping;
