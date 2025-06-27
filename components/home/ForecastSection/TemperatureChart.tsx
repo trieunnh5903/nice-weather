@@ -1,5 +1,5 @@
 import { ThemedView } from "@/components/common/Themed";
-import { useAppTheme } from "@/hooks";
+import { useAppTheme } from "@/hooks/common";
 import React from "react";
 import {
   LineChart,

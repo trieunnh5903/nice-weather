@@ -1,6 +1,4 @@
-import { ThemedText, ThemedView } from "@/components";
-import { LanguageCode, LANGUAGES } from "@/constants/languages";
-import { useAppTheme, useLanguage } from "@/hooks";
+import { Language } from "@/constants/languages";
 import { Stack } from "expo-router";
 import React from "react";
 import {
@@ -15,6 +13,9 @@ import {
 import Section from "./Section";
 import { Divider, Portal } from "react-native-paper";
 import { useTranslation } from "react-i18next";
+import { LanguageCode } from "@/types/common/language";
+import { useAppTheme, useLanguage } from "@/hooks/common";
+import { ThemedText, ThemedView } from "../common/Themed";
 interface LanguageItemProps {
   languageCode: LanguageCode;
   isSelected: boolean;
@@ -26,7 +27,7 @@ const LanguageItem = ({
   isSelected,
   onSelect,
 }: LanguageItemProps) => {
-  const language = LANGUAGES[languageCode];
+  const language = Language[languageCode];
   const appTheme = useAppTheme();
   return (
     <Pressable
@@ -69,7 +70,7 @@ const LanguageSelector = ({
 
   const renderLanguageList = () => (
     <FlatList
-      data={Object.keys(LANGUAGES) as LanguageCode[]}
+      data={Object.keys(Language) as LanguageCode[]}
       keyExtractor={(item) => item}
       ItemSeparatorComponent={() => <Divider />}
       renderItem={({ item }) => (
@@ -87,8 +88,8 @@ const LanguageSelector = ({
     return (
       <>
         <Section
-          title= {t("setting.language")}
-          subtitle={LANGUAGES[currentLanguage].name}
+          title={t("setting.language")}
+          subtitle={Language[currentLanguage].name}
           handleOpenSection={() => setModalVisible(true)}
         />
         {modalVisible && (

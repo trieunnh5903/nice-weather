@@ -1,6 +1,6 @@
 import ThemedText from "@/components/common/Themed/ThemedText";
 import ThemedView from "@/components/common/Themed/ThemedView";
-import { useAppTheme } from "@/hooks";
+import { useAppTheme } from "@/hooks/common";
 import { useIsFetching } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { StyleSheet } from "react-native";

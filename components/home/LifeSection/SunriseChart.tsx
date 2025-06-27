@@ -6,9 +6,9 @@ import Animated, {
 } from "react-native-reanimated";
 import Svg, { Path, Text } from "react-native-svg";
 import { Size } from "@/constants/size";
-import { useAppTheme } from "@/hooks";
 import { Astronomy } from "@/types/weather/astronomy";
 import { weatherUtils } from "@/utils";
+import { useAppTheme } from "@/hooks/common";
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 

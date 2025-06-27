@@ -1,8 +1,8 @@
-import { useAppTheme } from "@/hooks";
 import { AppColors } from "@/constants/colors";
 import { MaterialIcons } from "@expo/vector-icons";
 import { MaterialIconName } from "@/types/common/materialIcon";
 import RippleButtonIcon from "../common/Button/RippleButtonIcon";
+import { useAppTheme } from "@/hooks/common";
 
 interface NavigationButtonProps {
   onPress: () => void;

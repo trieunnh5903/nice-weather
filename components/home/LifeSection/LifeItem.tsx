@@ -1,9 +1,9 @@
-import { useAppTheme } from "@/hooks";
 import { StyleSheet } from "react-native";
 import { Size } from "@/constants/size";
 import ThemedView from "@/components/common/Themed/ThemedView";
 import { Title } from "@/components/common/Themed/Title";
 import { Subtitle } from "@/components/common/Themed/Subtitle";
+import { useAppTheme } from "@/hooks/common";
 
 interface LifeItemProps {
   title: string;

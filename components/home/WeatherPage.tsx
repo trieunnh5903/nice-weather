@@ -3,7 +3,6 @@ import { ScrollView } from "react-native-gesture-handler";
 import Animated from "react-native-reanimated";
 import { observer } from "mobx-react-lite";
 import ThemedView from "../common/Themed/ThemedView";
-import { useStores } from "@/hooks";
 import { Forecast } from "@/types/weather/forecast";
 import { AstronomyResponse } from "@/types/weather/astronomy";
 import { CurrentWeatherResponse } from "@/types/weather/currenWeather";
@@ -11,6 +10,7 @@ import { UseQueryResult } from "@tanstack/react-query";
 import { CurrentWeatherSection } from ".";
 import ForecastSection from "./ForecastSection";
 import LifeSection from "./LifeSection";
+import { useStores } from "@/hooks/common";
 // const CurrentWeatherSection = React.lazy(
 //   () => import("./home/CurrentWeatherSection")
 // );

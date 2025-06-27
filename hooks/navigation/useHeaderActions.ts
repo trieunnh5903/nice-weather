@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { useNavigation, useRouter } from "expo-router";
 import { Alert } from "react-native";
 import { CommonActions } from "@react-navigation/native";
-import { useStores } from "@/hooks";
+import { useStores } from "../common";
 
 export const useHeaderActions = () => {
   const { weatherStore } = useStores();

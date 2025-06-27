@@ -6,9 +6,9 @@ import { ScrollView } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
 import { Hourly } from "@/types/weather/forecast";
 import { TemperatureUnit } from "@/types/common/unit";
-import { useHourlyData } from "@/hooks";
 import { HourlyItem } from "./HourlyItem";
 import TemperatureChart from "./TemperatureChart";
+import { useHourlyData } from "@/hooks/weather";
 
 interface ListHourlyProps {
   hourly: Hourly[];

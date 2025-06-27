@@ -2,10 +2,11 @@ import { StyleSheet } from "react-native";
 import React, { memo, useState } from "react";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import ThemedView from "../common/Themed/ThemedView";
-import { useAppTheme, useHeaderMenu } from "@/hooks";
 import { Menu } from "react-native-paper";
 import { MaterialIconName } from "@/types/common/materialIcon";
 import RippleButtonIcon from "../common/Button/RippleButtonIcon";
+import { useAppTheme } from "@/hooks/common";
+import { useHeaderMenu } from "@/hooks/navigation";
 
 interface HeaderIconsProps {
   onHeaderPress: (icon: string) => void;

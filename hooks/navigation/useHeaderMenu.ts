@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
-import { useNetworkState } from "./useNetworkState";
 import { useQueryClient } from "@tanstack/react-query";
 import { showError } from "@/utils/errorHandler";
 import { router } from "expo-router";
+import { useNetworkState } from "../common";
 
 export const useHeaderMenu = (closeMenu: () => void) => {
   const { t } = useTranslation();

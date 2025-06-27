@@ -1,8 +1,8 @@
 import React from "react";
 import PagerView from "react-native-pager-view";
 import { StyleSheet } from "react-native";
-import { WeatherPage } from "@/components";
 import { Place } from "@/types/weather/place";
+import WeatherPage from "./WeatherPage";
 
 interface WeatherPagerProps {
   places: Place[];

@@ -1,14 +1,12 @@
-import { ThemedText, ThemedView } from "@/components";
-import { useAppTheme, useStores } from "@/hooks";
+import { DraggableItem } from "@/components/arrange-locations";
+import { ThemedView } from "@/components/common/Themed";
+import { useAppTheme, useStores } from "@/hooks/common";
 import { Place } from "@/types/weather/place";
-import { placeUtils } from "@/utils";
-import { MaterialIcons } from "@expo/vector-icons";
 import { Stack } from "expo-router";
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
-import React from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { StyleSheet, Pressable, View } from "react-native";
 import DraggableFlatList, { RenderItem } from "react-native-draggable-flatlist";
 import { Divider } from "react-native-paper";
 
@@ -16,33 +14,18 @@ const DraggableList = observer(() => {
   const { weatherStore } = useStores();
   const appTheme = useAppTheme();
   const { t } = useTranslation();
-  const renderItem: RenderItem<Place> = ({ item, drag, isActive }) => {
-    return (
-      <ThemedView
-        style={[
-          styles.item,
-          {
-            backgroundColor: isActive ? appTheme.primary : appTheme.background,
-          },
-        ]}
-      >
-        <View style={styles.place}>
-          <ThemedText type="subtitle" numberOfLines={1}>
-            {item.name}
-          </ThemedText>
-          <ThemedText numberOfLines={1}>
-            {placeUtils.getAddress(item)}
-          </ThemedText>
-        </View>
-        <Pressable onLongPress={drag}>
-          <View style={styles.icon}>
-            <MaterialIcons name="menu" size={24} color={appTheme.icon} />
-          </View>
-        </Pressable>
-      </ThemedView>
-    );
-  };
-
+  const renderItem: RenderItem<Place> = ({ item, drag, isActive }) => (
+    <DraggableItem
+      item={item}
+      drag={drag}
+      isActive={isActive}
+      appTheme={appTheme}
+    />
+  );
+  const places = useMemo(
+    () => toJS(weatherStore.places),
+    [weatherStore.places]
+  );
   if (weatherStore.places.length === 0) return null;
   return (
     <ThemedView>
@@ -54,37 +37,13 @@ const DraggableList = observer(() => {
       />
       <DraggableFlatList
         ItemSeparatorComponent={() => <Divider />}
-        data={toJS(weatherStore.places)}
+        data={places}
         renderItem={renderItem}
         keyExtractor={(item) => item.place_id}
         onDragEnd={({ data }) => weatherStore.setPlaces(data)}
       />
     </ThemedView>
   );
-});
-
-const styles = StyleSheet.create({
-  icon: {
-    padding: 20,
-  },
-
-  place: {
-    flex: 1,
-    paddingHorizontal: 12,
-  },
-  item: {
-    paddingVertical: 6,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    // gap: 20,
-  },
-  text: {
-    fontSize: 18,
-  },
-  row: {
-    flexDirection: "row",
-  },
 });
 
 export default DraggableList;

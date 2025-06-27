@@ -10,10 +10,11 @@ import { MaterialIcons } from "@expo/vector-icons";
 import ThemedView from "../common/Themed/ThemedView";
 import ThemedText from "../common/Themed/ThemedText";
 import { NavigationButton } from "./NavigationButton";
-import { useAppTheme, useSelectedPlaceWeather, useStores } from "@/hooks";
 import { Size } from "@/constants/size";
 import { CurrentWeatherResponse } from "@/types/weather/currenWeather";
 import { getTemperatureText } from "@/utils/weatherUtils";
+import { useSelectedPlaceWeather } from "@/hooks/weather";
+import { useAppTheme, useStores } from "@/hooks/common";
 
 interface PlaceNavigationProps {
   onLeftPress: () => void;

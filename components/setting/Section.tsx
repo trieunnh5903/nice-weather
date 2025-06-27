@@ -3,7 +3,7 @@ import React from "react";
 import ThemedView from "../common/Themed/ThemedView";
 import ThemedText from "../common/Themed/ThemedText";
 import { Divider } from "react-native-paper";
-import { useAppTheme } from "@/hooks";
+import { useAppTheme } from "@/hooks/common";
 
 interface SectionProps {
   title: string;
