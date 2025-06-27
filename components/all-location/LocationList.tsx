@@ -11,10 +11,9 @@ import Animated, {
 import { useAppTheme, useLanguage, useStores } from "@/hooks";
 import { useQueries } from "@tanstack/react-query";
 import { placeUtils, weatherUtils } from "@/utils";
-import ThemedView from "../ThemedView";
+import ThemedView from "../common/Themed/ThemedView";
 import { MaterialIcons } from "@expo/vector-icons";
-import ThemedText from "../ThemedText";
-import { queryConfig } from "@/config/queryConfig";
+import ThemedText from "../common/Themed/ThemedText";
 import { goBack } from "@/utils/navigationUtils";
 import { Place } from "@/types/weather/place";
 

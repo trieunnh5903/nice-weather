@@ -1,7 +1,7 @@
 import { Alert, Platform, StyleSheet, ToastAndroid } from "react-native";
 import React, { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { useStores, useWeatherQueries } from "@/hooks";
+import { useLanguage, useStores, useWeatherQueries } from "@/hooks";
 import * as ExpoLocation from "expo-location";
 import { Button } from "react-native-paper";
 import { placeUtils } from "@/utils";
@@ -15,11 +15,12 @@ const CurrentLocationButton = observer(() => {
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslation();
   const [place, setPlace] = useState<Place>();
-
+  const { currentLanguage } = useLanguage();
   const { isSuccess } = useWeatherQueries({
     unit: weatherStore.temperatureUnit,
-    lat: place?.lat,
-    lon: place?.lon,
+    lat: place?.lat ?? "",
+    lon: place?.lon ?? "",
+    language: currentLanguage,
   });
 
   useEffect(() => {

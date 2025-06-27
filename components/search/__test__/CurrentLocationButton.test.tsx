@@ -27,6 +27,7 @@ jest.mock("@/hooks", () => ({
 }));
 
 describe("CurrentLocationButton", () => {
+  beforeEach(() => jest.clearAllMocks());
   it("when user use current location, add place to the store and go back", async () => {
     const mockCoords = { coords: { latitude: 10, longitude: 10 } };
 

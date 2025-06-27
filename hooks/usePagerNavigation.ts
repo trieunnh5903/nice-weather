@@ -1,4 +1,4 @@
-import WeatherStore from "@/stores/weatherStore";
+import { getNextIndex, getPreviousIndex } from "@/utils";
 import { useCallback, useRef, useState } from "react";
 import PagerView, {
   PagerViewOnPageSelectedEvent,
@@ -6,7 +6,9 @@ import PagerView, {
 import { SharedValue } from "react-native-reanimated";
 
 interface UsePagerNavigationProps {
-  weatherStore: WeatherStore;
+  selectedIndex: number;
+  totalPages: number;
+  setSelectedIndex: (index: number) => void;
   scrollListView: (
     pageIndex: number,
     offset: number,
@@ -17,7 +19,9 @@ interface UsePagerNavigationProps {
 }
 
 export const usePagerNavigation = ({
-  weatherStore,
+  selectedIndex,
+  setSelectedIndex,
+  totalPages,
   scrollListView,
   INPUT_MAX_VALUE,
   offsetY,
@@ -28,40 +32,31 @@ export const usePagerNavigation = ({
     pagerRef.current?.setPageWithoutAnimation(pageNumber);
   }, []);
 
+  const navigateToIndex = useCallback(
+    (newIndex: number) => {
+      const shouldScrollToTop = offsetY.value < INPUT_MAX_VALUE;
+      scrollListView(newIndex, shouldScrollToTop ? 0 : INPUT_MAX_VALUE, false);
+      goToPageWithoutAnimation(newIndex);
+    },
+    [scrollListView, goToPageWithoutAnimation, offsetY.value, INPUT_MAX_VALUE]
+  );
+
   const handleNavigation = useCallback(
     (isNext: boolean) => {
       const newIndex = isNext
-        ? weatherStore.selectedIndex === weatherStore.places.length - 1
-          ? 0
-          : weatherStore.selectedIndex + 1
-        : weatherStore.selectedIndex === 0
-        ? weatherStore.places.length - 1
-        : weatherStore.selectedIndex - 1;
+        ? getNextIndex(selectedIndex, totalPages)
+        : getPreviousIndex(selectedIndex, totalPages);
 
-      if (offsetY.value >= INPUT_MAX_VALUE) {
-        scrollListView(newIndex, INPUT_MAX_VALUE, false);
-      } else {
-        scrollListView(newIndex, 0, false);
-      }
-      goToPageWithoutAnimation(newIndex);
+      navigateToIndex(newIndex);
     },
-    [
-      INPUT_MAX_VALUE,
-      goToPageWithoutAnimation,
-      offsetY.value,
-      scrollListView,
-      weatherStore.places.length,
-      weatherStore.selectedIndex,
-    ]
+    [navigateToIndex, selectedIndex, totalPages]
   );
 
-  const onPageSelected = useCallback(
-    (e: PagerViewOnPageSelectedEvent) => {
-      weatherStore.setSelectedIndex(e.nativeEvent.position);
-      setPageIndex(e.nativeEvent.position);
-    },
-    [weatherStore]
-  );
+  const onPageSelected = useCallback((e: PagerViewOnPageSelectedEvent) => {
+    const newIndex = e.nativeEvent.position;
+    setSelectedIndex(newIndex);
+    setPageIndex(newIndex);
+  }, [setSelectedIndex]);
 
   const handleSwipe = useCallback(
     (velocityX: number) => {

@@ -1,3 +1,4 @@
+import { getSnappedOffset } from "@/utils";
 import { useCallback, useRef } from "react";
 import { ScrollView } from "react-native-gesture-handler";
 import {
@@ -25,11 +26,9 @@ export const useScrollBehavior = (
 
   const handleMomentumEnd = useCallback(
     (offset: number) => {
-      if (offset > inputMaxValue || offset === 0) return;
-      if (offset < inputMaxValue / 2) {
-        runOnJS(scrollListView)(selectedIndex, 0, true);
-      } else if (offset > inputMaxValue / 2) {
-        runOnJS(scrollListView)(selectedIndex, inputMaxValue, true);
+      const snapped = getSnappedOffset(offset, inputMaxValue);
+      if (snapped !== null) {
+        runOnJS(scrollListView)(selectedIndex, snapped, true);
       }
     },
     [inputMaxValue, scrollListView, selectedIndex]

@@ -1,8 +1,8 @@
 import { useAppTheme } from "@/hooks";
-import RippleButtonIcon from "../RippleButtonIcon";
 import { AppColors } from "@/constants/colors";
 import { MaterialIcons } from "@expo/vector-icons";
 import { MaterialIconName } from "@/types/common/materialIcon";
+import RippleButtonIcon from "../common/Button/RippleButtonIcon";
 
 interface NavigationButtonProps {
   onPress: () => void;
@@ -19,5 +19,3 @@ export const NavigationButton: React.FC<NavigationButtonProps> = ({
     </RippleButtonIcon>
   );
 };
-
-

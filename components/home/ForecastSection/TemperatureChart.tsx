@@ -1,3 +1,4 @@
+import { ThemedView } from "@/components/common/Themed";
 import { useAppTheme } from "@/hooks";
 import React from "react";
 import {
@@ -6,7 +7,6 @@ import {
   lineDataItem,
   yAxisSides,
 } from "react-native-gifted-charts";
-import ThemedView from "../ThemedView";
 
 interface TemperatureChartProps extends LineChartPropsType {
   data: lineDataItem[];
@@ -17,8 +17,9 @@ const TemperatureChart: React.FC<TemperatureChartProps> = React.memo(
   function TemperatureChart({ data, weatherItemWidth }) {
     const textColor = useAppTheme().text;
     const values = data.map((item) => item.value);
-    const maxValue = Math.max(...values);
-    const minValue = Math.min(...values);
+    const filteredValues = values.filter((v) => v !== undefined);
+    const maxValue = Math.max(...filteredValues);
+    const minValue = Math.min(...filteredValues);
     return (
       <ThemedView>
         <LineChart

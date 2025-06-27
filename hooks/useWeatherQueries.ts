@@ -1,19 +1,36 @@
 import { useCurrentWeather } from "./useCurrentWeather";
-import { Place } from "@/types/weather/place";
 import { useForecast } from "./useForecast";
 import { useSunriseSunset } from "./useSunriseSunset";
 import { TemperatureUnit } from "@/types/common/unit";
+import { LanguageCode } from "@/types/common/language";
 
-export const useWeatherQueries = (
-  params: Partial<Pick<Place, "lat" | "lon">> & {
-    unit: TemperatureUnit;
-  }
-) => {
-  const q1 = useCurrentWeather(params.lat, params.lon);
-  const q2 = useForecast(params.lat, params.lon, params.unit);
-  const q3 = useSunriseSunset(params.lat, params.lon);
+interface UseWeatherQueriesInput {
+  lat: string;
+  lon: string;
+  unit: TemperatureUnit;
+  language: LanguageCode;
+}
+
+export const useWeatherQueries = ({
+  lat,
+  lon,
+  unit,
+  language,
+}: UseWeatherQueriesInput) => {
+  const current = useCurrentWeather(lat, lon, language);
+  const forecast = useForecast(lat, lon, unit);
+  const astronomy = useSunriseSunset(lat, lon);
+
+  const isSuccess =
+    current.isSuccess && forecast.isSuccess && astronomy.isSuccess;
+  const isLoading =
+    current.isLoading || forecast.isLoading || astronomy.isLoading;
+
   return {
-    isSuccess: q1.isSuccess && q2.isSuccess && q3.isSuccess,
-    isLoading: q1.isLoading || q2.isLoading || q3.isLoading,
+    current,
+    forecast,
+    astronomy,
+    isSuccess,
+    isLoading,
   };
 };

@@ -6,12 +6,12 @@ import Animated, {
   SharedValue,
   useAnimatedStyle,
 } from "react-native-reanimated";
-import ThemedView from "../ThemedView";
-import ThemedText from "../ThemedText";
-import RippleButtonIcon from "../RippleButtonIcon";
+import ThemedView from "../common/Themed/ThemedView";
+import ThemedText from "../common/Themed/ThemedText";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { MaterialIconName } from "@/types/common/materialIcon";
+import RippleButtonIcon from "../common/Button/RippleButtonIcon";
 
 interface CustomHeaderRightProps {
   icons: MaterialIconName[];

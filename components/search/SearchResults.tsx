@@ -2,9 +2,9 @@ import { StyleSheet } from "react-native";
 import React, { useEffect, useState } from "react";
 import { ScrollView } from "react-native-gesture-handler";
 import { placeUtils } from "@/utils";
-import ThemedView from "../ThemedView";
-import ThemedText from "../ThemedText";
-import { useStores, useWeatherQueries } from "@/hooks";
+import ThemedView from "../common/Themed/ThemedView";
+import ThemedText from "../common/Themed/ThemedText";
+import { useLanguage, useStores, useWeatherQueries } from "@/hooks";
 import { useTranslation } from "react-i18next";
 import { goBackOrReset } from "@/utils/navigationUtils";
 import { Place } from "@/types/weather/place";
@@ -15,11 +15,13 @@ interface SearchResultsProps {
 }
 const SearchResults = ({ results }: SearchResultsProps) => {
   const { weatherStore } = useStores();
+  const { currentLanguage } = useLanguage();
   const [selectedPlace, setSelectedPlace] = useState<Place>();
   const { isSuccess } = useWeatherQueries({
-    lat: selectedPlace?.lat,
-    lon: selectedPlace?.lon,
+    lat: selectedPlace?.lat ?? "",
+    lon: selectedPlace?.lon ?? "",
     unit: weatherStore.temperatureUnit,
+    language: currentLanguage,
   });
 
   const { t } = useTranslation();

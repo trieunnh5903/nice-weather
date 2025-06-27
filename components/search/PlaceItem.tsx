@@ -1,7 +1,7 @@
 import { placeUtils } from "@/utils";
 import { ActivityIndicator, TouchableOpacity } from "react-native";
-import ThemedView from "../ThemedView";
-import ThemedText from "../ThemedText";
+import ThemedView from "../common/Themed/ThemedView";
+import ThemedText from "../common/Themed/ThemedText";
 import { Divider } from "react-native-paper";
 import { Place } from "@/types/weather/place";
 import { useAppTheme } from "@/hooks";

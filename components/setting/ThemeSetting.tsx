@@ -1,11 +1,11 @@
 import { Appearance, ColorSchemeName, StyleSheet } from "react-native";
 import React from "react";
 import { useStores } from "@/hooks";
-import ThemedView from "../ThemedView";
+import ThemedView from "../common/Themed/ThemedView";
 import { Observer } from "mobx-react-lite";
 import Section from "./Section";
 import { Divider, Modal, Portal, RadioButton } from "react-native-paper";
-import ThemedText from "../ThemedText";
+import ThemedText from "../common/Themed/ThemedText";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Size } from "@/constants/size";
 import { useTranslation } from "react-i18next";

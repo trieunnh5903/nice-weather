@@ -4,7 +4,6 @@ import { Stack } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Divider } from "react-native-paper";
 import { useSearchLocation } from "@/hooks/useSearchLocation";
-import RippleButtonIcon from "@/components/RippleButtonIcon";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { ThemedText, ThemedView } from "@/components";
 import {
@@ -13,6 +12,7 @@ import {
   SearchResults,
 } from "@/components/search";
 import { goBackOrExitApp } from "@/utils/navigationUtils";
+import { RippleButtonIcon } from "@/components/common/Button";
 
 const SearchScreen = () => {
   const [query, setQuery] = useState("");

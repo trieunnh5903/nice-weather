@@ -15,7 +15,7 @@ import * as Localization from "expo-localization";
 import "@/i18n";
 import { useTranslation } from "react-i18next";
 import { LANGUAGE_STORAGE_KEY } from "@/constants/languages";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ErrorBoundary } from "@/components/common/Error/ErrorBoundary";
 import { createQueryClient } from "@/libs/react-query";
 import { Fonts } from "@/constants/fonts";
 import { setupOnlineManager } from "@/libs/networkManager";

@@ -8,7 +8,7 @@ import Animated, {
 import { useAppTheme, useStores } from "@/hooks";
 import { MaterialIcons } from "@expo/vector-icons";
 import RippleButtonIcon from "../RippleButtonIcon";
-import ThemedText from "../ThemedText";
+import ThemedText from "../common/Themed/ThemedText";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
 import { goBack } from "@/utils/navigationUtils";

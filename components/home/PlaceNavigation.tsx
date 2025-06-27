@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from "react";
+import React, { memo } from "react";
 import { StyleSheet } from "react-native";
 import Animated, {
   Extrapolation,
@@ -7,14 +7,13 @@ import Animated, {
   useAnimatedStyle,
 } from "react-native-reanimated";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useQuery } from "@tanstack/react-query";
-import ThemedView from "../ThemedView";
-import ThemedText from "../ThemedText";
+import ThemedView from "../common/Themed/ThemedView";
+import ThemedText from "../common/Themed/ThemedText";
 import { NavigationButton } from "./NavigationButton";
-import { useAppTheme, useLanguage, useStores } from "@/hooks";
+import { useAppTheme, useSelectedPlaceWeather, useStores } from "@/hooks";
 import { Size } from "@/constants/size";
-import { queryConfig } from "@/config/queryConfig";
-import { weatherUtils } from "@/utils";
+import { CurrentWeatherResponse } from "@/types/weather/currenWeather";
+import { getTemperatureText } from "@/utils/weatherUtils";
 
 interface PlaceNavigationProps {
   onLeftPress: () => void;
@@ -25,100 +24,14 @@ interface PlaceNavigationProps {
 
 const BUTTON_WIDTH = 44;
 
-// const usePlaceNavigationAnimations = (
-//   progress: SharedValue<number>,
-//   maxScrollAnimatedOffset: number
-// ) => {
-//   const numOfPlaceAnimatedStyle = useAnimatedStyle(() => ({
-//     opacity: interpolate(progress.value, [0, 50], [1, 0], Extrapolation.CLAMP),
-//   }));
-
-//   const locationOnAnimatedStyle = useAnimatedStyle(() => ({
-//     opacity: interpolate(progress.value, [0, 10], [1, 0], Extrapolation.CLAMP),
-//     width: interpolate(progress.value, [0, 10], [16, 0], Extrapolation.CLAMP),
-//   }));
-
-//   const conditionTextAnimatedStyle = useAnimatedStyle(() => ({
-//     opacity: interpolate(
-//       progress.value,
-//       [50, 100],
-//       [0, 1],
-//       Extrapolation.CLAMP
-//     ),
-//     translateX: interpolate(
-//       progress.value,
-//       [0, maxScrollAnimatedOffset],
-//       [0, -(Size.screenWidth / 2 - BUTTON_WIDTH)],
-//       Extrapolation.CLAMP
-//     ),
-//   }));
-
-//   const temperatureAnimatedStyle = useAnimatedStyle(() => ({
-//     opacity: interpolate(
-//       progress.value,
-//       [50, 100],
-//       [0, 1],
-//       Extrapolation.CLAMP
-//     ),
-//     translateX: interpolate(
-//       progress.value,
-//       [0, maxScrollAnimatedOffset],
-//       [0, Size.screenWidth / 2 - BUTTON_WIDTH],
-//       Extrapolation.CLAMP
-//     ),
-//   }));
-
-//   const placeNameAnimatedStyle = useAnimatedStyle(() => ({
-//     flex: interpolate(
-//       progress.value,
-//       [0, maxScrollAnimatedOffset],
-//       [0, 1],
-//       Extrapolation.CLAMP
-//     ),
-//   }));
-
-//   return {
-//     numOfPlaceAnimatedStyle,
-//     conditionTextAnimatedStyle,
-//     temperatureAnimatedStyle,
-//     placeNameAnimatedStyle,
-//     locationOnAnimatedStyle,
-//   };
-// };
-
 const PlaceNavigation: React.FC<PlaceNavigationProps> = ({
   onLeftPress,
   onRightPress,
   progress,
   maxScrollAnimatedOffset,
 }) => {
-  // const {
-  //   conditionTextAnimatedStyle,
-  //   locationOnAnimatedStyle,
-  //   numOfPlaceAnimatedStyle,
-  //   placeNameAnimatedStyle,
-  //   temperatureAnimatedStyle,
-  // } = usePlaceNavigationAnimations(progress, maxScrollAnimatedOffset);
+  const { currentWeather, isSuccess } = useSelectedPlaceWeather();
 
-  // const { weatherStore } = useStores();
-  // const themeColor = useAppTheme();
-  // const iconColor = themeColor.icon;
-  // const { currentLanguage } = useLanguage();
-
-  // const { isSuccess, data } = useQuery(
-  //   queryConfig.currentWeatherQueryOptions(
-  //     weatherStore.selectedPlace.lat,
-  //     weatherStore.selectedPlace.lon,
-  //     currentLanguage
-  //   )
-  // );
-
-  // const temperature = useMemo(() => {
-  //   if (!isSuccess || !data) return "";
-  //   return weatherStore.temperatureUnit === "metric"
-  //     ? weatherUtils.formatCelsius(data.current.temp_c)
-  //     : weatherUtils.formatFahrenheit(data.current.temp_f);
-  // }, [data, isSuccess, weatherStore.temperatureUnit]);
   const placeNameAnimatedStyle = useAnimatedStyle(() => ({
     flex: interpolate(
       progress.value,
@@ -132,59 +45,27 @@ const PlaceNavigation: React.FC<PlaceNavigationProps> = ({
       <ThemedView style={styles.button}>
         <NavigationButton icon="chevron-left" onPress={onLeftPress} />
       </ThemedView>
-      {/* <Observer>
-        {() => ( */}
+
       <ThemedView style={styles.locationWrapper}>
-        {/* <ThemedView>
-              <ThemedView style={styles.namePlaceContainer}>
-                {weatherStore.selectedPlace.isUserLocation && (
-                  <Animated.View style={locationOnAnimatedStyle}>
-                    <MaterialIcons
-                      name="location-on"
-                      size={16}
-                      color={iconColor}
-                    />
-                  </Animated.View>
-                )}
-                <ThemedText
-                  type="defaultMedium"
-                  fontSize={17}
-                  color={iconColor}
-                >
-                  {weatherStore.selectedPlace.name}
-                </ThemedText>
-              </ThemedView>
-            </ThemedView> */}
         <Address progress={progress} />
         <Animated.View style={placeNameAnimatedStyle} />
-        {/* <Animated.View
-              style={[styles.conditionText, conditionTextAnimatedStyle]}
-            >
-              <ThemedText>{data?.current.condition.text}</ThemedText>
-            </Animated.View> */}
 
         <Condition
-          maxScrollAnimatedOffset={maxScrollAnimatedOffset}
           progress={progress}
+          maxScrollAnimatedOffset={maxScrollAnimatedOffset}
+          currentWeather={currentWeather}
         />
-        {/* <Animated.View
-              style={[styles.temperature, temperatureAnimatedStyle]}
-            >
-              <ThemedText fontSize={30}>{temperature}</ThemedText>
-            </Animated.View> */}
+
         <Temperature
-          maxScrollAnimatedOffset={maxScrollAnimatedOffset}
           progress={progress}
+          maxScrollAnimatedOffset={maxScrollAnimatedOffset}
+          currentWeather={currentWeather}
+          isSuccess={isSuccess}
         />
-        {/* <Animated.View
-              style={[styles.numOfPlaces, numOfPlaceAnimatedStyle]}
-            >
-              <ThemedText color={iconColor}>{`${weatherStore.selectedIndex + 1}/${weatherStore.places.length}`}</ThemedText>
-            </Animated.View> */}
+
         <NumOfPlaces progress={progress} />
       </ThemedView>
-      {/* )}
-      </Observer> */}
+
       <ThemedView style={styles.button}>
         <NavigationButton icon="chevron-right" onPress={onRightPress} />
       </ThemedView>
@@ -201,7 +82,6 @@ const Address: React.FC<Pick<PlaceNavigationProps, "progress">> = ({
     opacity: interpolate(progress.value, [0, 10], [1, 0], Extrapolation.CLAMP),
     width: interpolate(progress.value, [0, 10], [16, 0], Extrapolation.CLAMP),
   }));
-  // console.log("address", weatherStore.selectedPlace.name);
 
   return (
     <ThemedView>
@@ -224,18 +104,10 @@ const Address: React.FC<Pick<PlaceNavigationProps, "progress">> = ({
 };
 
 const Condition: React.FC<
-  Pick<PlaceNavigationProps, "maxScrollAnimatedOffset" | "progress">
-> = ({ maxScrollAnimatedOffset, progress }) => {
-  const { currentLanguage } = useLanguage();
-  const { weatherStore } = useStores();
-  const { data } = useQuery(
-    queryConfig.currentWeatherQueryOptions(
-      weatherStore.selectedPlace.lat,
-      weatherStore.selectedPlace.lon,
-      currentLanguage
-    )
-  );
-
+  Pick<PlaceNavigationProps, "maxScrollAnimatedOffset" | "progress"> & {
+    currentWeather: CurrentWeatherResponse | undefined;
+  }
+> = memo(({ maxScrollAnimatedOffset, progress, currentWeather }) => {
   const conditionTextAnimatedStyle = useAnimatedStyle(() => ({
     opacity: interpolate(
       progress.value,
@@ -252,31 +124,24 @@ const Condition: React.FC<
   }));
   return (
     <Animated.View style={[styles.conditionText, conditionTextAnimatedStyle]}>
-      <ThemedText>{data?.current.condition.text}</ThemedText>
+      <ThemedText>{currentWeather?.current.condition.text}</ThemedText>
     </Animated.View>
   );
-};
+});
+Condition.displayName = "Condition";
 
 const Temperature: React.FC<
-  Pick<PlaceNavigationProps, "maxScrollAnimatedOffset" | "progress">
-> = ({ maxScrollAnimatedOffset, progress }) => {
+  Pick<PlaceNavigationProps, "maxScrollAnimatedOffset" | "progress"> & {
+    currentWeather: CurrentWeatherResponse | undefined;
+    isSuccess: boolean;
+  }
+> = memo(({ maxScrollAnimatedOffset, progress, currentWeather, isSuccess }) => {
   const { weatherStore } = useStores();
-  const { currentLanguage } = useLanguage();
-
-  const { isSuccess, data } = useQuery(
-    queryConfig.currentWeatherQueryOptions(
-      weatherStore.selectedPlace.lat,
-      weatherStore.selectedPlace.lon,
-      currentLanguage
-    )
+  const temperature = getTemperatureText(
+    currentWeather?.current.temp_c,
+    currentWeather?.current.temp_f,
+    weatherStore.temperatureUnit
   );
-
-  const temperature = useMemo(() => {
-    if (!isSuccess || !data) return "";
-    return weatherStore.temperatureUnit === "metric"
-      ? weatherUtils.formatCelsius(data.current.temp_c)
-      : weatherUtils.formatFahrenheit(data.current.temp_f);
-  }, [data, isSuccess, weatherStore.temperatureUnit]);
 
   const temperatureAnimatedStyle = useAnimatedStyle(() => ({
     opacity: interpolate(
@@ -297,29 +162,32 @@ const Temperature: React.FC<
       <ThemedText fontSize={30}>{temperature}</ThemedText>
     </Animated.View>
   );
-};
+});
+Temperature.displayName = "Temperature";
 
-const NumOfPlaces: React.FC<{ progress: SharedValue<number> }> = ({
-  progress,
-}) => {
-  const { weatherStore } = useStores();
-  const numOfPlaceAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(progress.value, [0, 50], [1, 0], Extrapolation.CLAMP),
-  }));
-  const themeColor = useAppTheme();
+const NumOfPlaces: React.FC<{ progress: SharedValue<number> }> = memo(
+  ({ progress }) => {
+    const { weatherStore } = useStores();
+    const numOfPlaceAnimatedStyle = useAnimatedStyle(() => ({
+      opacity: interpolate(
+        progress.value,
+        [0, 50],
+        [1, 0],
+        Extrapolation.CLAMP
+      ),
+    }));
+    const themeColor = useAppTheme();
 
-  return (
-    <Animated.View style={[styles.numOfPlaces, numOfPlaceAnimatedStyle]}>
-      {/* <Observer>
-        {() => ( */}
-      <ThemedText color={themeColor.icon}>{`${weatherStore.selectedIndex + 1}/${
-        weatherStore.places.length
-      }`}</ThemedText>
-      {/* )}
-      </Observer> */}
-    </Animated.View>
-  );
-};
+    return (
+      <Animated.View style={[styles.numOfPlaces, numOfPlaceAnimatedStyle]}>
+        <ThemedText color={themeColor.icon}>{`${
+          weatherStore.selectedIndex + 1
+        }/${weatherStore.places.length}`}</ThemedText>
+      </Animated.View>
+    );
+  }
+);
+NumOfPlaces.displayName = "NumOfPlaces";
 export default memo(PlaceNavigation);
 
 const styles = StyleSheet.create({
