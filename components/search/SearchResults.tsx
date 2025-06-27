@@ -4,11 +4,12 @@ import { ScrollView } from "react-native-gesture-handler";
 import { placeUtils } from "@/utils";
 import ThemedView from "../common/Themed/ThemedView";
 import ThemedText from "../common/Themed/ThemedText";
-import { useLanguage, useStores, useWeatherQueries } from "@/hooks";
 import { useTranslation } from "react-i18next";
 import { goBackOrReset } from "@/utils/navigationUtils";
 import { Place } from "@/types/weather/place";
 import { PlaceItem } from "./PlaceItem";
+import { useLanguage, useStores } from "@/hooks/common";
+import { useWeatherQueries } from "@/hooks/weather";
 
 interface SearchResultsProps {
   results: Place[] | null;

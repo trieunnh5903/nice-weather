@@ -1,14 +1,13 @@
 import { StyleSheet } from "react-native";
 import React from "react";
-import { useAppTheme } from "@/hooks";
 import { weatherUtils } from "@/utils";
 import { Feather } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { Astronomy } from "@/types/weather/astronomy";
 import SunriseChart from "./SunriseChart";
-import { useCurrentTimeInPercent } from "@/hooks/useCurrentTimeInPercent";
-import ThemedView from "@/components/common/Themed/ThemedView";
-import ThemedText from "@/components/common/Themed/ThemedText";
+import { useCurrentTimeInPercent } from "@/hooks/weather/useCurrentTimeInPercent";
+import { useAppTheme } from "@/hooks/common";
+import { ThemedText, ThemedView } from "@/components/common/Themed";
 
 interface Props {
   astronomy: Astronomy[];

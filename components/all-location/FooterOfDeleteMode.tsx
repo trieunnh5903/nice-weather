@@ -1,11 +1,10 @@
 import { StyleSheet } from "react-native";
 import React, { memo } from "react";
-import { useAppTheme } from "@/hooks";
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated";
-import ThemedView from "../ThemedView";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import ThemedText from "../ThemedText";
 import { useTranslation } from "react-i18next";
+import { useAppTheme } from "@/hooks/common";
+import { ThemedText, ThemedView } from "../common/Themed";
 
 interface FooterOfDeleteModeProps {
   onDeletePress: () => void;

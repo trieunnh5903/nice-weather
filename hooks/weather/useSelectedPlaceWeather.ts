@@ -1,6 +1,5 @@
+import { useLanguage, useStores } from "../common";
 import { useCurrentWeather } from "./useCurrentWeather";
-import { useLanguage } from "./useLanguage";
-import { useStores } from "./useStore";
 
 export const useSelectedPlaceWeather = () => {
   const { weatherStore } = useStores();

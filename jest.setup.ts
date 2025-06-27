@@ -32,14 +32,18 @@ jest.mock("@/api/weatherApi", () => ({
   reverseGeocoding: jest.fn(),
 }));
 
-jest.mock("@/hooks", () => ({
-  ...jest.requireActual("@/hooks"),
+jest.mock("@/hooks/common", () => ({
+  ...jest.requireActual("@/hooks/common"),
   useStores: () => ({
     weatherStore: {
       temperatureUnit: "metric",
       addPlace: jest.fn(),
     },
   }),
+}));
+
+jest.mock("@/hooks/weather", () => ({
+  ...jest.requireActual("@/hooks/weather"),
   useWeatherQueries: jest.fn(() => ({
     isSuccess: true,
   })),

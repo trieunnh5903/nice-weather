@@ -1,5 +1,5 @@
 import { AppNavigationTheme, AppPaperTheme } from "@/constants/colors";
-import { MobxStoreProvider, useStores } from "@/hooks/useStore";
+import { MobxStoreProvider, useStores } from "@/hooks/common/useStore";
 import { ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";

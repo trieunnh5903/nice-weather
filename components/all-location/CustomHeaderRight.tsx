@@ -1,6 +1,5 @@
 import { StyleSheet } from "react-native";
 import React, { memo } from "react";
-import { useAppTheme } from "@/hooks";
 import Animated, {
   interpolate,
   SharedValue,
@@ -12,6 +11,7 @@ import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { MaterialIconName } from "@/types/common/materialIcon";
 import RippleButtonIcon from "../common/Button/RippleButtonIcon";
+import { useAppTheme } from "@/hooks/common";
 
 interface CustomHeaderRightProps {
   icons: MaterialIconName[];

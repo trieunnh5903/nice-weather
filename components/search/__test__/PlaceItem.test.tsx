@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react-native";
-import { PlaceItem } from "../PlaceItem";
 import { Place } from "@/types/weather/place";
+import { PlaceItem } from "../PlaceItem";
 
 const mockPlace: Place = {
   place_id: "1",

@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import { Stack } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Divider } from "react-native-paper";
-import { useSearchLocation } from "@/hooks/useSearchLocation";
-import { useAppTheme } from "@/hooks/useAppTheme";
+import { useSearchLocation } from "@/hooks/location/useSearchLocation";
+import { useAppTheme } from "@/hooks/common/useAppTheme";
 import { ThemedText, ThemedView } from "@/components";
 import {
   CurrentLocationButton,

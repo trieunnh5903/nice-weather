@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useRootNavigationState, useRouter } from "expo-router";
-import { useStores } from "@/hooks/useStore";
+import { useStores } from "@/hooks/common/useStore";
 const Index = () => {
   const router = useRouter();
   const rootNavigationState = useRootNavigationState();

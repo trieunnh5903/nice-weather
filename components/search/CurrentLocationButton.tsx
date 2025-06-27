@@ -1,7 +1,6 @@
 import { Alert, Platform, StyleSheet, ToastAndroid } from "react-native";
 import React, { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { useLanguage, useStores, useWeatherQueries } from "@/hooks";
 import * as ExpoLocation from "expo-location";
 import { Button } from "react-native-paper";
 import { placeUtils } from "@/utils";
@@ -9,6 +8,8 @@ import { useTranslation } from "react-i18next";
 import { goBackOrReset } from "@/utils/navigationUtils";
 import { Place } from "@/types/weather/place";
 import { reverseGeocoding } from "@/api/weatherApi";
+import { useLanguage, useStores } from "@/hooks/common";
+import { useWeatherQueries } from "@/hooks/weather";
 
 const CurrentLocationButton = observer(() => {
   const { weatherStore } = useStores();

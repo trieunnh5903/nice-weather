@@ -1,8 +1,8 @@
 import { StyleSheet } from "react-native";
 import React, { memo } from "react";
 import { TextInput } from "react-native-gesture-handler";
-import { useAppTheme } from "@/hooks";
 import { useTranslation } from "react-i18next";
+import { useAppTheme } from "@/hooks/common";
 
 interface SearchBarProps {
   query: string;

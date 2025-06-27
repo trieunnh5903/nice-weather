@@ -13,17 +13,14 @@ import { Place } from "@/types/weather/place";
 const queryClient = new QueryClient();
 const mockAddPlace = jest.fn();
 
-jest.mock("@/hooks", () => ({
-  ...jest.requireActual("@/hooks"),
+jest.mock("@/hooks/common", () => ({
+  ...jest.requireActual("@/hooks/common"),
   useStores: () => ({
     weatherStore: {
       addPlace: mockAddPlace,
       temperatureUnit: "metric",
     },
   }),
-  useWeatherQueries: jest.fn(() => ({
-    isSuccess: true,
-  })),
 }));
 
 describe("CurrentLocationButton", () => {
@@ -73,7 +70,7 @@ describe("CurrentLocationButton", () => {
     (requestForegroundPermissionsAsync as jest.Mock).mockResolvedValue({
       status: "denied",
     });
-    const { useWeatherQueries } = jest.requireMock("@/hooks");
+    const { useWeatherQueries } = jest.requireMock("@/hooks/weather");
     (useWeatherQueries as jest.Mock).mockResolvedValue({ isSuccess: false });
     const { getByTestId } = render(
       <QueryClientProvider client={queryClient}>

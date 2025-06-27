@@ -1,19 +1,15 @@
-import { ThemedView } from "@/components";
 import { HeaderIcons, PlaceNavigation, WeatherPager } from "@/components/home";
-import {
-  useLanguage,
-  usePagerNavigation,
-  useScrollBehavior,
-  useStores,
-  useFullWeatherData,
-  useHeaderActions,
-} from "@/hooks";
+
 import { ActivityIndicator, StyleSheet } from "react-native";
 import { observer } from "mobx-react-lite";
 import { Size } from "@/constants/size";
 import { useFocusEffect } from "expo-router";
 import { AppColors } from "@/constants/colors";
 import { MaterialIconName } from "@/types/common/materialIcon";
+import { ThemedView } from "@/components/common/Themed";
+import { useLanguage, useScrollBehavior, useStores } from "@/hooks/common";
+import { useHeaderActions, usePagerNavigation } from "@/hooks/navigation";
+import { useFullWeatherData } from "@/hooks/weather";
 
 const INPUT_MAX_VALUE = 160;
 

@@ -4,8 +4,8 @@ import ThemedView from "../common/Themed/ThemedView";
 import ThemedText from "../common/Themed/ThemedText";
 import { Divider } from "react-native-paper";
 import { Place } from "@/types/weather/place";
-import { useAppTheme } from "@/hooks";
 import { memo } from "react";
+import { useAppTheme } from "@/hooks/common";
 
 interface PlaceItemProps {
   item: Place;

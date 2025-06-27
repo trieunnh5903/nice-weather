@@ -1,4 +1,4 @@
-import { useAppTheme } from "@/hooks/useAppTheme";
+import { useAppTheme } from "@/hooks/common/useAppTheme";
 import { View, type ViewProps } from "react-native";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
