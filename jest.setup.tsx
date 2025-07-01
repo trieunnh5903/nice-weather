@@ -4,6 +4,13 @@ jest.mock("expo-location", () => ({
   getCurrentPositionAsync: jest.fn(),
 }));
 
+jest.mock("@expo/vector-icons", () => ({
+  MaterialIcons: ({ name }: any) => {
+    const { Text } = require("react-native");
+    return <Text>{name}</Text>;
+  },
+}));
+
 jest.mock("react-native-safe-area-context", () => ({
   useSafeAreaInsets: () => ({
     top: 0,
@@ -16,6 +23,7 @@ jest.mock("react-native-safe-area-context", () => ({
 jest.mock("@react-native-async-storage/async-storage", () =>
   require("@react-native-async-storage/async-storage/jest/async-storage-mock")
 );
+
 
 jest.mock("react-i18next", () => ({
   useTranslation: () => ({
@@ -42,6 +50,10 @@ jest.mock("@/hooks/common", () => ({
   }),
 }));
 
+jest.mock("@/hooks/location", () => ({
+  useLocationList: jest.fn(),
+}));
+
 jest.mock("@/hooks/weather", () => ({
   ...jest.requireActual("@/hooks/weather"),
   useWeatherQueries: jest.fn(() => ({
@@ -55,5 +67,13 @@ jest.mock("@/hooks/weather", () => ({
 }));
 
 jest.mock("@/utils/navigationUtils", () => ({
+  goBack: jest.fn(),
   goBackOrReset: jest.fn(),
+}));
+
+jest.mock("@/utils", () => ({
+  placeUtils: {
+    getAddress: jest.fn().mockReturnValue("Mock Address"),
+    formatCoordinates: jest.fn().mockReturnValue({ lat: "0", lon: "0" }),
+  },
 }));

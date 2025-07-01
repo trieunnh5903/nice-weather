@@ -1,4 +1,4 @@
-import WeatherStore from "@/stores/weatherStore";
+import { WeatherStore } from "@/stores";
 import { createContext, PropsWithChildren, useContext } from "react";
 
 const weatherStore = new WeatherStore();

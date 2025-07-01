@@ -1,4 +1,4 @@
-import { weatherApi } from "@/api/weatherApi";
+import { directGeocoding } from "@/api/weatherApi";
 import { Place } from "@/types/weather/place";
 import { useEffect, useState } from "react";
 
@@ -19,7 +19,7 @@ export function useSearchLocation(query: string) {
     const handleSearch = async () => {
       setLoading(true);
       try {
-        const data = await weatherApi.directGeocoding(query);
+        const data = await directGeocoding(query);
         setResults(data);
         setError("");
       } catch (error) {

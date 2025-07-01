@@ -8,7 +8,6 @@ import { Place } from "@/types/weather/place";
 import { TemperatureUnit } from "@/types/common/unit";
 import { LanguageCode } from "@/types/common/language";
 import { weatherKeys } from "@/constants/queryKey";
-import { useMemo } from "react";
 
 export const useFullWeatherData = (
   places: Place[],
@@ -16,40 +15,27 @@ export const useFullWeatherData = (
   unit: TemperatureUnit = "metric"
 ) => {
   const currentWeatherQueries = useQueries({
-    queries: useMemo(
-      () =>
-        places.map((place) => ({
-          queryKey: weatherKeys.current(place.lat, place.lon, currentLanguage),
-          queryFn: () =>
-            fetchCurrentWeather(place.lat, place.lon, currentLanguage),
-          enabled: !!place.lat && !!place.lon && !!currentLanguage,
-        })),
-      [places, currentLanguage]
-    ),
+    queries: places.map((place) => ({
+      queryKey: weatherKeys.current(place.lat, place.lon, currentLanguage),
+      queryFn: () => fetchCurrentWeather(place.lat, place.lon, currentLanguage),
+      enabled: !!place.lat && !!place.lon && !!currentLanguage,
+    })),
   });
 
   const forecastQueries = useQueries({
-    queries: useMemo(
-      () =>
-        places.map((place) => ({
-          queryKey: weatherKeys.forecast(place.lat, place.lon, unit),
-          queryFn: () => fetchForecast(place.lat, place.lon, unit),
-          enabled: !!place.lat && !!place.lon && !!unit,
-        })),
-      [places, unit]
-    ),
+    queries: places.map((place) => ({
+      queryKey: weatherKeys.forecast(place.lat, place.lon, unit),
+      queryFn: () => fetchForecast(place.lat, place.lon, unit),
+      enabled: !!place.lat && !!place.lon && !!unit,
+    })),
   });
 
   const astronomyQueries = useQueries({
-    queries: useMemo(
-      () =>
-        places.map((place) => ({
-          queryKey: weatherKeys.astronomy(place.lat, place.lon),
-          queryFn: () => fetchAstronomy(place.lat, place.lon),
-          enabled: !!place.lat && !!place.lon,
-        })),
-      [places]
-    ),
+    queries: places.map((place) => ({
+      queryKey: weatherKeys.astronomy(place.lat, place.lon),
+      queryFn: () => fetchAstronomy(place.lat, place.lon),
+      enabled: !!place.lat && !!place.lon,
+    })),
   });
 
   const isSuccess =
@@ -58,9 +44,9 @@ export const useFullWeatherData = (
     astronomyQueries.every((q) => q.isSuccess);
 
   const isLoading =
-    currentWeatherQueries.some((q) => q.isLoading) ||
-    forecastQueries.some((q) => q.isLoading) ||
-    astronomyQueries.some((q) => q.isLoading);
+    currentWeatherQueries.some((q) => q.isFetching) ||
+    forecastQueries.some((q) => q.isFetching) ||
+    astronomyQueries.some((q) => q.isFetching);
 
   const isError =
     currentWeatherQueries.some((q) => q.isError) ||

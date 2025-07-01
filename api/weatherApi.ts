@@ -19,7 +19,6 @@ const fetchData = async <T>(
   params = {}
 ): Promise<T> => {
   try {
-    console.log(endpoint);
     const response: AxiosResponse<T> = await instance.get(endpoint, {
       params: { ...params, key: apiKey },
     });
@@ -52,8 +51,7 @@ export const reverseGeocoding = async (lat: string, lon: string) => {
       lon,
     });
   } catch (error) {
-    console.log("reverseGeocoding", error);
-    return null;
+    throw error;
   }
 };
 
@@ -63,14 +61,12 @@ export const directGeocoding = async (text: string) => {
       text,
     });
   } catch (error) {
-    console.log("directGeocoding", error);
-    return null;
+    // console.log("directGeocoding", error);
+    throw error;
   }
 };
 
 export const fetchAstronomy = async (lat: string, lon: string) => {
-  console.log("fetchAstronomy");
-
   try {
     const response = await axiosAstronomyInstance.get<AstronomyResponse>(
       "/json",
@@ -80,7 +76,7 @@ export const fetchAstronomy = async (lat: string, lon: string) => {
     );
     return response.data;
   } catch (error) {
-    console.log("fetchAstronomy", error);
+    // console.log("fetchAstronomy", error);
     throw error;
   }
 };
