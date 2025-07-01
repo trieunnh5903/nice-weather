@@ -10,7 +10,6 @@ class WeatherStore {
   places: Place[] = [];
   selectedIndex: number = -1;
   temperatureUnit: TemperatureUnit = "metric";
-  loaded: boolean = false;
   constructor() {
     makeAutoObservable(this);
     makePersistable(this, {
@@ -40,7 +39,7 @@ class WeatherStore {
   }
 
   get selectedPlace() {
-    return this.places[this.selectedIndex];
+    return this.places[this.selectedIndex] ?? null;
   }
 
   changeTemperatureUnit(unit: TemperatureUnit) {
@@ -72,18 +71,42 @@ class WeatherStore {
   }
 
   deletePlace(placeId: string) {
+    const indexToDelete = this.places.findIndex((i) => i.place_id === placeId);
+    if (indexToDelete === -1) return;
+
     this.places = this.places.filter((i) => i.place_id !== placeId);
-    this.setSelectedIndex(Math.min(this.selectedIndex, this.places.length - 1));
+
+    if (this.places.length === 0) {
+      this.setSelectedIndex(-1);
+    } else if (this.selectedIndex === indexToDelete) {
+      this.setSelectedIndex(0);
+    } else if (this.selectedIndex > indexToDelete) {
+      this.setSelectedIndex(this.selectedIndex - 1);
+    }
   }
 
   deleteMany(placeIds: string[]) {
+    const deletedIndexes = this.places
+      .map((p, idx) => (placeIds.includes(p.place_id) ? idx : -1))
+      .filter((i) => i !== -1);
+
+    const wasSelectedDeleted = deletedIndexes.includes(this.selectedIndex);
+
     this.places = this.places.filter(
       (place) => !placeIds.includes(place.place_id)
     );
-    this.setSelectedIndex(Math.min(this.selectedIndex, this.places.length - 1));
+
+    if (wasSelectedDeleted) {
+      this.setSelectedIndex(this.places.length > 0 ? 0 : -1);
+    } else {
+      const numDeletedBefore = deletedIndexes.filter(
+        (idx) => idx < this.selectedIndex
+      ).length;
+      this.setSelectedIndex(this.selectedIndex - numDeletedBefore);
+    }
+
     return this.places.length;
   }
-
   deleteAll() {
     this.places = [];
     this.selectedIndex = -1;

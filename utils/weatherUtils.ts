@@ -3,7 +3,7 @@ import { TemperatureUnit } from "@/types/common/unit";
 import { Daily, Hourly } from "@/types/weather/forecast";
 import { lineDataItem } from "react-native-gifted-charts";
 
-const formatCelsius = (temp: number) => {
+export const formatCelsius = (temp: number) => {
   return Math.round(temp) + Units.Celsius;
 };
 
@@ -69,15 +69,15 @@ export const getTemperatureText = (
     : formatFahrenheit(temp_f);
 };
 
-const formatFahrenheit = (temp: number) => {
+export const formatFahrenheit = (temp: number) => {
   return Math.round(temp) + Units.Fahrenheit;
 };
 
-const formatTemperatureWithoutUnit = (temp: number) => {
+export const formatTemperatureWithoutUnit = (temp: number) => {
   return Math.round(temp) + "°";
 };
 
-function formatSunrise(timeString: string) {
+export function formatSunrise(timeString: string) {
   if (!timeString) return "";
   let [time, period] = timeString?.split(" ");
 
@@ -86,10 +86,10 @@ function formatSunrise(timeString: string) {
   return `${hours}:${minutes} ${period}`;
 }
 
-const celsiusToFahrenheit = (celsius: number) =>
+export const celsiusToFahrenheit = (celsius: number) =>
   Math.round((celsius * 9) / 5 + 32);
 
-const convertToMinute = (time: string) => {
+export const convertToMinute = (time: string) => {
   if (!time) return 0;
   let [hours, minutes] = time?.split(" ")[0]?.split(":").map(Number);
   const period = time.split(" ")[1];
@@ -108,7 +108,7 @@ const days = [
   "Saturday",
 ];
 
-const getDay = (date: string) => {
+export const getDay = (date: string) => {
   const d = new Date(date);
   const dayOfWeek = d.getDay();
 
