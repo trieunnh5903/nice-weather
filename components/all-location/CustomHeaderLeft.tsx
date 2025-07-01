@@ -14,13 +14,13 @@ import { useAppTheme, useStores } from "@/hooks/common";
 import { RippleButtonIcon } from "../common/Button";
 
 interface CustomHeaderLeftProps {
-  handleSelecteAll: () => void;
+  handleSelectedAll: () => void;
   selectedItems: string[];
   progress: SharedValue<number>;
 }
 
 const CustomHeaderLeft = memo(function CustomHeaderLeft({
-  handleSelecteAll,
+  handleSelectedAll,
   selectedItems,
   progress,
 }: CustomHeaderLeftProps) {
@@ -47,14 +47,14 @@ const CustomHeaderLeft = memo(function CustomHeaderLeft({
   return (
     <View style={styles.rowCenter}>
       <Animated.View style={[styles.rowCenter, backAnimatedStyle]}>
-        <RippleButtonIcon onPress={onBackPress}>
+        <RippleButtonIcon testID="back-button" onPress={onBackPress}>
           <MaterialIcons name="arrow-back" size={24} color={radioButtonColor} />
         </RippleButtonIcon>
         <ThemedText type="title">{t("all_location.location")}</ThemedText>
       </Animated.View>
       <Animated.View style={[{ position: "absolute" }, animatedStyle]}>
         <TouchableOpacity
-          onPress={handleSelecteAll}
+          onPress={handleSelectedAll}
           style={styles.selectedAllWrapper}
         >
           <MaterialIcons

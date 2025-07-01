@@ -7,12 +7,14 @@ interface RippleButtonProps extends PropsWithChildren {
   onPress?: ((event: GestureResponderEvent) => void) | null | undefined;
   disabled?: boolean;
   rippleColor?: string;
+  testID?: string | undefined;
 }
 const RippleButtonIcon = ({
   children,
   rippleColor,
   onPress,
   disabled,
+  testID,
 }: RippleButtonProps) => {
   const themeColor = useAppTheme();
 
@@ -24,6 +26,8 @@ const RippleButtonIcon = ({
       }}
     >
       <Pressable
+        accessibilityRole="button"
+        testID={testID}
         disabled={disabled}
         android_ripple={{
           color: rippleColor || themeColor.ripple,
