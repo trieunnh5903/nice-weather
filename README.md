@@ -4,9 +4,7 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 Tech stack & Libraries: Expo + expo-router, Axios, @tanstack/react-query, MobX, React Native Paper, react-native-gifted-charts, react-native-gesture-handler, react-native-reanimated, AsyncStorage, i18n  
 
-Features: search & save cities, current weather & 7-day forecast, temperature charts, dark/light theme, localization 
-
-Highlights: file‑based routing, state local & remote optimization, charts & draggable list, EAS Build   
+Features: search & save cities, current position, current weather & 7-day forecast, temperature charts, dark/light theme, localization 
 
 Demo: https://drive.google.com/file/d/1Oqv-hZXLFJ8WFnfKTtIODgNvJBm0R1wk/view 
 
