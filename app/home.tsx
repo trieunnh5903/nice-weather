@@ -1,5 +1,4 @@
 import { HeaderIcons, PlaceNavigation, WeatherPager } from "@/components/home";
-
 import { ActivityIndicator, StyleSheet } from "react-native";
 import { observer } from "mobx-react-lite";
 import { Size } from "@/constants/size";
@@ -10,6 +9,7 @@ import { ThemedView } from "@/components/common/Themed";
 import { useLanguage, useScrollBehavior, useStores } from "@/hooks/common";
 import { useHeaderActions, usePagerNavigation } from "@/hooks/navigation";
 import { useFullWeatherData } from "@/hooks/weather";
+import { autorun } from "mobx";
 
 const INPUT_MAX_VALUE = 160;
 
@@ -29,9 +29,6 @@ const HomeScreen: React.FC = observer(() => {
     pagerRef,
     pageIndex,
   } = usePagerNavigation({
-    selectedIndex: weatherStore.selectedIndex,
-    totalPages: weatherStore.places.length,
-    setSelectedIndex: weatherStore.setSelectedIndex,
     INPUT_MAX_VALUE,
     offsetY,
     scrollListView,
@@ -44,16 +41,23 @@ const HomeScreen: React.FC = observer(() => {
     isSuccess,
   } = useFullWeatherData(weatherStore.places, currentLanguage);
 
-  useFocusEffect(() => {
-    if (pageIndex !== weatherStore.selectedIndex && isSuccess) {
-      goToPageWithoutAnimation(weatherStore.selectedIndex);
-    }
-  });
+  // autorun(() => {
+  //   console.log("Energy level:", weatherStore.selectedIndex);
+  // });
+
+  // useFocusEffect(() => {
+  //   if (pageIndex !== weatherStore.selectedIndex && isSuccess) {
+  //     goToPageWithoutAnimation(weatherStore.selectedIndex);
+  //   }
+  // });
 
   if (!isSuccess) {
     return (
       <ThemedView flex style={styles.centered}>
-        <ActivityIndicator color={AppColors.dark.primary} />
+        <ActivityIndicator
+          testID="progressbar"
+          color={AppColors.dark.primary}
+        />
       </ThemedView>
     );
   }
@@ -61,8 +65,13 @@ const HomeScreen: React.FC = observer(() => {
   return (
     <ThemedView flex enableInsetsTop>
       <ThemedView>
-        <HeaderIcons headerIcons={headerIcons} onHeaderPress={onHeaderPress} />
+        <HeaderIcons
+          testID="HeaderIcons"
+          headerIcons={headerIcons}
+          onHeaderPress={onHeaderPress}
+        />
         <PlaceNavigation
+          testID="PlaceNavigation"
           progress={offsetY}
           onLeftPress={() => handleNavigation(false)}
           onRightPress={() => handleNavigation(true)}
@@ -71,6 +80,7 @@ const HomeScreen: React.FC = observer(() => {
       </ThemedView>
 
       <WeatherPager
+        testID="WeatherPager"
         places={weatherStore.places}
         scrollViewRefs={scrollViewRefs}
         onScroll={onScroll}

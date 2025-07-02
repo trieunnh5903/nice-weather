@@ -1,5 +1,6 @@
 import React, { Component, ReactNode } from "react";
 import { View, Text, Button, StyleSheet } from "react-native";
+import { ThemedText, ThemedView } from "../Themed";
 
 interface Props {
   children: ReactNode;
@@ -33,11 +34,13 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <View style={styles.container}>
-          <Text style={styles.title}>An error occurred!</Text>
-          <Text style={styles.error}>{this.state.error?.message}</Text>
+        <ThemedView style={styles.container}>
+          <ThemedText style={styles.title}>An error occurred!</ThemedText>
+          <ThemedText style={styles.error}>
+            {this.state.error?.message}
+          </ThemedText>
           <Button title="Retry" onPress={this.handleReload} />
-        </View>
+        </ThemedView>
       );
     }
 

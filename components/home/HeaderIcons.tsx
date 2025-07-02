@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import React, { memo, useState } from "react";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import ThemedView from "../common/Themed/ThemedView";
@@ -11,11 +11,13 @@ import { useHeaderMenu } from "@/hooks/navigation";
 interface HeaderIconsProps {
   onHeaderPress: (icon: string) => void;
   headerIcons: MaterialIconName[];
+  testID?: React.ComponentProps<typeof View>["testID"];
 }
 
 const HeaderIcons: React.FC<HeaderIconsProps> = ({
   onHeaderPress,
   headerIcons,
+  testID,
 }) => {
   const themeColor = useAppTheme();
   const iconColor = themeColor.icon;
@@ -25,7 +27,7 @@ const HeaderIcons: React.FC<HeaderIconsProps> = ({
   const menuItems = useHeaderMenu(closeMenu);
 
   return (
-    <ThemedView style={styles.header}>
+    <ThemedView testID={testID} style={styles.header}>
       {headerIcons.map((icon) => (
         <RippleButtonIcon
           onPress={() => onHeaderPress(icon)}

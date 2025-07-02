@@ -55,7 +55,7 @@ const SearchResults = ({ results }: SearchResultsProps) => {
   }
 
   return (
-    <ScrollView>
+    <ScrollView keyboardShouldPersistTaps="handled">
       {results.map((item) => {
         return (
           <PlaceItem

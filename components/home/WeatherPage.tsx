@@ -7,7 +7,7 @@ import { Forecast } from "@/types/weather/forecast";
 import { AstronomyResponse } from "@/types/weather/astronomy";
 import { CurrentWeatherResponse } from "@/types/weather/currenWeather";
 import { UseQueryResult } from "@tanstack/react-query";
-import { CurrentWeatherSection } from ".";
+import CurrentWeatherSection from "./CurrentWeatherSection";
 import ForecastSection from "./ForecastSection";
 import LifeSection from "./LifeSection";
 import { useStores } from "@/hooks/common";

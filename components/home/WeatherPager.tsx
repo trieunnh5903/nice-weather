@@ -15,6 +15,7 @@ interface WeatherPagerProps {
   pagerRef: React.RefObject<PagerView>;
   initialIndex: number;
   onPageSelected: (e: any) => void;
+  testID?: React.ComponentProps<typeof PagerView>["testID"];
 }
 
 export const WeatherPager: React.FC<WeatherPagerProps> = ({
@@ -28,9 +29,11 @@ export const WeatherPager: React.FC<WeatherPagerProps> = ({
   pagerRef,
   initialIndex,
   onPageSelected,
+  testID,
 }) => {
   return (
     <PagerView
+      testID={testID}
       ref={pagerRef}
       scrollEnabled={false}
       style={styles.container}
