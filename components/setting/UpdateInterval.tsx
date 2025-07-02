@@ -2,18 +2,21 @@ import { StyleSheet } from "react-native";
 import React, { useEffect, useMemo, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useQueryClient } from "@tanstack/react-query";
-import { useStores } from "@/hooks";
-import ThemedView from "../ThemedView";
+import ThemedView from "../common/Themed/ThemedView";
 import Section from "./Section";
 import { Divider, Modal, Portal, RadioButton } from "react-native-paper";
-import ThemedText from "../ThemedText";
+import ThemedText from "../common/Themed/ThemedText";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
 import { Size } from "@/constants/size";
+import { useStores } from "@/hooks/common";
 
 const UpdateInterval = observer(() => {
   const { t } = useTranslation();
-  const timeIntervalValue = useMemo(
+  const queryClient = useQueryClient();
+  const { weatherStore } = useStores();
+
+  const timeIntervalOptions = useMemo(
     () => [
       {
         label: t("setting.manually"),
@@ -38,30 +41,33 @@ const UpdateInterval = observer(() => {
     ],
     [t]
   );
-  const queryClient = useQueryClient();
-  const { weatherStore } = useStores();
+
   const [modalVisible, setModalVisible] = useState(false);
-  const [timSeleted, setTimSeleted] = useState(
-    timeIntervalValue.findIndex((item) => item.value === weatherStore.stateTime)
+  const [selectedTimeIndex, setSelectedTimeIndex] = useState(
+    timeIntervalOptions.findIndex(
+      (item) => item.value === weatherStore.stateTime
+    )
   );
 
+  const updateStaleTime = React.useCallback(() => {
+    const selected = timeIntervalOptions[selectedTimeIndex];
+    if (selected.value !== weatherStore.stateTime) {
+      weatherStore.changeStaleTime(selected.value);
+
+      queryClient.setDefaultOptions({
+        queries: {
+          staleTime: selected.value === -1 ? Infinity : selected.value,
+        },
+      });
+    }
+  }, [selectedTimeIndex, timeIntervalOptions, weatherStore, queryClient]);
+
   useEffect(() => {
-    if (!modalVisible && timSeleted) {
-      const time = timeIntervalValue[timSeleted];
-      if (time.value !== weatherStore.stateTime) {
-        if (time.value === Infinity) {
-          weatherStore.changeStaleTime(-1);
-          queryClient.setDefaultOptions({ queries: { staleTime: Infinity } });
-        } else {
-          weatherStore.changeStaleTime(time.value);
-          queryClient.setDefaultOptions({
-            queries: { staleTime: time.value },
-          });
-        }
-      }
+    if (!modalVisible && selectedTimeIndex !== -1) {
+      updateStaleTime();
     }
     return () => {};
-  }, [modalVisible, queryClient, timSeleted, timeIntervalValue, weatherStore]);
+  }, [modalVisible, selectedTimeIndex, updateStaleTime]);
 
   const showModal = () => setModalVisible(true);
   const hideModal = () => setModalVisible(false);
@@ -69,9 +75,9 @@ const UpdateInterval = observer(() => {
     <ThemedView>
       <Section
         subtitle={
-          timeIntervalValue[timSeleted].value === -1
+          timeIntervalOptions[selectedTimeIndex].value === -1
             ? t("setting.manually")
-            : timeIntervalValue[timSeleted].label
+            : timeIntervalOptions[selectedTimeIndex].label
         }
         title={t("setting.update_interval")}
         handleOpenSection={showModal}
@@ -89,20 +95,18 @@ const UpdateInterval = observer(() => {
               </ThemedText>
             </ThemedView>
             <ThemedView>
-              {timeIntervalValue.map((item, index) => {
+              {timeIntervalOptions.map((item, index) => {
                 return (
                   <ThemedView key={item.label}>
                     <TouchableOpacity
-                      onPress={() => setTimSeleted(index)}
+                      onPress={() => setSelectedTimeIndex(index)}
                       key={item.label}
                       style={styles.rowCentered}
                     >
                       <RadioButton
                         value={item.label}
                         status={
-                          timeIntervalValue[timSeleted].label === item.label
-                            ? "checked"
-                            : "unchecked"
+                          selectedTimeIndex === index ? "checked" : "unchecked"
                         }
                       />
                       <ThemedText type="defaultMedium">{item.label}</ThemedText>

@@ -1,72 +1,72 @@
-import { AxiosResponse } from "axios";
+import { AxiosInstance, AxiosResponse } from "axios";
 
-import {
-  AstronomyResponse,
-  CurrentWeatherResponse,
-  Forecast,
-  Place,
-  TemperatureUnit,
-} from "@/type";
 import {
   axiosAstronomyInstance,
   axiosMeteoInstance,
   axiosWeatherInstance,
 } from "./axiosConfig";
-import { LanguageCode } from "@/constants/languages";
+import { Place } from "@/types/weather/place";
+import { AstronomyResponse } from "@/types/weather/astronomy";
+import { CurrentWeatherResponse } from "@/types/weather/currenWeather";
+import { TemperatureUnit } from "@/types/common/unit";
+import { Forecast } from "@/types/weather/forecast";
+import { LanguageCode } from "@/types/common/language";
 
-async function fetchDataMeteoApi<T>(endpoint: string, params = {}) {
+const fetchData = async <T>(
+  instance: AxiosInstance,
+  apiKey: string | undefined,
+  endpoint: string,
+  params = {}
+): Promise<T> => {
   try {
-    console.log(endpoint);
-    const response: AxiosResponse<T> = await axiosMeteoInstance.get(endpoint, {
-      params: { ...params, key: process.env.EXPO_PUBLIC_METEOSOURCE_API_KEY },
+    const response: AxiosResponse<T> = await instance.get(endpoint, {
+      params: { ...params, key: apiKey },
     });
     return response.data;
   } catch (error) {
     throw error;
   }
-}
+};
 
-async function fetchDataWeatherApi<T>(endpoint: string, params = {}) {
-  try {
-    console.log(endpoint);
-    const response: AxiosResponse<T> = await axiosWeatherInstance.get(
-      endpoint,
-      {
-        params: { ...params, key: process.env.EXPO_PUBLIC_WEATHER_API_API_KEY },
-      }
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-}
+const fetchDataMeteoApi = <T>(endpoint: string, params = {}) =>
+  fetchData<T>(
+    axiosMeteoInstance,
+    process.env.EXPO_PUBLIC_METEOSOURCE_API_KEY,
+    endpoint,
+    params
+  );
 
-const reverseGeocoding = async (lat: string, lon: string) => {
+const fetchDataWeatherApi = <T>(endpoint: string, params = {}) =>
+  fetchData<T>(
+    axiosWeatherInstance,
+    process.env.EXPO_PUBLIC_WEATHER_API_API_KEY,
+    endpoint,
+    params
+  );
+
+export const reverseGeocoding = async (lat: string, lon: string) => {
   try {
     return await fetchDataMeteoApi<Place>("/api/v1/free/nearest_place", {
       lat,
       lon,
     });
   } catch (error) {
-    console.log("reverseGeocoding", error);
-    return null;
+    throw error;
   }
 };
 
-const directGeocoding = async (text: string) => {
+export const directGeocoding = async (text: string) => {
   try {
     return await fetchDataMeteoApi<Place[]>("/api/v1/free/find_places_prefix", {
       text,
     });
   } catch (error) {
-    console.log("directGeocoding", error);
-    return;
+    // console.log("directGeocoding", error);
+    throw error;
   }
 };
 
-const fetchAstronomy = async (lat: string, lon: string) => {
-  console.log("fetchAstronomy");
-
+export const fetchAstronomy = async (lat: string, lon: string) => {
   try {
     const response = await axiosAstronomyInstance.get<AstronomyResponse>(
       "/json",
@@ -76,12 +76,12 @@ const fetchAstronomy = async (lat: string, lon: string) => {
     );
     return response.data;
   } catch (error) {
-    console.log("fetchAstronomy", error);
+    // console.log("fetchAstronomy", error);
     throw error;
   }
 };
 
-const fetchCurrentWeather = async (
+export const fetchCurrentWeather = async (
   lat: string,
   lon: string,
   lang: LanguageCode
@@ -93,7 +93,7 @@ const fetchCurrentWeather = async (
   });
 };
 
-const fetchForecast = async (
+export const fetchForecast = async (
   lat: string,
   lon: string,
   units: TemperatureUnit
@@ -105,12 +105,4 @@ const fetchForecast = async (
     language: "en",
     units,
   });
-};
-
-export const weatherApi = {
-  reverseGeocoding,
-  directGeocoding,
-  fetchAstronomy,
-  fetchCurrentWeather,
-  fetchForecast,
 };

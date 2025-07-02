@@ -1,34 +1,33 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import React, { memo, useState } from "react";
-import { MaterialIconName } from "@/type";
-import RippleButtonIcon from "../RippleButtonIcon";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
-import ThemedView from "../ThemedView";
-import { useAppTheme } from "@/hooks";
+import ThemedView from "../common/Themed/ThemedView";
 import { Menu } from "react-native-paper";
-import { router } from "expo-router";
-import { useQueryClient } from "@tanstack/react-query";
-import { useTranslation } from "react-i18next";
+import { MaterialIconName } from "@/types/common/materialIcon";
+import RippleButtonIcon from "../common/Button/RippleButtonIcon";
+import { useAppTheme } from "@/hooks/common";
+import { useHeaderMenu } from "@/hooks/navigation";
 
 interface HeaderIconsProps {
   onHeaderPress: (icon: string) => void;
   headerIcons: MaterialIconName[];
+  testID?: React.ComponentProps<typeof View>["testID"];
 }
 
 const HeaderIcons: React.FC<HeaderIconsProps> = ({
   onHeaderPress,
   headerIcons,
+  testID,
 }) => {
-  const queryClient = useQueryClient();
   const themeColor = useAppTheme();
   const iconColor = themeColor.icon;
   const [menuVisible, setMenuVisible] = useState(false);
   const openMenu = () => setMenuVisible(true);
   const closeMenu = () => setMenuVisible(false);
-  const { t } = useTranslation();
+  const menuItems = useHeaderMenu(closeMenu);
 
   return (
-    <ThemedView style={styles.header}>
+    <ThemedView testID={testID} style={styles.header}>
       {headerIcons.map((icon) => (
         <RippleButtonIcon
           onPress={() => onHeaderPress(icon)}
@@ -56,27 +55,9 @@ const HeaderIcons: React.FC<HeaderIconsProps> = ({
           </RippleButtonIcon>
         }
       >
-        <Menu.Item
-          onPress={() => {
-            queryClient.invalidateQueries();
-            closeMenu();
-          }}
-          title={t("home.menu.update")}
-        />
-        <Menu.Item
-          onPress={() => {
-            closeMenu();
-            router.navigate("/setting");
-          }}
-          title={t("home.menu.setting")}
-        />
-        <Menu.Item
-          onPress={() => {
-            closeMenu();
-            router.navigate("/payment");
-          }}
-          title={"Premium"}
-        />
+        {menuItems.map((item) => (
+          <Menu.Item key={item.key} onPress={item.onPress} title={item.title} />
+        ))}
       </Menu>
     </ThemedView>
   );

@@ -1,6 +1,6 @@
-import { Place } from "@/type";
+import { Place } from "@/types/weather/place";
 
-const getAddress = (place: Place) => {
+export const getAddress = (place: Place) => {
   const subtitleParts: string[] = [];
 
   if (place.adm_area1) {
@@ -14,7 +14,7 @@ const getAddress = (place: Place) => {
   return subtitleParts.join(", ");
 };
 
-function convertTZ(date: any, tzString: string) {
+export function convertTZ(date: any, tzString: string) {
   return new Date(
     (typeof date === "string" ? new Date(date) : date).toLocaleString("en-US", {
       timeZone: tzString,
@@ -22,7 +22,7 @@ function convertTZ(date: any, tzString: string) {
   );
 }
 
-function formatCoordinates({
+export function formatCoordinates({
   latitude,
   longitude,
 }: {

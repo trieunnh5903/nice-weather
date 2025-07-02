@@ -2,7 +2,7 @@
   "expo": {
     "name": "nice-weather",
     "slug": "nice-weather",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -45,8 +45,11 @@
       "typedRoutes": true
     },
     "extra": {
+      "router": {
+        "origin": false
+      },
       "eas": {
-        "projectId": "4d1bd9cd-22e8-4625-9dcc-efe8fdb188b2"
+        "projectId": "ca477238-7523-4c16-9cfe-2ca999054e96"
       }
     }
   }

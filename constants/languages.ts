@@ -1,6 +1,6 @@
 export const LANGUAGE_STORAGE_KEY = "user-language";
 
-export const LANGUAGES = {
+export const Language = {
   en: {
     name: "English",
     nativeName: "English",
@@ -37,5 +37,3 @@ export const LANGUAGES = {
   //   flag: "🇮🇩",
   // },
 } as const;
-
-export type LanguageCode = keyof typeof LANGUAGES;

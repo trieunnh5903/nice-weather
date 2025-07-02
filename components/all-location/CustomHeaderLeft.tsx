@@ -5,22 +5,22 @@ import Animated, {
   SharedValue,
   useAnimatedStyle,
 } from "react-native-reanimated";
-import { useAppTheme, useStores } from "@/hooks";
-import { router } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
-import RippleButtonIcon from "../RippleButtonIcon";
-import ThemedText from "../ThemedText";
+import ThemedText from "../common/Themed/ThemedText";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
+import { goBack } from "@/utils/navigationUtils";
+import { useAppTheme, useStores } from "@/hooks/common";
+import { RippleButtonIcon } from "../common/Button";
 
 interface CustomHeaderLeftProps {
-  handleSelecteAll: () => void;
+  handleSelectedAll: () => void;
   selectedItems: string[];
   progress: SharedValue<number>;
 }
 
 const CustomHeaderLeft = memo(function CustomHeaderLeft({
-  handleSelecteAll,
+  handleSelectedAll,
   selectedItems,
   progress,
 }: CustomHeaderLeftProps) {
@@ -42,23 +42,19 @@ const CustomHeaderLeft = memo(function CustomHeaderLeft({
     };
   });
 
-  const onBackPress = () => {
-    if (router.canGoBack()) {
-      router.back();
-    }
-  };
+  const onBackPress = () => goBack();
 
   return (
     <View style={styles.rowCenter}>
       <Animated.View style={[styles.rowCenter, backAnimatedStyle]}>
-        <RippleButtonIcon onPress={onBackPress}>
+        <RippleButtonIcon testID="back-button" onPress={onBackPress}>
           <MaterialIcons name="arrow-back" size={24} color={radioButtonColor} />
         </RippleButtonIcon>
         <ThemedText type="title">{t("all_location.location")}</ThemedText>
       </Animated.View>
       <Animated.View style={[{ position: "absolute" }, animatedStyle]}>
         <TouchableOpacity
-          onPress={handleSelecteAll}
+          onPress={handleSelectedAll}
           style={styles.selectedAllWrapper}
         >
           <MaterialIcons

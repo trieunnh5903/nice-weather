@@ -5,6 +5,7 @@
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
+    "build": "eas build --platform android --profile development",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
@@ -12,7 +13,13 @@
     "lint": "expo lint"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "setupFiles": [
+      "./jest.setup.tsx"
+    ],
+    "transformIgnorePatterns": [
+      "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg|gifted-charts-core)"
+    ]
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.3",
@@ -33,6 +40,7 @@
     "expo-localization": "~15.0.3",
     "expo-location": "~17.0.1",
     "expo-navigation-bar": "~3.0.7",
+    "expo-network": "~6.0.1",
     "expo-router": "~3.5.23",
     "expo-splash-screen": "~0.27.6",
     "expo-status-bar": "~1.12.1",
@@ -61,7 +69,9 @@
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@tanstack/eslint-plugin-query": "^5.59.1",
+    "@testing-library/react-native": "^13.2.0",
     "@types/jest": "^29.5.12",
+    "@types/node": "^24.0.3",
     "@types/react": "~18.2.45",
     "@types/react-test-renderer": "^18.0.7",
     "eslint": "^8.57.0",
@@ -71,5 +81,6 @@
     "react-test-renderer": "18.2.0",
     "typescript": "~5.3.3"
   },
-  "private": true
+  "private": true,
+  "packageManager": "yarn@1.22.19+sha1.4ba7fc5c6e704fce2066ecbfb0b0d8976fe62447"
 }

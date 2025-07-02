@@ -1,7 +1,6 @@
-import { AppNavigationTheme,AppPaperTheme} from "@/constants/colors";
-import { MobxStoreProvider, useStores } from "@/hooks/useStore";
+import { AppNavigationTheme, AppPaperTheme } from "@/constants/colors";
+import { MobxStoreProvider, useStores } from "@/hooks/common/useStore";
 import { ThemeProvider } from "@react-navigation/native";
-import { QueryClient } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect, useMemo } from "react";
@@ -16,8 +15,14 @@ import * as Localization from "expo-localization";
 import "@/i18n";
 import { useTranslation } from "react-i18next";
 import { LANGUAGE_STORAGE_KEY } from "@/constants/languages";
+import { ErrorBoundary } from "@/components/common/Error/ErrorBoundary";
+import { createQueryClient } from "@/libs/react-query";
+import { Fonts } from "@/constants/fonts";
+import { setupOnlineManager } from "@/libs/networkManager";
 
 SplashScreen.preventAutoHideAsync();
+
+setupOnlineManager();
 
 const asyncStoragePersister = createAsyncStoragePersister({
   storage: AsyncStorage,
@@ -27,46 +32,33 @@ export default function Layout() {
   const { i18n } = useTranslation();
   const { weatherStore } = useStores();
   const systemTheme = useColorScheme();
+  const [loaded] = useFonts(Fonts);
 
-  const [loaded] = useFonts({
-    "OpenSans-Regular": require("../assets/fonts/OpenSans-Regular.ttf"),
-    "OpenSans-Medium": require("../assets/fonts/OpenSans-Medium.ttf"),
-    "OpenSans-SemiBold": require("../assets/fonts/OpenSans-SemiBold.ttf"),
-    "OpenSans-Bold": require("../assets/fonts/OpenSans-Bold.ttf"),
-    "OpenSans-Light": require("../assets/fonts/OpenSans-Light.ttf"),
-  });
-
-  const queryClient = useMemo(() => {
-    const staleTime =
-      weatherStore.stateTime < 0 ? Infinity : weatherStore.stateTime * 1000;
-    return new QueryClient({
-      defaultOptions: {
-        queries: {
-          staleTime: staleTime,
-          gcTime: 24 * 24 * 3600 * 1000,
-        },
-      },
-    });
-  }, [weatherStore.stateTime]);
+  const queryClient = useMemo(
+    () => createQueryClient(weatherStore.stateTime),
+    [weatherStore.stateTime]
+  );
 
   useEffect(() => {
-    async function prepare() {
+    async function loadLanguage() {
       try {
         const savedLanguage = await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY);
         const language =
           savedLanguage ?? Localization.getLocales()[0].languageCode ?? "en";
         i18n.changeLanguage(language);
-        if (loaded && weatherStore.isHydrated) {
-          await SplashScreen.hideAsync();
-        }
       } catch (e) {
         console.warn(e);
       }
     }
-    prepare();
+    loadLanguage();
   }, [i18n, loaded, weatherStore.isHydrated]);
 
-  console.log("layout");
+  useEffect(() => {
+    if (loaded && weatherStore.isHydrated) {
+      SplashScreen.hideAsync();
+    }
+    return () => {};
+  }, [loaded, weatherStore.isHydrated]);
 
   useEffect(() => {
     const selectTheme = weatherStore.theme ?? systemTheme ?? "light";
@@ -79,9 +71,12 @@ export default function Layout() {
     const selectTheme = persistTheme ?? systemTheme ?? "light";
 
     return {
-      paperTheme: selectTheme === "dark" ? AppPaperTheme.dark : AppPaperTheme.light,
+      paperTheme:
+        selectTheme === "dark" ? AppPaperTheme.dark : AppPaperTheme.light,
       navigationTheme:
-        selectTheme === "dark" ? AppNavigationTheme.dark : AppNavigationTheme.light,
+        selectTheme === "dark"
+          ? AppNavigationTheme.dark
+          : AppNavigationTheme.light,
     };
   }, [weatherStore.theme, systemTheme]);
 
@@ -91,26 +86,28 @@ export default function Layout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <MobxStoreProvider>
-        <PersistQueryClientProvider
-          persistOptions={{
-            persister: asyncStoragePersister,
-            maxAge: 24 * 24 * 3600 * 1000,
-          }}
-          client={queryClient}
-        >
-          <PaperProvider theme={paperTheme}>
-            <ThemeProvider value={navigationTheme}>
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  animation: "fade_from_bottom",
-                }}
-              ></Stack>
-            </ThemeProvider>
-          </PaperProvider>
-        </PersistQueryClientProvider>
-      </MobxStoreProvider>
+      <ErrorBoundary>
+        <MobxStoreProvider>
+          <PersistQueryClientProvider
+            persistOptions={{
+              persister: asyncStoragePersister,
+              maxAge: 24 * 24 * 3600 * 1000,
+            }}
+            client={queryClient}
+          >
+            <PaperProvider theme={paperTheme}>
+              <ThemeProvider value={navigationTheme}>
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    animation: "fade_from_bottom",
+                  }}
+                ></Stack>
+              </ThemeProvider>
+            </PaperProvider>
+          </PersistQueryClientProvider>
+        </MobxStoreProvider>
+      </ErrorBoundary>
     </GestureHandlerRootView>
   );
 }

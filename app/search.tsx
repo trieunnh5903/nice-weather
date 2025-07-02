@@ -1,17 +1,19 @@
-import { ActivityIndicator, BackHandler, StyleSheet, View } from "react-native";
-import React, { useState } from "react";
-import { router, Stack } from "expo-router";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Stack } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Divider } from "react-native-paper";
-import { useSearchLocation } from "@/hooks/useSearchLocation";
-import RippleButtonIcon from "@/components/RippleButtonIcon";
-import { useAppTheme } from "@/hooks/useAppTheme";
-import { ThemedText, ThemedView } from "@/components";
+import { useSearchLocation } from "@/hooks/location/useSearchLocation";
+import { useAppTheme } from "@/hooks/common/useAppTheme";
 import {
   CurrentLocationButton,
   SearchBar,
   SearchResults,
 } from "@/components/search";
+import { goBackOrExitApp } from "@/utils/navigationUtils";
+import { RippleButtonIcon } from "@/components/common/Button";
+import { ThemedView } from "@/components/common/Themed";
+import { showError } from "@/utils/errorHandler";
 
 const SearchScreen = () => {
   const [query, setQuery] = useState("");
@@ -23,16 +25,13 @@ const SearchScreen = () => {
     setQuery(e);
   };
 
-  console.log("search");
+  const onBackPress = () => goBackOrExitApp();
 
-  const onBackPress = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      BackHandler.exitApp();
+  useEffect(() => {
+    if (error) {
+      showError(error);
     }
-  };
-
+  }, [error]);
   return (
     <ThemedView style={styles.container}>
       <Stack.Screen
@@ -64,8 +63,6 @@ const SearchScreen = () => {
         <ActivityIndicator style={styles.loading} />
       ) : !query ? (
         <CurrentLocationButton />
-      ) : error ? (
-        <ThemedText style={styles.error}>{error}</ThemedText>
       ) : (
         <SearchResults results={results} />
       )}

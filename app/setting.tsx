@@ -1,4 +1,4 @@
-import { ThemedView } from "@/components";
+import { ThemedView } from "@/components/common/Themed";
 import {
   Section,
   ThemeSetting,
@@ -6,22 +6,23 @@ import {
   UpdateInterval,
 } from "@/components/setting";
 import LanguageSelector from "@/components/setting/LanguageSelector";
-import { router, Stack } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Divider } from "react-native-paper";
 
 const SettingScreen = () => {
   const { t } = useTranslation();
+  const navigation = useNavigation();
+  React.useEffect(() => {
+    navigation.setOptions({
+      headerShown: true,
+      title: t("setting.setting"),
+      headerShadowVisible: false,
+    });
+  }, [navigation, t]);
   return (
     <ThemedView flex>
-      <Stack.Screen
-        options={{
-          headerShown: true,
-          title: t("setting.setting"),
-          headerShadowVisible: false,
-        }}
-      />
       <Divider />
       <UpdateInterval />
       <Unit />
