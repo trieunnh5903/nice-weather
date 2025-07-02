@@ -1,7 +1,15 @@
-# Welcome to your Expo app 👋
+# Welcome to Nice Weather app 👋
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
-Demo here: https://youtu.be/BfpPEL-Afsk 
+This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).   
+
+Tech stack & Libraries: Expo + expo-router, Axios, @tanstack/react-query, MobX, React Native Paper, react-native-gifted-charts, react-native-gesture-handler, react-native-reanimated, AsyncStorage, i18n  
+
+Features: search & save cities, current weather & 7-day forecast, temperature charts, dark/light theme, localization 
+
+Highlights: file‑based routing, state local & remote optimization, charts & draggable list, EAS Build   
+
+Demo: https://drive.google.com/file/d/1Oqv-hZXLFJ8WFnfKTtIODgNvJBm0R1wk/view 
+
 ## Get started
 
 1. Install dependencies
